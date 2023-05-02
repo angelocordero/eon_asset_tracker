@@ -7,7 +7,14 @@ class EonAssetTracker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+        ),
+      ),
+      themeMode: ThemeMode.dark,
       home: const HomeScreen(),
     );
   }

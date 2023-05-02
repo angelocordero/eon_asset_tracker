@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 
 String hashPassword(String input) {
@@ -30,4 +31,8 @@ Future<bool?> authenticateUser(
     debugPrint(e.toString());
     return null;
   }
+}
+
+String dateToString(DateTime dateTime) {
+  return '${DateFormat.EEEE().format(dateTime)} ${DateFormat.yMMMd().format(dateTime)}';
 }
