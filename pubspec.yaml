@@ -38,6 +38,8 @@ dependencies:
   mysql1: ^0.20.0
   crypto: ^3.0.2
   sidebarx: ^0.15.0
+  riverpod: ^2.3.6
+  flutter_riverpod: ^2.3.6
 
 dev_dependencies:
   flutter_test:

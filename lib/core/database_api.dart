@@ -1,0 +1,3 @@
+class DatabaseAPI {
+  void add() {}
+}

@@ -8,6 +8,10 @@ String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
 }
 
+String generateItemID(String input) {
+  return sha1.convert(utf8.encode(input)).toString();
+}
+
 Future<bool?> authenticateUser(
     String username, String passwordHash, MySqlConnection conn) async {
   try {

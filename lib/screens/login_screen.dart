@@ -1,21 +1,23 @@
+import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql1/mysql1.dart';
 
 import 'home_screen.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key, required this.conn});
+class LoginScreen extends ConsumerWidget {
+  const LoginScreen({super.key});
 
   static final TextEditingController usernameController =
       TextEditingController();
   static final TextEditingController passwordController =
       TextEditingController();
 
-  final MySqlConnection conn;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    MySqlConnection? conn = ref.watch(sqlConnProvider);
+
     return Scaffold(
       body: Center(
         child: Card(
@@ -36,21 +38,25 @@ class LoginScreen extends StatelessWidget {
                       String passwordHash =
                           hashPassword(passwordController.text.trim());
 
+                      if (conn == null) {
+                        debugPrint('connection to database failed');
+                        return;
+                      }
+
                       bool? authenticated =
                           await authenticateUser(username, passwordHash, conn);
 
                       if (authenticated == null) {
-                        print('authentication failed');
+                        debugPrint('authentication failed');
                         return;
                       }
 
                       if (authenticated == false) {
-                        print('user does not exist');
+                        debugPrint('user does not exist');
                         return;
                       }
-
                       // ignore: use_build_context_synchronously
-                      Navigator.pushReplacement(
+                      await Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) {
