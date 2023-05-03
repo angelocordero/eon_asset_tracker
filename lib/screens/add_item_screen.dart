@@ -1,5 +1,4 @@
 import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql1/mysql1.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import '../core/database_api.dart';
 import '../models/category_model.dart';
@@ -130,7 +128,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                       Item item = Item.withoutID(
                         personAccountable:
                             _personAccountableController.text.trim(),
-                        departmentID: _department.departmentID,
+                        department: _department.departmentID,
                         model: _modelController.text.trim(),
                         description: _itemDescriptionController.text.trim(),
                         unit: _unitController.text.trim(),
@@ -138,7 +136,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         datePurchased: _datePurchased,
                         dateReceived: _dateReceived,
                         status: _itemStatus.name,
-                        categoryID: _category.categoryID,
+                        category: _category.categoryID,
                         remarks: _remarksController.text.trim(),
                       );
 
@@ -146,30 +144,32 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                           conn: ref.read(sqlConnProvider)!, item: item);
 
                       // ignore: use_build_context_synchronously
-                      Navigator.push(
-                        context,
-                        CustomRoute(
-                          builder: (context) {
-                            return Center(
-                              child: Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(30),
-                                  child: QrImage(
-                                    backgroundColor: Colors.white,
-                                    data: item.assetID,
-                                    size: 300,
-                                    version: QrVersions.auto,
-                                    // embeddedImageStyle: QrEmbeddedImageStyle(
-                                    //     size: const Size(80, 80)),
-                                    // embeddedImage:
-                                    //     const AssetImage('assets/logo.jpg'),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   CustomRoute(
+                      //     builder: (context) {
+                      //       return Center(
+                      //         child: Card(
+                      //           child: Padding(
+                      //             padding: const EdgeInsets.all(30),
+                      //             child: QrImage(
+                      //               backgroundColor: Colors.white,
+                      //               data: item.assetID,
+                      //               size: 300,
+                      //               version: QrVersions.auto,
+                      //               // embeddedImageStyle: QrEmbeddedImageStyle(
+                      //               //     size: const Size(80, 80)),
+                      //               // embeddedImage:
+                      //               //     const AssetImage('assets/logo.jpg'),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       );
+                      //     },
+                      //   ),
+                      // );
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
                     },
                     child: const Text('Apply'),
                   ),

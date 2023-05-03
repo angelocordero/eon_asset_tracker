@@ -2,7 +2,7 @@ import '../core/utils.dart';
 
 class Item {
   String assetID;
-  String departmentID;
+  String department;
   String? personAccountable;
   String model;
   String? description;
@@ -11,12 +11,12 @@ class Item {
   DateTime? datePurchased;
   DateTime? dateReceived;
   String status;
-  String categoryID;
+  String category;
   String? remarks;
 
   Item({
     required this.assetID,
-    required this.departmentID,
+    required this.department,
     this.personAccountable,
     required this.model,
     this.description,
@@ -25,12 +25,12 @@ class Item {
     this.datePurchased,
     this.dateReceived,
     required this.status,
-    required this.categoryID,
+    required this.category,
     this.remarks,
   });
 
   Item.withoutID({
-    required this.departmentID,
+    required this.department,
     this.personAccountable,
     required this.model,
     this.description,
@@ -39,14 +39,14 @@ class Item {
     this.datePurchased,
     this.dateReceived,
     required this.status,
-    required this.categoryID,
+    required this.category,
     this.remarks,
   }) : assetID = generateItemID(
-            '$departmentID$personAccountable$model$description$unit$price$datePurchased$dateReceived$categoryID');
+            '$department$personAccountable$model$description$unit$price$datePurchased$dateReceived$category');
 
   Item copyWith({
     String? assetID,
-    String? departmentID,
+    String? department,
     String? personAccountable,
     String? model,
     String? description,
@@ -55,12 +55,12 @@ class Item {
     DateTime? datePurchased,
     DateTime? dateReceived,
     String? status,
-    String? categoryID,
+    String? category,
     String? remarks,
   }) {
     return Item(
       assetID: assetID ?? this.assetID,
-      departmentID: departmentID ?? this.departmentID,
+      department: department ?? this.department,
       personAccountable: personAccountable ?? this.personAccountable,
       model: model ?? this.model,
       description: description ?? this.description,
@@ -69,7 +69,7 @@ class Item {
       datePurchased: datePurchased ?? this.datePurchased,
       dateReceived: dateReceived ?? this.dateReceived,
       status: status ?? this.status,
-      categoryID: categoryID ?? this.categoryID,
+      category: category ?? this.category,
       remarks: remarks ?? this.remarks,
     );
   }
@@ -79,7 +79,7 @@ class Item {
     if (identical(this, other)) return true;
 
     return other.assetID == assetID &&
-        other.departmentID == departmentID &&
+        other.department == department &&
         other.personAccountable == personAccountable &&
         other.model == model &&
         other.description == description &&
@@ -88,14 +88,14 @@ class Item {
         other.datePurchased == datePurchased &&
         other.dateReceived == dateReceived &&
         other.status == status &&
-        other.categoryID == categoryID &&
+        other.category == category &&
         other.remarks == remarks;
   }
 
   @override
   int get hashCode {
     return assetID.hashCode ^
-        departmentID.hashCode ^
+        department.hashCode ^
         personAccountable.hashCode ^
         model.hashCode ^
         description.hashCode ^
@@ -103,13 +103,13 @@ class Item {
         price.hashCode ^
         datePurchased.hashCode ^
         dateReceived.hashCode ^
-        categoryID.hashCode ^
+        category.hashCode ^
         status.hashCode ^
         remarks.hashCode;
   }
 
   @override
   String toString() {
-    return 'Item(assetID: $assetID, departmentID: $departmentID, personAccountable: $personAccountable, model: $model, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, categoryID: $categoryID, remarks: $remarks)';
+    return 'Item(assetID: $assetID, department: $department, personAccountable: $personAccountable, model: $model, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, category: $category, remarks: $remarks)';
   }
 }

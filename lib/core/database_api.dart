@@ -10,8 +10,6 @@ class DatabaseAPI {
     required MySqlConnection conn,
     required Item item,
   }) async {
-//var result = await conn.query('insert into users (name, email, age) values (?, ?, ?)', ['Bob', 'bob@bob.com', 25]);
-
     try {
       await conn.query('''INSERT INTO assets (
           asset_id, 
@@ -29,7 +27,7 @@ class DatabaseAPI {
           VALUES
           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', [
         item.assetID,
-        item.departmentID,
+        item.department,
         item.personAccountable,
         item.model,
         item.description,
@@ -38,12 +36,40 @@ class DatabaseAPI {
         item.datePurchased?.toUtc(),
         item.dateReceived?.toUtc(),
         item.status,
-        item.categoryID,
+        item.category,
         item.remarks
       ]);
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  static Future<List<Item>> getInventory(MySqlConnection conn,
+      List<Department> departments, List<ItemCategory> categories) async {
+    var results = await conn.query('SELECT * FROM `assets` WHERE 1', []);
+
+    return results.map<Item>((row) {
+      String department = departments
+          .firstWhere((element) => element.departmentID == row[1])
+          .departmentName;
+
+      String category = categories
+          .firstWhere((element) => element.categoryID == row[10])
+          .categoryName;
+      return Item(
+          assetID: row[0],
+          department: department,
+          personAccountable: row[2],
+          model: row[3],
+          description: row[4],
+          unit: row[5],
+          price: row[6],
+          datePurchased: (row[7] as DateTime).toLocal(),
+          dateReceived: (row[8] as DateTime).toLocal(),
+          status: row[9],
+          category: category,
+          remarks: row[11]);
+    }).toList();
   }
 
   static Future<List<Department>> getDepartments(MySqlConnection conn) async {
