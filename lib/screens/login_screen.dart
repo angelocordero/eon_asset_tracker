@@ -22,48 +22,25 @@ class LoginScreen extends ConsumerWidget {
       body: Center(
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text('User Login'),
+                const SizedBox(
+                  height: 20,
+                ),
                 usernameField(),
-                passwordField(),
+                const SizedBox(
+                  height: 20,
+                ),
+                passwordField(context, conn),
                 const SizedBox(
                   height: 20,
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      String username = usernameController.text.trim();
-                      String passwordHash =
-                          hashPassword(passwordController.text.trim());
-
-                      if (conn == null) {
-                        debugPrint('connection to database failed');
-                        return;
-                      }
-
-                      bool? authenticated =
-                          await authenticateUser(username, passwordHash, conn);
-
-                      if (authenticated == null) {
-                        debugPrint('authentication failed');
-                        return;
-                      }
-
-                      if (authenticated == false) {
-                        debugPrint('user does not exist');
-                        return;
-                      }
-                      // ignore: use_build_context_synchronously
-                      await Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return const HomeScreen();
-                          },
-                        ),
-                      );
+                      await authenticate(context, conn);
                     },
                     child: const Text('Login')),
               ],
@@ -77,6 +54,7 @@ class LoginScreen extends ConsumerWidget {
   Widget usernameField() {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text('Username: '),
         const SizedBox(
@@ -86,14 +64,17 @@ class LoginScreen extends ConsumerWidget {
           width: 150,
           child: TextField(
             controller: usernameController,
+            decoration: const InputDecoration(
+                isDense: true, contentPadding: EdgeInsets.all(8)),
           ),
         ),
       ],
     );
   }
 
-  Widget passwordField() {
+  Widget passwordField(BuildContext context, MySqlConnection? conn) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         const Text('Password: '),
@@ -103,11 +84,47 @@ class LoginScreen extends ConsumerWidget {
         SizedBox(
           width: 150,
           child: TextField(
+            onSubmitted: (value) async {
+              await authenticate(context, conn);
+            },
+            decoration: const InputDecoration(
+                isDense: true, contentPadding: EdgeInsets.all(8)),
             obscureText: true,
             controller: passwordController,
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> authenticate(BuildContext context, MySqlConnection? conn) async {
+    String username = usernameController.text.trim();
+    String passwordHash = hashPassword(passwordController.text.trim());
+
+    if (conn == null) {
+      debugPrint('connection to database failed');
+      return;
+    }
+
+    bool? authenticated = await authenticateUser(username, passwordHash, conn);
+
+    if (authenticated == null) {
+      debugPrint('authentication failed');
+      return;
+    }
+
+    if (authenticated == false) {
+      debugPrint('user does not exist');
+      return;
+    }
+    // ignore: use_build_context_synchronously
+    await Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const HomeScreen();
+        },
+      ),
     );
   }
 }

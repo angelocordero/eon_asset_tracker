@@ -1,8 +1,7 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:eon_asset_tracker/core/utils.dart';
+import '../core/utils.dart';
 
 class Item {
-  late String assetID;
+  String assetID;
   String departmentID;
   String? personAccountable;
   String model;
@@ -13,8 +12,10 @@ class Item {
   DateTime? dateReceived;
   String status;
   String categoryID;
+  String? remarks;
 
   Item({
+    required this.assetID,
     required this.departmentID,
     this.personAccountable,
     required this.model,
@@ -25,15 +26,26 @@ class Item {
     this.dateReceived,
     required this.status,
     required this.categoryID,
-  }) {
-    String itemIDSeed =
-        '$departmentID+$personAccountable+$model+$description+$unit+$price+$datePurchased+$dateReceived+$categoryID';
-    assetID = generateItemID(itemIDSeed);
-    print(assetID);
-    print(itemIDSeed);
-  }
+    this.remarks,
+  });
+
+  Item.withoutID({
+    required this.departmentID,
+    this.personAccountable,
+    required this.model,
+    this.description,
+    required this.unit,
+    this.price,
+    this.datePurchased,
+    this.dateReceived,
+    required this.status,
+    required this.categoryID,
+    this.remarks,
+  }) : assetID = generateItemID(
+            '$departmentID$personAccountable$model$description$unit$price$datePurchased$dateReceived$categoryID');
 
   Item copyWith({
+    String? assetID,
     String? departmentID,
     String? personAccountable,
     String? model,
@@ -44,8 +56,10 @@ class Item {
     DateTime? dateReceived,
     String? status,
     String? categoryID,
+    String? remarks,
   }) {
     return Item(
+      assetID: assetID ?? this.assetID,
       departmentID: departmentID ?? this.departmentID,
       personAccountable: personAccountable ?? this.personAccountable,
       model: model ?? this.model,
@@ -56,6 +70,7 @@ class Item {
       dateReceived: dateReceived ?? this.dateReceived,
       status: status ?? this.status,
       categoryID: categoryID ?? this.categoryID,
+      remarks: remarks ?? this.remarks,
     );
   }
 
@@ -73,7 +88,8 @@ class Item {
         other.datePurchased == datePurchased &&
         other.dateReceived == dateReceived &&
         other.status == status &&
-        other.categoryID == categoryID;
+        other.categoryID == categoryID &&
+        other.remarks == remarks;
   }
 
   @override
@@ -88,11 +104,12 @@ class Item {
         datePurchased.hashCode ^
         dateReceived.hashCode ^
         categoryID.hashCode ^
-        status.hashCode;
+        status.hashCode ^
+        remarks.hashCode;
   }
 
   @override
   String toString() {
-    return 'Item(assetID: $assetID, departmentID: $departmentID, personAccountable: $personAccountable, model: $model, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, categoryID: $categoryID)';
+    return 'Item(assetID: $assetID, departmentID: $departmentID, personAccountable: $personAccountable, model: $model, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, categoryID: $categoryID, remarks: $remarks)';
   }
 }

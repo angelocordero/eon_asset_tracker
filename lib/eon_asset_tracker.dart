@@ -1,4 +1,5 @@
-import 'package:eon_asset_tracker/screens/home_screen.dart';
+import 'package:eon_asset_tracker/core/constants.dart';
+import 'package:eon_asset_tracker/screens/loading_screen.dart';
 import 'package:flutter/material.dart';
 
 class EonAssetTracker extends StatelessWidget {
@@ -10,12 +11,12 @@ class EonAssetTracker extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: defaultBorderRadius,
           ),
         ),
       ),
       themeMode: ThemeMode.dark,
-      home: const HomeScreen(),
+      home: const LoadingScreen(),
     );
   }
 }

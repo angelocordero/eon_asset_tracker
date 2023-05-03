@@ -10,7 +10,9 @@ String hashPassword(String input) {
 }
 
 String generateItemID(String input) {
-  return sha1.convert(utf8.encode(input)).toString();
+  String hash = sha1.convert(utf8.encode(input)).toString();
+
+  return hash.substring(0, 30);
 }
 
 Future<bool?> authenticateUser(
