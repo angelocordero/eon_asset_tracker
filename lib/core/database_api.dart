@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mysql1/mysql1.dart';
@@ -6,6 +7,57 @@ import '../models/category_model.dart';
 import '../models/item_model.dart';
 
 class DatabaseAPI {
+  static Future<void> delete({
+    required MySqlConnection? conn,
+    required String assetID,
+  }) async {
+    if (conn == null) return;
+
+    try {
+      await conn.query(
+          'UPDATE `assets` SET `is_enabled` = 0 WHERE `asset_id` = ?',
+          [assetID]);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  static Future<void> update({
+    required MySqlConnection conn,
+    required Item item,
+  }) async {
+    try {
+      await conn.query('''UPDATE `assets` SET   
+          department_id = ?,
+          person_accountable = ?,
+          item_model = ? ,
+          item_description = ?,
+          unit = ?,
+          price = ? ,
+          date_purchased = ?,
+          date_received = ?,
+          status = ?,
+          category_id = ?,
+          remarks = ?
+          WHERE `asset_id`=?''', [
+        item.departmentID,
+        item.personAccountable,
+        item.model,
+        item.description,
+        item.unit,
+        item.price,
+        item.datePurchased?.toUtc(),
+        item.dateReceived?.toUtc(),
+        item.status.name,
+        item.categoryID,
+        item.remarks,
+        item.assetID,
+      ]);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   static Future<void> add({
     required MySqlConnection conn,
     required Item item,
@@ -27,7 +79,7 @@ class DatabaseAPI {
           VALUES
           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', [
         item.assetID,
-        item.department,
+        item.departmentID,
         item.personAccountable,
         item.model,
         item.description,
@@ -35,8 +87,8 @@ class DatabaseAPI {
         item.price,
         item.datePurchased?.toUtc(),
         item.dateReceived?.toUtc(),
-        item.status,
-        item.category,
+        item.status.name,
+        item.categoryID,
         item.remarks
       ]);
     } catch (e) {
@@ -46,28 +98,22 @@ class DatabaseAPI {
 
   static Future<List<Item>> getInventory(MySqlConnection conn,
       List<Department> departments, List<ItemCategory> categories) async {
-    var results = await conn.query('SELECT * FROM `assets` WHERE 1', []);
+    var results =
+        await conn.query('SELECT * FROM `assets` WHERE  `is_enabled` = 1', []);
 
     return results.map<Item>((row) {
-      String department = departments
-          .firstWhere((element) => element.departmentID == row[1])
-          .departmentName;
-
-      String category = categories
-          .firstWhere((element) => element.categoryID == row[10])
-          .categoryName;
       return Item(
           assetID: row[0],
-          department: department,
+          departmentID: row[1],
           personAccountable: row[2],
           model: row[3],
           description: row[4],
           unit: row[5],
           price: row[6],
-          datePurchased: (row[7] as DateTime).toLocal(),
+          datePurchased: row[7] == null ? null : (row[7] as DateTime).toLocal(),
           dateReceived: (row[8] as DateTime).toLocal(),
-          status: row[9],
-          category: category,
+          status: ItemStatus.values.byName(row[9]),
+          categoryID: row[10],
           remarks: row[11]);
     }).toList();
   }

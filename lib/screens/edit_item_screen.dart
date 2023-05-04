@@ -1,4 +1,5 @@
 import 'package:eon_asset_tracker/core/constants.dart';
+import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
@@ -8,18 +9,19 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql1/mysql1.dart';
 
-import '../core/database_api.dart';
 import '../models/category_model.dart';
 import '../models/item_model.dart';
 
-class AddItemScreen extends ConsumerStatefulWidget {
-  const AddItemScreen({super.key});
+class EditItemScreen extends ConsumerStatefulWidget {
+  const EditItemScreen({super.key, required this.item});
+
+  final Item item;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _AddItemScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _EditItemScreenState();
 }
 
-class _AddItemScreenState extends ConsumerState<AddItemScreen> {
+class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   late List<Department> _departments;
   late List<ItemCategory> _categories;
 
@@ -30,18 +32,12 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       DateTime.now().subtract(const Duration(days: 365 * 5));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 5));
 
-  late ItemStatus _itemStatus;
-  late Department _department;
-  late ItemCategory _category;
-
-  final TextEditingController _modelController = TextEditingController();
-  final TextEditingController _personAccountableController =
-      TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _unitController = TextEditingController();
-  final TextEditingController _itemDescriptionController =
-      TextEditingController();
-  final TextEditingController _remarksController = TextEditingController();
+  late TextEditingController _modelController;
+  late TextEditingController _personAccountableController;
+  late TextEditingController _priceController;
+  late TextEditingController _unitController;
+  late TextEditingController _itemDescriptionController;
+  late TextEditingController _remarksController;
 
   bool _isPurchased = false;
 
@@ -53,9 +49,22 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     _departments = ref.read(departmentsProvider);
     _categories = ref.read(categoriesProvider);
 
-    _department = _departments.first;
-    _itemStatus = ItemStatus.Good;
-    _category = _categories.first;
+    _modelController = TextEditingController.fromValue(
+        TextEditingValue(text: widget.item.model));
+    _personAccountableController = TextEditingController.fromValue(
+        TextEditingValue(text: widget.item.personAccountable ?? ''));
+    _priceController = TextEditingController.fromValue(
+        TextEditingValue(text: priceToString(widget.item.price)));
+    _unitController = TextEditingController.fromValue(
+        TextEditingValue(text: widget.item.unit));
+    _itemDescriptionController = TextEditingController.fromValue(
+        TextEditingValue(text: widget.item.description ?? ''));
+    _remarksController = TextEditingController.fromValue(
+        TextEditingValue(text: widget.item.remarks ?? ''));
+
+    if (widget.item.price != null || widget.item.datePurchased != null) {
+      _isPurchased = true;
+    }
 
     super.initState();
   }
@@ -70,7 +79,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           child: Column(
             children: [
               const Text(
-                'Add Item',
+                'Edit Item',
                 style: TextStyle(fontSize: 50),
               ),
               const SizedBox(
@@ -136,11 +145,10 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                       if (conn == null) return;
 
-                      Item item = Item.withoutID(
+                      Item newItem = widget.item.copyWith(
+                        model: _modelController.text.trim(),
                         personAccountable:
                             _personAccountableController.text.trim(),
-                        departmentID: _department.departmentID,
-                        model: _modelController.text.trim(),
                         description: _itemDescriptionController.text.trim(),
                         unit: _unitController.text.trim(),
                         price: _isPurchased
@@ -148,22 +156,21 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                                 ? 0
                                 : double.tryParse(_priceController.text.trim())
                             : null,
-                        datePurchased: _isPurchased ? _datePurchased : null,
-                        dateReceived: _dateReceived,
-                        status: _itemStatus,
-                        categoryID: _category.categoryID,
                         remarks: _remarksController.text.trim(),
+                        datePurchased:
+                            _isPurchased ? widget.item.dateReceived : null,
                       );
 
-                      await DatabaseAPI.add(
-                          conn: ref.read(sqlConnProvider)!, item: item);
+                      print(newItem.toString());
+
+                      await DatabaseAPI.update(conn: conn, item: newItem);
 
                       await ref.read(inventoryProvider.notifier).refresh();
 
                       // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     },
-                    child: const Text('Apply'),
+                    child: const Text('Update'),
                   ),
                   const SizedBox(
                     width: 100,
@@ -297,7 +304,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value: _department,
+              value: _departments.firstWhere((element) =>
+                  element.departmentID == widget.item.departmentID),
               items: _departments.map((value) {
                 return DropdownMenuItem(
                   value: value,
@@ -307,7 +315,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               onChanged: (Department? dept) {
                 if (dept == null) return;
                 setState(() {
-                  _department = dept;
+                  widget.item.departmentID == dept.departmentID;
                 });
               },
             ),
@@ -466,7 +474,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value: _itemStatus,
+              value: widget.item.status,
               items: ItemStatus.values
                   .map<DropdownMenuItem<ItemStatus>>((value) =>
                       DropdownMenuItem<ItemStatus>(
@@ -475,7 +483,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
-                  _itemStatus = status;
+                  widget.item.status = status;
                 });
               },
             ),
@@ -524,16 +532,20 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value: _category,
+              value: _categories.firstWhere(
+                  (element) => element.categoryID == widget.item.categoryID),
               items: _categories
-                  .map<DropdownMenuItem<ItemCategory>>((value) =>
-                      DropdownMenuItem<ItemCategory>(
-                          value: value, child: Text(value.categoryName)))
+                  .map<DropdownMenuItem<ItemCategory>>(
+                    (value) => DropdownMenuItem<ItemCategory>(
+                      value: value,
+                      child: Text(value.categoryName),
+                    ),
+                  )
                   .toList(),
               onChanged: (ItemCategory? category) {
                 if (category == null) return;
                 setState(() {
-                  _category = category;
+                  widget.item.categoryID = category.categoryID;
                 });
               },
             ),

@@ -24,5 +24,15 @@ final inventoryProvider =
 });
 
 final selectedItemProvider = StateProvider<Item?>((ref) {
+  List<Item> items = ref.watch(inventoryProvider);
+
+  if (items.isNotEmpty) {
+    return items.first;
+  }
+
   return null;
+});
+
+final appbarTitleProvider = StateProvider<String>((ref) {
+  return 'Home';
 });

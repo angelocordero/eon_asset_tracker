@@ -31,7 +31,7 @@ class LoadingScreen extends ConsumerWidget {
         ref.read(categoriesProvider.notifier).state =
             await DatabaseAPI.getCategories(conn);
 
-        ref.read(inventoryProvider.notifier).init();
+        await ref.read(inventoryProvider.notifier).init();
 
         // ignore: use_build_context_synchronously
         Navigator.pushReplacement(

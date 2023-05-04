@@ -4,15 +4,21 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:nanoid/nanoid.dart';
 
 String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
 }
 
-String generateItemID(String input) {
-  String hash = sha1.convert(utf8.encode(input)).toString();
+String generateItemID() {
+  String eonCustomAlphabet =
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-  return hash.substring(0, 30);
+  String randomID1 = customAlphabet(eonCustomAlphabet, 5);
+  String randomID2 = customAlphabet(eonCustomAlphabet, 5);
+  String randomID3 = customAlphabet(eonCustomAlphabet, 5);
+
+  return '$randomID1-$randomID2-$randomID3';
 }
 
 Future<bool?> authenticateUser(
@@ -37,4 +43,10 @@ Future<bool?> authenticateUser(
 
 String dateToString(DateTime dateTime) {
   return '${DateFormat.EEEE().format(dateTime)} ${DateFormat.yMMMd().format(dateTime)}';
+}
+
+String priceToString(double? price) {
+  return price == null
+      ? ''
+      : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
 }

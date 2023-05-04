@@ -35,7 +35,7 @@ class ItemInfoDisplay extends ConsumerWidget {
               children: [
                 const Text('Item Status'),
                 const Divider(),
-                Text(selectedItem?.status ?? ''),
+                Text(selectedItem?.status.name ?? ''),
               ],
             ),
           ),

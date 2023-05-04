@@ -1,17 +1,19 @@
+import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/tabs/tab_switcher.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   static final _controller = SidebarXController(selectedIndex: 0);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eon Asset Tracker'),
+        title: Text('Eon Asset Tracker | ${ref.watch(appbarTitleProvider)}'),
       ),
       body: Row(
         children: [
@@ -37,15 +39,26 @@ class HomeScreen extends StatelessWidget {
               iconTheme: IconThemeData(color: Colors.grey),
             ),
             footerDivider: const Divider(),
-            items: const [
-              SidebarXItem(icon: Icons.home, label: 'Home'),
-              SidebarXItem(icon: Icons.inventory_2, label: 'Inventory'),
+            items: [
+              SidebarXItem(
+                icon: Icons.home,
+                label: 'Home',
+                onTap: () {
+                  ref.read(appbarTitleProvider.notifier).state = 'Home';
+                },
+              ),
+              SidebarXItem(
+                icon: Icons.inventory_2,
+                label: 'Inventory',
+                onTap: () {
+                  ref.read(appbarTitleProvider.notifier).state = 'Inventory';
+                },
+              ),
             ],
           ),
           Expanded(
-              child: TabSwitcher(
-            controller: _controller,
-          ))
+            child: TabSwitcher(controller: _controller),
+          )
         ],
       ),
     );
