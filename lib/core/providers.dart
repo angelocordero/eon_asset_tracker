@@ -20,5 +20,9 @@ final categoriesProvider = StateProvider<List<ItemCategory>>((ref) {
 
 final inventoryProvider =
     StateNotifierProvider<InventoryNotifier, List<Item>>((ref) {
-  return InventoryNotifier();
+  return InventoryNotifier(ref);
+});
+
+final selectedItemProvider = StateProvider<Item?>((ref) {
+  return null;
 });

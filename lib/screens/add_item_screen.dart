@@ -143,31 +143,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                       await DatabaseAPI.add(
                           conn: ref.read(sqlConnProvider)!, item: item);
 
-                      // ignore: use_build_context_synchronously
-                      // Navigator.push(
-                      //   context,
-                      //   CustomRoute(
-                      //     builder: (context) {
-                      //       return Center(
-                      //         child: Card(
-                      //           child: Padding(
-                      //             padding: const EdgeInsets.all(30),
-                      //             child: QrImage(
-                      //               backgroundColor: Colors.white,
-                      //               data: item.assetID,
-                      //               size: 300,
-                      //               version: QrVersions.auto,
-                      //               // embeddedImageStyle: QrEmbeddedImageStyle(
-                      //               //     size: const Size(80, 80)),
-                      //               // embeddedImage:
-                      //               //     const AssetImage('assets/logo.jpg'),
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       );
-                      //     },
-                      //   ),
-                      // );
+                      ref.read(inventoryProvider.notifier).init();
+
                       // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     },
