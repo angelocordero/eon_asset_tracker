@@ -25,9 +25,6 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   late List<Department> _departments;
   late List<ItemCategory> _categories;
 
-  late DateTime _datePurchased;
-  late DateTime _dateReceived;
-
   final DateTime _firstDate =
       DateTime.now().subtract(const Duration(days: 365 * 5));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 5));
@@ -43,9 +40,6 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
   @override
   void initState() {
-    _datePurchased = DateTime.now();
-    _dateReceived = DateTime.now();
-
     _departments = ref.read(departmentsProvider);
     _categories = ref.read(categoriesProvider);
 
@@ -53,8 +47,10 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         TextEditingValue(text: widget.item.model));
     _personAccountableController = TextEditingController.fromValue(
         TextEditingValue(text: widget.item.personAccountable ?? ''));
-    _priceController = TextEditingController.fromValue(
-        TextEditingValue(text: priceToString(widget.item.price)));
+    _priceController = TextEditingController.fromValue(TextEditingValue(
+        text: widget.item.price.toString() != 'null'
+            ? widget.item.price.toString()
+            : "0.00"));
     _unitController = TextEditingController.fromValue(
         TextEditingValue(text: widget.item.unit));
     _itemDescriptionController = TextEditingController.fromValue(
@@ -156,12 +152,12 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                                 ? 0
                                 : double.tryParse(_priceController.text.trim())
                             : null,
+                        // price: price,
                         remarks: _remarksController.text.trim(),
-                        datePurchased:
-                            _isPurchased ? widget.item.dateReceived : null,
+                        datePurchased: _isPurchased
+                            ? widget.item.datePurchased ?? DateTime.now()
+                            : null,
                       );
-
-                      print(newItem.toString());
 
                       await DatabaseAPI.update(conn: conn, item: newItem);
 
@@ -400,7 +396,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               borderRadius: defaultBorderRadius,
               side: const BorderSide(color: Colors.grey),
             ),
-            title: Text(dateToString(_datePurchased)),
+            title:
+                Text(dateToString(widget.item.datePurchased ?? DateTime.now())),
             onTap: () => _datePurchasedPicker(context),
             trailing: const Icon(Icons.calendar_month),
           ),
@@ -444,7 +441,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               borderRadius: defaultBorderRadius,
               side: const BorderSide(color: Colors.grey),
             ),
-            title: Text(dateToString(_dateReceived)),
+            title: Text(dateToString(widget.item.dateReceived)),
             onTap: () => _dateReceivedPicker(context),
             trailing: const Icon(Icons.calendar_month),
           ),
@@ -560,7 +557,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   ) async {
     final newDate = await showDatePicker(
       context: context,
-      initialDate: _datePurchased,
+      initialDate: widget.item.datePurchased ?? DateTime.now(),
       firstDate: _firstDate,
       lastDate: _lastDate,
     );
@@ -569,7 +566,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-        _datePurchased = newDate;
+        widget.item.datePurchased =
+            DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }
@@ -579,7 +577,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   ) async {
     final newDate = await showDatePicker(
       context: context,
-      initialDate: _dateReceived,
+      initialDate: widget.item.dateReceived,
       firstDate: _firstDate,
       lastDate: _lastDate,
     );
@@ -588,7 +586,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-        _dateReceived = newDate;
+        widget.item.dateReceived =
+            DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }

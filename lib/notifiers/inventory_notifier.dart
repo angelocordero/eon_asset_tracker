@@ -24,7 +24,22 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
 
   Future<void> refresh() async {
     state = [];
+
     await Future.delayed(const Duration(milliseconds: 300));
     await init();
+  }
+
+  void search({
+    required MySqlConnection? conn,
+    required String query,
+    required String searchBy,
+  }) async {
+    if (query.isEmpty) {
+      refresh();
+      return;
+    }
+
+    state =
+        await DatabaseAPI.search(conn: conn, query: query, searchBy: searchBy);
   }
 }

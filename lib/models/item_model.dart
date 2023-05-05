@@ -1,3 +1,5 @@
+import 'package:mysql1/mysql1.dart';
+
 import '../core/constants.dart';
 import '../core/utils.dart';
 
@@ -10,7 +12,7 @@ class Item {
   String unit;
   double? price;
   DateTime? datePurchased;
-  DateTime? dateReceived;
+  DateTime dateReceived;
   ItemStatus status;
   String categoryID;
   String? remarks;
@@ -24,7 +26,7 @@ class Item {
     required this.unit,
     this.price,
     this.datePurchased,
-    this.dateReceived,
+    required this.dateReceived,
     required this.status,
     required this.categoryID,
     this.remarks,
@@ -38,11 +40,27 @@ class Item {
     required this.unit,
     this.price,
     this.datePurchased,
-    this.dateReceived,
+    required this.dateReceived,
     required this.status,
     required this.categoryID,
     this.remarks,
   }) : assetID = generateItemID();
+
+  factory Item.fromResultRow(ResultRow row) {
+    return Item(
+        assetID: row[0],
+        departmentID: row[1],
+        personAccountable: row[2],
+        model: row[3],
+        description: row[4],
+        unit: row[5],
+        price: row[6],
+        datePurchased: row[7] == null ? null : (row[7] as DateTime),
+        dateReceived: (row[8] as DateTime).toLocal(),
+        status: ItemStatus.values.byName(row[9]),
+        categoryID: row[10],
+        remarks: row[11]);
+  }
 
   Item copyWith({
     String? assetID,

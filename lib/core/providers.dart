@@ -36,3 +36,7 @@ final selectedItemProvider = StateProvider<Item?>((ref) {
 final appbarTitleProvider = StateProvider<String>((ref) {
   return 'Home';
 });
+
+final searchQueryProvider = StateProvider<String>((ref) {
+  return 'Asset ID';
+});

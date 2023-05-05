@@ -5,6 +5,7 @@ import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/screens/add_item_screen.dart';
 import 'package:eon_asset_tracker/screens/edit_item_screen.dart';
 import 'package:eon_asset_tracker/widgets/item_info_display.dart';
+import 'package:eon_asset_tracker/widgets/search_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -17,121 +18,53 @@ class InventoryTab extends ConsumerWidget {
   const InventoryTab({super.key});
 
   static final List<String> columns = [
-    ''
-        'Asset ID',
-    'Item Model / Serial Number',
+    'Asset ID',
+    'Item Model /\nSerial Number',
     'Department',
     'Person Accountable',
     'Category',
     'Status',
-    'Price',
     'Unit',
+    'Price',
     'Date Purchased',
     'Date Received',
   ];
+
+  static final _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<Item> rows = ref.watch(inventoryProvider);
 
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Tooltip(
-                message: 'Refresh page',
-                child: IconButton.outlined(
-                  onPressed: () {
-                    ref.read(inventoryProvider.notifier).refresh();
-                  },
-                  icon: const Icon(Icons.refresh),
-                ),
-              ),
-              Tooltip(
-                message: 'Delete selected item',
-                child: IconButton.outlined(
-                  onPressed: () {
-                    showDeleteDialog(context, () async {
-                      String? selectedAssetID =
-                          ref.read(selectedItemProvider)?.assetID;
-
-                      if (selectedAssetID == null) return;
-
-                      await DatabaseAPI.delete(
-                          conn: ref.read(sqlConnProvider),
-                          assetID: selectedAssetID);
-
-                      await ref.read(inventoryProvider.notifier).refresh();
-                    });
-                  },
-                  icon: const Icon(Icons.delete),
-                ),
-              ),
-              Tooltip(
-                message: 'Edit selected item',
-                child: IconButton.outlined(
-                  onPressed: () {
-                    Item? item = ref.read(selectedItemProvider);
-
-                    if (item == null) return;
-
-                    Navigator.push(
-                      context,
-                      CustomRoute(
-                        builder: (context) {
-                          return EditItemScreen(item: item);
-                        },
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.edit),
-                ),
-              ),
-              Tooltip(
-                message: 'Add new item',
-                child: IconButton.outlined(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      CustomRoute(
-                        builder: (context) {
-                          return const AddItemScreen();
-                        },
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add),
-                ),
-              ),
-            ],
-          ),
+          header(context, ref),
           Flexible(
-            flex: 3,
+            flex: 7,
             child: StickyHeadersTable(
               onContentCellPressed: (i, j) {
                 ref.read(selectedItemProvider.notifier).state = rows[j];
               },
-              showHorizontalScrollbar: true,
+              showHorizontalScrollbar: false,
               showVerticalScrollbar: true,
               cellDimensions: const CellDimensions.variableColumnWidth(
                 columnWidths: [
-                  300,
-                  300,
-                  200,
-                  200,
-                  200,
-                  150,
-                  200,
-                  150,
                   250,
                   250,
+                  180,
+                  180,
+                  180,
+                  120,
+                  180,
+                  120,
+                  220,
+                  220,
                 ],
-                contentCellHeight: 100,
+                contentCellHeight: 80,
                 stickyLegendWidth: 50,
-                stickyLegendHeight: 100,
+                stickyLegendHeight: 80,
               ),
               columnsLength: columns.length,
               rowsLength: rows.length,
@@ -169,21 +102,22 @@ class InventoryTab extends ConsumerWidget {
                         item.personAccountable ?? '', selected);
                   case 4:
                     return tableDataTile(categoryName, selected);
+                  case 5:
+                    return tableDataTile(item.status.name, selected);
                   case 6:
-                    return tableDataTile(priceToString(item.price), selected);
-                  case 7:
                     return tableDataTile(item.unit, selected);
+                  case 7:
+                    return tableDataTile(priceToString(item.price), selected);
                   case 8:
                     return tableDataTile(
                         item.datePurchased == null
                             ? ''
-                            : dateToString(item.datePurchased!),
+                            : dateToString(item.datePurchased!.toLocal()),
                         selected);
                   case 9:
                     return tableDataTile(
-                        dateToString(item.dateReceived!), selected);
-                  case 5:
-                    return tableDataTile(item.status.name, selected);
+                        dateToString(item.dateReceived.toLocal()), selected);
+
                   default:
                     return Container();
                 }
@@ -192,7 +126,7 @@ class InventoryTab extends ConsumerWidget {
           ),
           const Divider(),
           const Flexible(
-            flex: 1,
+            flex: 2,
             child: ItemInfoDisplay(),
           ),
         ],
@@ -241,6 +175,83 @@ class InventoryTab extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+
+  Row header(BuildContext context, WidgetRef ref) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SearchWidget(controller: _searchController),
+        const Spacer(),
+        Tooltip(
+          message: 'Refresh page',
+          child: IconButton.outlined(
+            onPressed: () {
+              ref.read(inventoryProvider.notifier).refresh();
+
+              _searchController.clear();
+              ref.read(searchQueryProvider.notifier).state = 'Asset ID';
+            },
+            icon: const Icon(Icons.refresh),
+          ),
+        ),
+        Tooltip(
+          message: 'Delete selected item',
+          child: IconButton.outlined(
+            onPressed: () {
+              showDeleteDialog(context, () async {
+                String? selectedAssetID =
+                    ref.read(selectedItemProvider)?.assetID;
+
+                if (selectedAssetID == null) return;
+
+                await DatabaseAPI.delete(
+                    conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
+
+                await ref.read(inventoryProvider.notifier).refresh();
+              });
+            },
+            icon: const Icon(Icons.delete),
+          ),
+        ),
+        Tooltip(
+          message: 'Edit selected item',
+          child: IconButton.outlined(
+            onPressed: () {
+              Item? item = ref.read(selectedItemProvider);
+
+              if (item == null) return;
+
+              Navigator.push(
+                context,
+                CustomRoute(
+                  builder: (context) {
+                    return EditItemScreen(item: item);
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.edit),
+          ),
+        ),
+        Tooltip(
+          message: 'Add new item',
+          child: IconButton.outlined(
+            onPressed: () {
+              Navigator.push(
+                context,
+                CustomRoute(
+                  builder: (context) {
+                    return const AddItemScreen();
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ),
+      ],
     );
   }
 }
