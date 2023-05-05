@@ -1,4 +1,6 @@
+import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
+import 'package:eon_asset_tracker/widgets/qr_code_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -69,37 +71,47 @@ class ItemInfoDisplay extends ConsumerWidget {
           ),
           Flexible(
             flex: 4,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const Text('QR Code'),
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.zoom_in,
+            child: selectedItem == null
+                ? Container()
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text('QR Code'),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                CustomRoute(
+                                  builder: (context) {
+                                    return QRCodeDisplay(
+                                        assetID: selectedItem.assetID);
+                                  },
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.zoom_in,
+                            ),
+                            label: const Text('Enlarge QR Code'),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.print),
+                            label: const Text('Print QR Code'),
+                          ),
+                        ],
                       ),
-                      label: const Text('Enlarge QR Code'),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.print),
-                      label: const Text('Print QR Code'),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                selectedItem == null
-                    ? Container()
-                    : QrImage(
+                      const Spacer(),
+                      QrImage(
                         data: selectedItem.assetID,
                         backgroundColor: Colors.transparent,
                         foregroundColor: Colors.white,
                       ),
-              ],
-            ),
+                    ],
+                  ),
           ),
           const VerticalDivider(
             width: 40,
