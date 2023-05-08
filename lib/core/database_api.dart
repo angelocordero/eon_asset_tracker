@@ -6,6 +6,89 @@ import '../models/category_model.dart';
 import '../models/item_model.dart';
 
 class DatabaseAPI {
+  static Future<int> getTotal({required MySqlConnection? conn}) async {
+    if (conn == null) return 0;
+
+    Results results =
+        await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ', []);
+
+    return results.length;
+  }
+
+  static Future<Map<String, int>> statusData(
+      {required MySqlConnection? conn}) async {
+    Map<String, int> buffer = {};
+
+    if (conn == null) return buffer;
+
+    Results results = await conn.query(
+        'SELECT `status`, COUNT(*) as count FROM `assets` GROUP BY `status`');
+
+    for (ResultRow row in results) {
+      buffer[row[0] as String] = row[1] ?? 0;
+    }
+
+    return buffer;
+  }
+
+  static Future<List<Map<String, dynamic>>> departmentsData(
+      {required MySqlConnection? conn,
+      required List<Department> departments}) async {
+    List<Map<String, dynamic>> buffer = [];
+
+    if (conn == null) return buffer;
+
+    Results results = await conn.query(
+        'SELECT `department_id`, COUNT(*) as count FROM `assets` GROUP BY `department_id`');
+
+    List<ResultRow> rows = results.toList();
+
+    for (int i = 0; i < results.length; i++) {
+      ResultRow row = rows[i];
+
+      String departmentName = departments
+          .firstWhere((element) => element.departmentID == (row[0] as String))
+          .departmentName;
+
+      buffer.add({
+        'departmentName': departmentName,
+        'count': row[1] ?? 0,
+        'index': i,
+      });
+    }
+
+    return buffer;
+  }
+
+  static Future<List<Map<String, dynamic>>> categoriesData(
+      {required MySqlConnection? conn,
+      required List<ItemCategory> categories}) async {
+    List<Map<String, dynamic>> buffer = [];
+
+    if (conn == null) return buffer;
+
+    Results results = await conn.query(
+        'SELECT `category_id`, COUNT(*) as count FROM `assets` GROUP BY `category_id`');
+
+    List<ResultRow> rows = results.toList();
+
+    for (int i = 0; i < results.length; i++) {
+      ResultRow row = rows[i];
+
+      String categoryName = categories
+          .firstWhere((element) => element.categoryID == (row[0] as String))
+          .categoryName;
+
+      buffer.add({
+        'categoryName': categoryName,
+        'count': row[1] ?? 0,
+        'index': i,
+      });
+    }
+
+    return buffer;
+  }
+
   static Future<void> delete({
     required MySqlConnection? conn,
     required String assetID,
@@ -21,6 +104,15 @@ class DatabaseAPI {
     }
   }
 
+  static Future<Results> _searchQuery(
+      {required MySqlConnection conn,
+      required String searchBy,
+      required String query}) async {
+    return await conn.query(
+        'SELECT * FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1 ORDER BY `timestamp` DESC',
+        []);
+  }
+
   static Future<List<Item>> search({
     required MySqlConnection? conn,
     required String query,
@@ -30,49 +122,46 @@ class DatabaseAPI {
 
     List<Item> buffer = [];
 
-//SELECT * FROM employee_name_details WHERE emp_lastName LIKE '%ill%' ;
-
-// / SELECT * FROM employee_name_details WHERE emp_firstName LIKE 'R%' ;
-
     try {
       switch (searchBy) {
         case 'Asset ID':
-          var results = await conn.query(
-              'SELECT *FROM `assets` WHERE `asset_id` LIKE \'%$query%\'', []);
+          Results results = await _searchQuery(
+              conn: conn, searchBy: 'asset_id', query: query);
 
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
+
         case 'Item Model / Serial Number':
-          var results = await conn.query(
-              'SELECT *FROM `assets` WHERE `item_model` LIKE \'%$query%\'', []);
+          Results results = await _searchQuery(
+              conn: conn, searchBy: 'item_model', query: query);
 
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
 
         case 'Person Accountable':
-          var results = await conn.query(
-              'SELECT *FROM `assets` WHERE `person_accountable` LIKE \'%$query%\'',
-              []);
+          Results results = await _searchQuery(
+              conn: conn, searchBy: 'person_accountable', query: query);
 
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
+
         case 'Unit':
-          var results = await conn.query(
-              'SELECT *FROM `assets` WHERE `unit` LIKE \'%$query%\'', []);
+          Results results =
+              await _searchQuery(conn: conn, searchBy: 'unit', query: query);
 
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
+
         case 'Item Description':
-          var results = await conn.query(
-              'SELECT *FROM `assets` WHERE `item_description` LIKE \'%$query%\'',
-              []);
+          Results results = await _searchQuery(
+              conn: conn, searchBy: 'item_description', query: query);
 
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
 
         case 'Remarks':
-          var results = await conn.query(
-              'SELECT *FROM `assets` WHERE `remarks` LIKE \'%$query%\'', []);
+          Results results =
+              await _searchQuery(conn: conn, searchBy: 'remarks', query: query);
 
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
@@ -163,8 +252,9 @@ class DatabaseAPI {
       List<Department> departments, List<ItemCategory> categories) async {
     if (conn == null) return Future.value([]);
 
-    var results =
-        await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1', []);
+    var results = await conn.query(
+        'SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC',
+        []);
 
     return results.map<Item>((row) {
       return Item.fromResultRow(row);

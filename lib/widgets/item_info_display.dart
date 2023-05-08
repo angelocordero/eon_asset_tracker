@@ -106,9 +106,14 @@ class ItemInfoDisplay extends ConsumerWidget {
                       ),
                       const Spacer(),
                       QrImage(
+                        size: 160,
                         data: selectedItem.assetID,
                         backgroundColor: Colors.transparent,
                         foregroundColor: Colors.white,
+                        embeddedImage: const AssetImage('assets/logo.jpg'),
+                        embeddedImageStyle: QrEmbeddedImageStyle(
+                          size: const Size(25.6, 25.6),
+                        ),
                       ),
                     ],
                   ),
@@ -118,14 +123,7 @@ class ItemInfoDisplay extends ConsumerWidget {
           ),
           Flexible(
             flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Item Status'),
-                const Divider(),
-                Text(selectedItem?.status.name ?? ''),
-              ],
-            ),
+            child: Container(),
           ),
         ],
       ),

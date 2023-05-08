@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import 'dashboard_tab.dart';
+
 class TabSwitcher extends ConsumerWidget {
   const TabSwitcher({super.key, required this.controller});
 
@@ -15,7 +17,7 @@ class TabSwitcher extends ConsumerWidget {
       builder: (context, child) {
         switch (controller.selectedIndex) {
           case 0:
-            return Container();
+            return const DashboardTab();
           case 1:
             return const InventoryTab();
           default:

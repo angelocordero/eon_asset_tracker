@@ -25,11 +25,29 @@ class LoadingScreen extends ConsumerWidget {
 
         await Future.delayed(const Duration(seconds: 1));
 
+        ref.read(totalItemsProvider.notifier).state =
+            await DatabaseAPI.getTotal(conn: conn);
+
         ref.read(departmentsProvider.notifier).state =
             await DatabaseAPI.getDepartments(conn);
 
         ref.read(categoriesProvider.notifier).state =
             await DatabaseAPI.getCategories(conn);
+
+        ref.read(statusDataProvider.notifier).state =
+            await DatabaseAPI.statusData(conn: conn);
+
+        ref.read(departmentsDataProvider.notifier).state =
+            await DatabaseAPI.departmentsData(
+          conn: conn,
+          departments: ref.read(departmentsProvider),
+        );
+
+        ref.read(categoriesDataProvider.notifier).state =
+            await DatabaseAPI.categoriesData(
+          conn: conn,
+          categories: ref.read(categoriesProvider),
+        );
 
         await ref.read(inventoryProvider.notifier).init();
 

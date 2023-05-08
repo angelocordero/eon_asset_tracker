@@ -40,3 +40,20 @@ final appbarTitleProvider = StateProvider<String>((ref) {
 final searchQueryProvider = StateProvider<String>((ref) {
   return 'Asset ID';
 });
+
+final totalItemsProvider = StateProvider<int>((ref) {
+  return 0;
+});
+
+final statusDataProvider = StateProvider<Map<String, int>>((ref) {
+  return {};
+});
+
+final departmentsDataProvider =
+    StateProvider<List<Map<String, dynamic>>>((ref) {
+  return [];
+});
+
+final categoriesDataProvider = StateProvider<List<Map<String, dynamic>>>((ref) {
+  return [];
+});

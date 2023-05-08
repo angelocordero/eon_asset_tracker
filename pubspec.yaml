@@ -45,6 +45,7 @@ dependencies:
   table_sticky_headers: ^2.0.5
   flutter_easyloading: ^3.0.5
   nanoid: ^1.0.0
+  fl_chart: ^0.62.0
 
 dev_dependencies:
   flutter_test:

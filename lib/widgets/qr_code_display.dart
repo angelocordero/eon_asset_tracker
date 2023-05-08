@@ -32,6 +32,15 @@ class QRCodeDisplay extends StatelessWidget {
                 assetID,
                 style: const TextStyle(fontSize: 50),
               ),
+              const SizedBox(
+                height: 30,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+              ),
             ],
           ),
         ),
