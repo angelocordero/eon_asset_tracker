@@ -22,7 +22,7 @@ class DatabaseAPI {
     if (conn == null) return buffer;
 
     Results results = await conn.query(
-        'SELECT `status`, COUNT(*) as count FROM `assets` GROUP BY `status`');
+        'SELECT `status`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `status`');
 
     for (ResultRow row in results) {
       buffer[row[0] as String] = row[1] ?? 0;
@@ -39,22 +39,31 @@ class DatabaseAPI {
     if (conn == null) return buffer;
 
     Results results = await conn.query(
-        'SELECT `department_id`, COUNT(*) as count FROM `assets` GROUP BY `department_id`');
+        'SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
     List<ResultRow> rows = results.toList();
 
-    for (int i = 0; i < results.length; i++) {
-      ResultRow row = rows[i];
+    List<String> rowDepartment =
+        rows.map((e) => e['department_id'] as String).toList();
 
-      String departmentName = departments
-          .firstWhere((element) => element.departmentID == (row[0] as String))
-          .departmentName;
+    for (int i = 0; i < departments.length; i++) {
+      if (rowDepartment.contains(departments[i].departmentID)) {
+        ResultRow row = rows.firstWhere((element) {
+          return element['department_id'] == departments[i].departmentID;
+        });
 
-      buffer.add({
-        'departmentName': departmentName,
-        'count': row[1] ?? 0,
-        'index': i,
-      });
+        buffer.add({
+          'departmentName': departments[i].departmentName,
+          'count': row['count'],
+          'index': i,
+        });
+      } else {
+        buffer.add({
+          'departmentName': departments[i].departmentName,
+          'count': 0,
+          'index': i,
+        });
+      }
     }
 
     return buffer;
@@ -68,7 +77,7 @@ class DatabaseAPI {
     if (conn == null) return buffer;
 
     Results results = await conn.query(
-        'SELECT `category_id`, COUNT(*) as count FROM `assets` GROUP BY `category_id`');
+        'SELECT `category_id`, COUNT(*) as count FROM `assets`  WHERE `is_enabled` = 1 GROUP BY `category_id`');
 
     List<ResultRow> rows = results.toList();
 

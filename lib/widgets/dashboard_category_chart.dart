@@ -3,13 +3,17 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/category_model.dart';
+
 class DashboardCategoryChart extends ConsumerWidget {
   const DashboardCategoryChart({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<Map<String, dynamic>> categoriesData =
-        ref.watch(categoriesDataProvider);
+        ref.watch(dashboardDataProvider).categoriesDashbordData;
+
+    List<ItemCategory> categories = ref.watch(categoriesProvider);
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -28,7 +32,7 @@ class DashboardCategoryChart extends ConsumerWidget {
             child: BarChart(
               BarChartData(
                 maxY: maxY(categoriesData),
-                titlesData: titlesData(categoriesData),
+                titlesData: titlesData(categories),
                 borderData: FlBorderData(show: true),
                 barGroups: barGroups(categoriesData),
                 gridData: FlGridData(show: true),
@@ -56,13 +60,13 @@ class DashboardCategoryChart extends ConsumerWidget {
   }
 
   Widget getTitles(
-      double value, TitleMeta meta, List<Map<String, dynamic>> categoriesData) {
+      double value, TitleMeta meta, List<ItemCategory> categories) {
     const style = TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
 
-    String categoryName = categoriesData[value.toInt()]['categoryName'];
+    String categoryName = categories[value.toInt()].categoryName;
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
@@ -71,7 +75,7 @@ class DashboardCategoryChart extends ConsumerWidget {
     );
   }
 
-  FlTitlesData titlesData(List<Map<String, dynamic>> categoriesData) {
+  FlTitlesData titlesData(List<ItemCategory> categories) {
     return FlTitlesData(
       show: true,
       bottomTitles: AxisTitles(
@@ -79,7 +83,7 @@ class DashboardCategoryChart extends ConsumerWidget {
           showTitles: true,
           reservedSize: 30,
           getTitlesWidget: (double value, TitleMeta meta) {
-            return getTitles(value, meta, categoriesData);
+            return getTitles(value, meta, categories);
           },
         ),
       ),

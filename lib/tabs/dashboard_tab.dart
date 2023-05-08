@@ -28,12 +28,25 @@ class DashboardTab extends ConsumerWidget {
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Total Items',
-                              style: TextStyle(fontSize: 20),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Total Items',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              Tooltip(
+                                message: 'Refresh Page',
+                                child: IconButton.outlined(
+                                  onPressed: () async {
+                                    await ref
+                                        .read(dashboardDataProvider.notifier)
+                                        .refresh();
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                ),
+                              ),
+                            ],
                           ),
                           Expanded(
                             child: Center(

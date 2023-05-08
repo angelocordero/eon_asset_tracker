@@ -1,4 +1,6 @@
+import 'package:eon_asset_tracker/models/dashboard_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
+import 'package:eon_asset_tracker/notifiers/dashboard_notifier.dart';
 import 'package:eon_asset_tracker/notifiers/inventory_notifier.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:riverpod/riverpod.dart';
@@ -45,15 +47,11 @@ final totalItemsProvider = StateProvider<int>((ref) {
   return 0;
 });
 
-final statusDataProvider = StateProvider<Map<String, int>>((ref) {
-  return {};
-});
-
-final departmentsDataProvider =
-    StateProvider<List<Map<String, dynamic>>>((ref) {
-  return [];
-});
-
-final categoriesDataProvider = StateProvider<List<Map<String, dynamic>>>((ref) {
-  return [];
+final dashboardDataProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
+  return DashboardNotifier(
+    conn: ref.watch(sqlConnProvider),
+    departments: ref.watch(departmentsProvider),
+    categories: ref.watch(categoriesProvider),
+  );
 });

@@ -1,4 +1,5 @@
 import 'package:eon_asset_tracker/core/providers.dart';
+import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,8 @@ class DashboardDepartmentChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<Map<String, dynamic>> departmentsData =
-        ref.watch(departmentsDataProvider);
+        ref.watch(dashboardDataProvider).departmentsDashboardData;
+    List<Department> departments = ref.watch(departmentsProvider);
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -28,7 +30,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
             child: BarChart(
               BarChartData(
                 maxY: maxY(departmentsData),
-                titlesData: titlesData(departmentsData),
+                titlesData: titlesData(departments),
                 borderData: FlBorderData(show: true),
                 barGroups: barGroups(departmentsData),
                 gridData: FlGridData(show: true),
@@ -55,14 +57,13 @@ class DashboardDepartmentChart extends ConsumerWidget {
     return max.toDouble();
   }
 
-  Widget getTitles(double value, TitleMeta meta,
-      List<Map<String, dynamic>> departmentsData) {
+  Widget getTitles(double value, TitleMeta meta, List<Department> departments) {
     const style = TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
 
-    String departmentName = departmentsData[value.toInt()]['departmentName'];
+    String departmentName = departments[value.toInt()].departmentName;
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
@@ -71,7 +72,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
     );
   }
 
-  FlTitlesData titlesData(List<Map<String, dynamic>> departmentsData) {
+  FlTitlesData titlesData(List<Department> departments) {
     return FlTitlesData(
       show: true,
       bottomTitles: AxisTitles(
@@ -79,7 +80,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
           showTitles: true,
           reservedSize: 30,
           getTitlesWidget: (double value, TitleMeta meta) {
-            return getTitles(value, meta, departmentsData);
+            return getTitles(value, meta, departments);
           },
         ),
       ),

@@ -311,7 +311,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               onChanged: (Department? dept) {
                 if (dept == null) return;
                 setState(() {
-                  widget.item.departmentID == dept.departmentID;
+                  widget.item.departmentID = dept.departmentID;
                 });
               },
             ),

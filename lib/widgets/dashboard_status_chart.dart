@@ -11,7 +11,8 @@ class DashboardStatusChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Map<String, int> statusData = ref.watch(statusDataProvider);
+    Map<String, int> statusData =
+        ref.watch(dashboardDataProvider).statusDashboardData;
     int totalItems = ref.watch(totalItemsProvider);
 
     return Padding(
