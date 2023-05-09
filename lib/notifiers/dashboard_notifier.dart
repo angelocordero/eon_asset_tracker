@@ -20,7 +20,11 @@ class DashboardNotifier extends StateNotifier<DashboardData> {
   init() async {
     if (conn == null) return;
 
-    state = DashboardData(
+    state = await _setState();
+  }
+
+  Future<DashboardData> _setState() async {
+    return DashboardData(
       statusDashboardData: await DatabaseAPI.statusData(conn: conn),
       categoriesDashbordData: await DatabaseAPI.categoriesData(
         conn: conn,
@@ -30,6 +34,7 @@ class DashboardNotifier extends StateNotifier<DashboardData> {
         conn: conn,
         departments: departments,
       ),
+      totalItems: await DatabaseAPI.getTotal(conn: conn),
     );
   }
 
@@ -38,16 +43,6 @@ class DashboardNotifier extends StateNotifier<DashboardData> {
 
     await Future.delayed(const Duration(milliseconds: 200));
 
-    state = DashboardData(
-      statusDashboardData: await DatabaseAPI.statusData(conn: conn),
-      categoriesDashbordData: await DatabaseAPI.categoriesData(
-        conn: conn,
-        categories: categories,
-      ),
-      departmentsDashboardData: await DatabaseAPI.departmentsData(
-        conn: conn,
-        departments: departments,
-      ),
-    );
+    state = await _setState();
   }
 }

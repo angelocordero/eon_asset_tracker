@@ -210,6 +210,8 @@ class InventoryTab extends ConsumerWidget {
                     conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
 
                 await ref.read(inventoryProvider.notifier).refresh();
+
+                await ref.read(dashboardDataProvider.notifier).refresh();
               });
             },
             icon: const Icon(Icons.delete),

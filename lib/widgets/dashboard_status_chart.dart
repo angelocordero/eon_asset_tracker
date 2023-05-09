@@ -1,5 +1,6 @@
 import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
+import 'package:eon_asset_tracker/models/dashboard_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,9 +12,7 @@ class DashboardStatusChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Map<String, int> statusData =
-        ref.watch(dashboardDataProvider).statusDashboardData;
-    int totalItems = ref.watch(totalItemsProvider);
+    DashboardData dashboardData = ref.watch(dashboardDataProvider);
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -32,7 +31,7 @@ class DashboardStatusChart extends ConsumerWidget {
               const SizedBox(
                 height: 30,
               ),
-              ..._legend(statusData),
+              ..._legend(dashboardData.statusDashboardData),
             ],
           ),
           Expanded(
@@ -44,7 +43,7 @@ class DashboardStatusChart extends ConsumerWidget {
                     show: false,
                   ),
                   sectionsSpace: 10,
-                  sections: _data(statusData, totalItems),
+                  sections: _data(dashboardData),
                   centerSpaceRadius: double.infinity,
                 ),
               ),
@@ -55,10 +54,10 @@ class DashboardStatusChart extends ConsumerWidget {
     );
   }
 
-  List<PieChartSectionData> _data(Map<String, int> statusData, int totalItems) {
-    return statusData.entries.map((entry) {
+  List<PieChartSectionData> _data(DashboardData dashboardData) {
+    return dashboardData.statusDashboardData.entries.map((entry) {
       String percentage =
-          '${(entry.value / totalItems * 100).toStringAsFixed(0)}%';
+          '${(entry.value / dashboardData.totalItems * 100).toStringAsFixed(0)}%';
 
       return PieChartSectionData(
         value: entry.value.toDouble(),

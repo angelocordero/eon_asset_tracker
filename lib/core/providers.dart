@@ -43,10 +43,6 @@ final searchQueryProvider = StateProvider<String>((ref) {
   return 'Asset ID';
 });
 
-final totalItemsProvider = StateProvider<int>((ref) {
-  return 0;
-});
-
 final dashboardDataProvider =
     StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
   return DashboardNotifier(

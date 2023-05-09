@@ -81,18 +81,27 @@ class DatabaseAPI {
 
     List<ResultRow> rows = results.toList();
 
-    for (int i = 0; i < results.length; i++) {
-      ResultRow row = rows[i];
+    List<String> rowCategories =
+        rows.map((e) => e['category_id'] as String).toList();
 
-      String categoryName = categories
-          .firstWhere((element) => element.categoryID == (row[0] as String))
-          .categoryName;
+    for (int i = 0; i < categories.length; i++) {
+      if (rowCategories.contains(categories[i].categoryID)) {
+        ResultRow row = rows.firstWhere((element) {
+          return element['category_id'] == categories[i].categoryID;
+        });
 
-      buffer.add({
-        'categoryName': categoryName,
-        'count': row[1] ?? 0,
-        'index': i,
-      });
+        buffer.add({
+          'departmentName': categories[i].categoryName,
+          'count': row['count'],
+          'index': i,
+        });
+      } else {
+        buffer.add({
+          'departmentName': categories[i].categoryName,
+          'count': 0,
+          'index': i,
+        });
+      }
     }
 
     return buffer;

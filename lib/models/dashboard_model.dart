@@ -7,8 +7,10 @@ class DashboardData {
   StatusDashboardData statusDashboardData;
   CategoriesDashboardData categoriesDashbordData;
   DepartmentsDashboardData departmentsDashboardData;
+  int totalItems;
 
   DashboardData({
+    required this.totalItems,
     required this.statusDashboardData,
     required this.categoriesDashbordData,
     required this.departmentsDashboardData,
@@ -16,6 +18,7 @@ class DashboardData {
 
   factory DashboardData.empty() {
     return DashboardData(
+      totalItems: 0,
       statusDashboardData: {},
       categoriesDashbordData: [],
       departmentsDashboardData: [],
@@ -26,8 +29,10 @@ class DashboardData {
     StatusDashboardData? statusDashboardData,
     CategoriesDashboardData? categoriesDashbordData,
     DepartmentsDashboardData? departmentsDashboardData,
+    int? totalItems,
   }) {
     return DashboardData(
+      totalItems: totalItems ?? this.totalItems,
       statusDashboardData: statusDashboardData ?? this.statusDashboardData,
       categoriesDashbordData:
           categoriesDashbordData ?? this.categoriesDashbordData,
@@ -38,7 +43,7 @@ class DashboardData {
 
   @override
   String toString() =>
-      'DashboardData(statusDashboardData: $statusDashboardData, categoriesDashbordData: $categoriesDashbordData, departmentsDashboardData: $departmentsDashboardData)';
+      'DashboardData(statusDashboardData: $statusDashboardData, categoriesDashbordData: $categoriesDashbordData, departmentsDashboardData: $departmentsDashboardData, totalItems: $totalItems)';
 
   @override
   bool operator ==(covariant DashboardData other) {

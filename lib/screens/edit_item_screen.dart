@@ -163,6 +163,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
                       await ref.read(inventoryProvider.notifier).refresh();
 
+                      await ref.read(dashboardDataProvider.notifier).refresh();
+
                       // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     },

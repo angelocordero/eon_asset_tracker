@@ -51,7 +51,10 @@ class DashboardTab extends ConsumerWidget {
                           Expanded(
                             child: Center(
                               child: Text(
-                                ref.watch(totalItemsProvider).toString(),
+                                ref
+                                    .watch(dashboardDataProvider)
+                                    .totalItems
+                                    .toString(),
                                 style: const TextStyle(fontSize: 50),
                               ),
                             ),
