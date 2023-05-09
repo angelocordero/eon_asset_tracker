@@ -12,7 +12,7 @@ class SearchWidget extends ConsumerWidget {
 
   static final List<String> _searchByList = [
     'Asset ID',
-    'Item Model / Serial Number',
+    'Item Name',
     'Person Accountable',
     'Unit',
     'Item Description',

@@ -34,7 +34,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late Department _department;
   late ItemCategory _category;
 
-  final TextEditingController _modelController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _personAccountableController =
       TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -86,7 +86,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          itemModelField(),
+                          itemNameField(),
                           departmentField(),
                           personAccountableField(),
                           categoryField(),
@@ -124,7 +124,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      if (_modelController.text.trim().isEmpty) {
+                      if (_nameController.text.trim().isEmpty) {
                         EasyLoading.showError(
                           'Required fields must not be empty',
                         );
@@ -140,7 +140,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         personAccountable:
                             _personAccountableController.text.trim(),
                         departmentID: _department.departmentID,
-                        model: _modelController.text.trim(),
+                        name: _nameController.text.trim(),
                         description: _itemDescriptionController.text.trim(),
                         unit: _unitController.text.trim(),
                         price: _isPurchased
@@ -172,7 +172,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (_modelController.text.isNotEmpty ||
+                      if (_nameController.text.isNotEmpty ||
                           _personAccountableController.text.isNotEmpty ||
                           _unitController.text.isNotEmpty ||
                           _itemDescriptionController.text.isNotEmpty ||
@@ -220,18 +220,18 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column itemModelField() {
+  Column itemNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Item Model / Serial Number'),
+        const Text('Item Name'),
         const SizedBox(
           height: 20,
         ),
         SizedBox(
           width: 300,
           child: TextField(
-            controller: _modelController,
+            controller: _nameController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
         ),

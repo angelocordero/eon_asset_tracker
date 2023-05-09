@@ -31,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
               iconTheme: IconThemeData(color: Colors.grey),
             ),
             extendedTheme: const SidebarXTheme(
-              width: 200,
+              width: 180,
               textStyle: TextStyle(color: Colors.grey),
               selectedTextStyle: TextStyle(color: Colors.white),
               margin: EdgeInsets.only(right: 10),

@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:nanoid/nanoid.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
@@ -49,4 +50,15 @@ String priceToString(double? price) {
   return price == null
       ? ''
       : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
+}
+
+QrImageView generateQRImage({required String assetID, double? size}) {
+  return QrImageView(
+    size: size,
+    data: assetID,
+    backgroundColor: Colors.transparent,
+    foregroundColor: Colors.white,
+    embeddedImage: const AssetImage('assets/logo.jpg'),
+    embeddedImageStyle: QrEmbeddedImageStyle(),
+  );
 }

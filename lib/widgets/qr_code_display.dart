@@ -1,5 +1,5 @@
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 class QRCodeDisplay extends StatelessWidget {
   const QRCodeDisplay({super.key, required this.assetID});
@@ -15,16 +15,7 @@ class QRCodeDisplay extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              QrImage(
-                size: 500,
-                data: assetID,
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                embeddedImage: const AssetImage('assets/logo.jpg'),
-                embeddedImageStyle: QrEmbeddedImageStyle(
-                  size: const Size(80, 80),
-                ),
-              ),
+              generateQRImage(assetID: assetID, size: 500),
               const SizedBox(
                 height: 15,
               ),

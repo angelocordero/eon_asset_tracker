@@ -149,9 +149,9 @@ class DatabaseAPI {
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
 
-        case 'Item Model / Serial Number':
+        case 'Item Name':
           Results results = await _searchQuery(
-              conn: conn, searchBy: 'item_model', query: query);
+              conn: conn, searchBy: 'item_name', query: query);
 
           buffer = results.map<Item>((row) => Item.fromResultRow(row)).toList();
           break;
@@ -200,7 +200,7 @@ class DatabaseAPI {
       await conn.query('''UPDATE `assets` SET   
           department_id = ?,
           person_accountable = ?,
-          item_model = ? ,
+          item_name = ? ,
           item_description = ?,
           unit = ?,
           price = ? ,
@@ -212,7 +212,7 @@ class DatabaseAPI {
           WHERE `asset_id`=?''', [
         item.departmentID,
         item.personAccountable,
-        item.model,
+        item.name,
         item.description,
         item.unit,
         item.price,
@@ -237,7 +237,7 @@ class DatabaseAPI {
           asset_id, 
           department_id,
           person_accountable,
-          item_model,
+          item_name,
           item_description,
           unit,
           price,
@@ -251,7 +251,7 @@ class DatabaseAPI {
         item.assetID,
         item.departmentID,
         item.personAccountable,
-        item.model,
+        item.name,
         item.description,
         item.unit,
         item.price,

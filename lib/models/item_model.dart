@@ -7,7 +7,7 @@ class Item {
   String assetID;
   String departmentID;
   String? personAccountable;
-  String model;
+  String name;
   String? description;
   String unit;
   double? price;
@@ -21,7 +21,7 @@ class Item {
     required this.assetID,
     required this.departmentID,
     this.personAccountable,
-    required this.model,
+    required this.name,
     this.description,
     required this.unit,
     this.price,
@@ -35,7 +35,7 @@ class Item {
   Item.withoutID({
     required this.departmentID,
     this.personAccountable,
-    required this.model,
+    required this.name,
     this.description,
     required this.unit,
     this.price,
@@ -51,7 +51,7 @@ class Item {
         assetID: row[0],
         departmentID: row[1],
         personAccountable: row[2],
-        model: row[3],
+        name: row[3],
         description: row[4],
         unit: row[5],
         price: row[6],
@@ -66,7 +66,7 @@ class Item {
     String? assetID,
     String? departmentID,
     String? personAccountable,
-    String? model,
+    String? name,
     String? description,
     String? unit,
     double? price,
@@ -80,7 +80,7 @@ class Item {
       assetID: assetID ?? this.assetID,
       departmentID: departmentID ?? this.departmentID,
       personAccountable: personAccountable ?? this.personAccountable,
-      model: model ?? this.model,
+      name: name ?? this.name,
       description: description ?? this.description,
       unit: unit ?? this.unit,
       price: price,
@@ -99,7 +99,7 @@ class Item {
     return other.assetID == assetID &&
         other.departmentID == departmentID &&
         other.personAccountable == personAccountable &&
-        other.model == model &&
+        other.name == name &&
         other.description == description &&
         other.unit == unit &&
         other.price == price &&
@@ -115,7 +115,7 @@ class Item {
     return assetID.hashCode ^
         departmentID.hashCode ^
         personAccountable.hashCode ^
-        model.hashCode ^
+        name.hashCode ^
         description.hashCode ^
         unit.hashCode ^
         price.hashCode ^
@@ -128,6 +128,6 @@ class Item {
 
   @override
   String toString() {
-    return 'Item(assetID: $assetID, departmentID: $departmentID, personAccountable: $personAccountable, model: $model, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, categoryID: $categoryID, remarks: $remarks)';
+    return 'Item(assetID: $assetID, departmentID: $departmentID, personAccountable: $personAccountable, name: $name, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, categoryID: $categoryID, remarks: $remarks)';
   }
 }

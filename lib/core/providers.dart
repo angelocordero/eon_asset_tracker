@@ -51,3 +51,7 @@ final dashboardDataProvider =
     categories: ref.watch(categoriesProvider),
   );
 });
+
+final checkedItemProvider = StateProvider<List<String>>((ref) {
+  return [];
+});

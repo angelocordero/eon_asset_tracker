@@ -3,8 +3,8 @@ import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/widgets/qr_code_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
+import '../core/utils.dart';
 import '../models/item_model.dart';
 
 class ItemInfoDisplay extends ConsumerWidget {
@@ -97,24 +97,10 @@ class ItemInfoDisplay extends ConsumerWidget {
                             ),
                             label: const Text('Enlarge QR Code'),
                           ),
-                          ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.print),
-                            label: const Text('Print QR Code'),
-                          ),
                         ],
                       ),
                       const Spacer(),
-                      QrImage(
-                        size: 160,
-                        data: selectedItem.assetID,
-                        backgroundColor: Colors.transparent,
-                        foregroundColor: Colors.white,
-                        embeddedImage: const AssetImage('assets/logo.jpg'),
-                        embeddedImageStyle: QrEmbeddedImageStyle(
-                          size: const Size(25.6, 25.6),
-                        ),
-                      ),
+                      generateQRImage(assetID: selectedItem.assetID),
                     ],
                   ),
           ),

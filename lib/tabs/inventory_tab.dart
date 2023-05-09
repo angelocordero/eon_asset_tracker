@@ -10,16 +10,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 
 import '../models/item_model.dart';
+import '../pdf/qr_code_pdf.dart';
+import '../widgets/inventory_checkbox.dart';
 
 class InventoryTab extends ConsumerWidget {
   const InventoryTab({super.key});
 
   static final List<String> columns = [
     'Asset ID',
-    'Item Model /\nSerial Number',
+    'Item Name',
     'Department',
     'Person Accountable',
     'Category',
@@ -44,6 +47,24 @@ class InventoryTab extends ConsumerWidget {
           Flexible(
             flex: 7,
             child: StickyHeadersTable(
+              legendCell: Center(
+                child: Checkbox(
+                  value: ref.watch(checkedItemProvider).length == rows.length,
+                  onChanged: (checked) {
+                    if (checked == null) return;
+                    List<String> buffer = ref.read(checkedItemProvider);
+
+                    if (checked) {
+                      buffer.addAll(rows.map((e) => e.assetID).toList());
+                    } else {
+                      buffer.clear();
+                    }
+
+                    ref.read(checkedItemProvider.notifier).state =
+                        buffer.toSet().toList();
+                  },
+                ),
+              ),
               onContentCellPressed: (i, j) {
                 ref.read(selectedItemProvider.notifier).state = rows[j];
               },
@@ -53,23 +74,35 @@ class InventoryTab extends ConsumerWidget {
                 columnWidths: [
                   250,
                   250,
-                  180,
-                  180,
-                  180,
-                  120,
-                  180,
-                  120,
+                  200,
+                  250,
+                  200,
+                  150,
+                  150,
+                  150,
                   220,
                   220,
                 ],
                 contentCellHeight: 80,
-                stickyLegendWidth: 50,
+                stickyLegendWidth: 80,
                 stickyLegendHeight: 80,
               ),
               columnsLength: columns.length,
               rowsLength: rows.length,
               columnsTitleBuilder: (i) => Text(columns[i]),
-              rowsTitleBuilder: (j) => Text((j + 1).toString()),
+              rowsTitleBuilder: (j) {
+                Item item = rows[j];
+
+                return Row(
+                  children: [
+                    Text((j + 1).toString()),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    InventoryCheckbox(assetID: item.assetID),
+                  ],
+                );
+              },
               contentCellBuilder: (i, j) {
                 Item item = rows[j];
 
@@ -94,7 +127,7 @@ class InventoryTab extends ConsumerWidget {
                   case 0:
                     return tableDataTile(item.assetID, selected);
                   case 1:
-                    return tableDataTile(item.model, selected);
+                    return tableDataTile(item.name, selected);
                   case 2:
                     return tableDataTile(departmentName, selected);
                   case 3:
@@ -138,8 +171,11 @@ class InventoryTab extends ConsumerWidget {
     return Container(
       color: selected ? Colors.blueGrey : Colors.transparent,
       child: ListTile(
+        horizontalTitleGap: 0,
         title: Text(
           text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
         ),
         selectedTileColor: Colors.blueGrey,
@@ -185,9 +221,46 @@ class InventoryTab extends ConsumerWidget {
         SearchWidget(controller: _searchController),
         const Spacer(),
         Tooltip(
+          message: 'Print QR Codes',
+          child: IconButton.outlined(
+            onPressed: () {
+              if (ref.read(checkedItemProvider).isEmpty) return;
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    List<Item> items =
+                        ref.read(checkedItemProvider).map((entry) {
+                      return ref
+                          .read(inventoryProvider)
+                          .firstWhere((element) => element.assetID == entry);
+                    }).toList();
+
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: const Text('Print QR Code'),
+                      ),
+                      body: PdfPreview(
+                        build: (format) => QRCodePDF(
+                          items: items,
+                          departments: ref.read(departmentsProvider),
+                          categories: ref.read(categoriesProvider),
+                        ).generate(),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.qr_code),
+          ),
+        ),
+        Tooltip(
           message: 'Refresh page',
           child: IconButton.outlined(
             onPressed: () {
+              ref.read(checkedItemProvider.notifier).state = [];
               ref.read(inventoryProvider.notifier).refresh();
 
               _searchController.clear();

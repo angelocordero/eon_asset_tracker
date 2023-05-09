@@ -29,7 +29,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       DateTime.now().subtract(const Duration(days: 365 * 5));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 5));
 
-  late TextEditingController _modelController;
+  late TextEditingController _nameController;
   late TextEditingController _personAccountableController;
   late TextEditingController _priceController;
   late TextEditingController _unitController;
@@ -43,8 +43,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     _departments = ref.read(departmentsProvider);
     _categories = ref.read(categoriesProvider);
 
-    _modelController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.model));
+    _nameController = TextEditingController.fromValue(
+        TextEditingValue(text: widget.item.name));
     _personAccountableController = TextEditingController.fromValue(
         TextEditingValue(text: widget.item.personAccountable ?? ''));
     _priceController = TextEditingController.fromValue(TextEditingValue(
@@ -91,7 +91,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          itemModelField(),
+                          itemNameField(),
                           departmentField(),
                           personAccountableField(),
                           categoryField(),
@@ -129,7 +129,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      if (_modelController.text.trim().isEmpty) {
+                      if (_nameController.text.trim().isEmpty) {
                         EasyLoading.showError(
                           'Required fields must not be empty',
                         );
@@ -142,7 +142,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                       if (conn == null) return;
 
                       Item newItem = widget.item.copyWith(
-                        model: _modelController.text.trim(),
+                        name: _nameController.text.trim(),
                         personAccountable:
                             _personAccountableController.text.trim(),
                         description: _itemDescriptionController.text.trim(),
@@ -175,7 +175,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (_modelController.text.isNotEmpty ||
+                      if (_nameController.text.isNotEmpty ||
                           _personAccountableController.text.isNotEmpty ||
                           _unitController.text.isNotEmpty ||
                           _itemDescriptionController.text.isNotEmpty ||
@@ -223,18 +223,18 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column itemModelField() {
+  Column itemNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Item Model / Serial Number'),
+        const Text('Item Name'),
         const SizedBox(
           height: 20,
         ),
         SizedBox(
           width: 300,
           child: TextField(
-            controller: _modelController,
+            controller: _nameController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
         ),
