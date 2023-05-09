@@ -23,8 +23,7 @@ class QRCodePDF {
     pdf.addPage(
       pw.MultiPage(
         margin: const pw.EdgeInsets.all(0.0),
-        pageFormat: PdfPageFormat.letter.portrait, //this is what you want
-
+        pageFormat: PdfPageFormat.letter.portrait,
         build: (context) {
           return [
             stickerGrid(),

@@ -2,6 +2,7 @@ import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
+import 'package:eon_asset_tracker/pdf/report_pdf.dart';
 import 'package:eon_asset_tracker/screens/add_item_screen.dart';
 import 'package:eon_asset_tracker/screens/edit_item_screen.dart';
 import 'package:eon_asset_tracker/widgets/item_info_display.dart';
@@ -185,7 +186,9 @@ class InventoryTab extends ConsumerWidget {
   }
 
   Future<dynamic> showDeleteDialog(
-      BuildContext context, AsyncCallback callback) async {
+    BuildContext context,
+    AsyncCallback callback,
+  ) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -214,12 +217,77 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
+  Future<dynamic> showReportDialog(
+      BuildContext context, int itemLength, AsyncCallback callback) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Generate report for $itemLength items?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+
+                await callback();
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Row header(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SearchWidget(controller: _searchController),
         const Spacer(),
+        Tooltip(
+          message: 'Generate Report',
+          child: IconButton.outlined(
+            onPressed: () async {
+              int itemLength = ref.read(inventoryProvider).length;
+
+              if (itemLength == 0) return;
+
+              await showReportDialog(
+                context,
+                itemLength,
+                () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Scaffold(
+                          appBar: AppBar(
+                            title: const Text('Print QR Code'),
+                          ),
+                          body: PdfPreview(
+                            build: (format) async => await ReportPDF(
+                              inventoryItems: ref.read(inventoryProvider),
+                              departments: ref.read(departmentsProvider),
+                              categories: ref.read(categoriesProvider),
+                            ).generate(),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+            icon: const Icon(Icons.print),
+          ),
+        ),
         Tooltip(
           message: 'Print QR Codes',
           child: IconButton.outlined(

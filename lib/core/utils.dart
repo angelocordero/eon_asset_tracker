@@ -46,6 +46,10 @@ String dateToString(DateTime dateTime) {
   return '${DateFormat.EEEE().format(dateTime)} ${DateFormat.yMMMd().format(dateTime)}';
 }
 
+String dateTimeToString(DateTime dateTime) {
+  return '${DateFormat.yMMMMEEEEd().format(dateTime)} ${DateFormat.jm().format(dateTime)}';
+}
+
 String priceToString(double? price) {
   return price == null
       ? ''
