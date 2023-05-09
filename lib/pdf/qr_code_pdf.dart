@@ -51,15 +51,11 @@ class QRCodePDF {
     Item item,
   ) {
     String assetID = item.assetID;
-    String departmentName = departments
-        .firstWhere((element) => element.departmentID == item.departmentID)
-        .departmentName;
+    String departmentName = item.department.departmentName;
 
     String personAccountable = item.personAccountable ?? '';
     String name = item.name;
-    String category = categories
-        .firstWhere((element) => element.categoryID == item.categoryID)
-        .categoryName;
+    String category = item.category.categoryName;
 
     return pw.Padding(
       padding: const pw.EdgeInsets.all(1),

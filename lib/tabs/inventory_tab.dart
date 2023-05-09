@@ -61,8 +61,7 @@ class InventoryTab extends ConsumerWidget {
                       buffer.clear();
                     }
 
-                    ref.read(checkedItemProvider.notifier).state =
-                        buffer.toSet().toList();
+                    ref.read(checkedItemProvider.notifier).state = buffer.toSet().toList();
                   },
                 ),
               ),
@@ -107,22 +106,9 @@ class InventoryTab extends ConsumerWidget {
               contentCellBuilder: (i, j) {
                 Item item = rows[j];
 
-                String? selectedItemAssetID =
-                    ref.watch(selectedItemProvider)?.assetID;
+                String? selectedItemAssetID = ref.watch(selectedItemProvider)?.assetID;
 
                 bool selected = item.assetID == selectedItemAssetID;
-
-                String categoryName = ref
-                    .read(categoriesProvider)
-                    .firstWhere(
-                        (element) => element.categoryID == item.categoryID)
-                    .categoryName;
-
-                String departmentName = ref
-                    .read(departmentsProvider)
-                    .firstWhere(
-                        (element) => element.departmentID == item.departmentID)
-                    .departmentName;
 
                 switch (i) {
                   case 0:
@@ -130,12 +116,11 @@ class InventoryTab extends ConsumerWidget {
                   case 1:
                     return tableDataTile(item.name, selected);
                   case 2:
-                    return tableDataTile(departmentName, selected);
+                    return tableDataTile(item.department.departmentName, selected);
                   case 3:
-                    return tableDataTile(
-                        item.personAccountable ?? '', selected);
+                    return tableDataTile(item.personAccountable ?? '', selected);
                   case 4:
-                    return tableDataTile(categoryName, selected);
+                    return tableDataTile(item.category.categoryName, selected);
                   case 5:
                     return tableDataTile(item.status.name, selected);
                   case 6:
@@ -143,14 +128,9 @@ class InventoryTab extends ConsumerWidget {
                   case 7:
                     return tableDataTile(priceToString(item.price), selected);
                   case 8:
-                    return tableDataTile(
-                        item.datePurchased == null
-                            ? ''
-                            : dateToString(item.datePurchased!.toLocal()),
-                        selected);
+                    return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!.toLocal()), selected);
                   case 9:
-                    return tableDataTile(
-                        dateToString(item.dateReceived.toLocal()), selected);
+                    return tableDataTile(dateToString(item.dateReceived.toLocal()), selected);
 
                   default:
                     return Container();
@@ -217,8 +197,7 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
-  Future<dynamic> showReportDialog(
-      BuildContext context, int itemLength, AsyncCallback callback) async {
+  Future<dynamic> showReportDialog(BuildContext context, int itemLength, AsyncCallback callback) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -298,11 +277,8 @@ class InventoryTab extends ConsumerWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    List<Item> items =
-                        ref.read(checkedItemProvider).map((entry) {
-                      return ref
-                          .read(inventoryProvider)
-                          .firstWhere((element) => element.assetID == entry);
+                    List<Item> items = ref.read(checkedItemProvider).map((entry) {
+                      return ref.read(inventoryProvider).firstWhere((element) => element.assetID == entry);
                     }).toList();
 
                     return Scaffold(
@@ -342,13 +318,11 @@ class InventoryTab extends ConsumerWidget {
           child: IconButton.outlined(
             onPressed: () {
               showDeleteDialog(context, () async {
-                String? selectedAssetID =
-                    ref.read(selectedItemProvider)?.assetID;
+                String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
 
                 if (selectedAssetID == null) return;
 
-                await DatabaseAPI.delete(
-                    conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
+                await DatabaseAPI.delete(conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
 
                 await ref.read(inventoryProvider.notifier).refresh();
 

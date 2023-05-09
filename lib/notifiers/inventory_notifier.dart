@@ -12,13 +12,16 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
 
   StateNotifierProviderRef<InventoryNotifier, List<Item>> ref;
 
+  late List<Department> departments;
+  late List<ItemCategory> categories;
+
   Future<void> init() async {
     MySqlConnection? conn = ref.read(sqlConnProvider);
 
+    departments = await ref.read(departmentsProvider);
+    categories = await ref.read(categoriesProvider);
     if (conn == null) return;
 
-    List<Department> departments = await ref.read(departmentsProvider);
-    List<ItemCategory> categories = await ref.read(categoriesProvider);
     state = await DatabaseAPI.getInventory(conn, departments, categories);
   }
 
@@ -39,7 +42,12 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
       return;
     }
 
-    state =
-        await DatabaseAPI.search(conn: conn, query: query, searchBy: searchBy);
+    state = await DatabaseAPI.search(
+      conn: conn,
+      query: query,
+      searchBy: searchBy,
+      departments: departments,
+      categories: categories,
+    );
   }
 }

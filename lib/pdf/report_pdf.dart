@@ -68,22 +68,13 @@ class ReportPDF {
               },
               headerStyle: const pw.TextStyle(fontSize: 8),
               data: inventoryItems.map((Item item) {
-                String departmentName = departments
-                    .firstWhere(
-                        (element) => element.departmentID == item.departmentID)
-                    .departmentName;
-
-                String category = categories
-                    .firstWhere(
-                        (element) => element.categoryID == item.categoryID)
-                    .categoryName;
-
+              
                 return [
                   item.assetID,
                   item.name,
-                  departmentName,
+                  item.department.departmentName,
                   item.personAccountable ?? '',
-                  category,
+                  item.category.categoryName,
                   item.status.name,
                   item.unit,
                   priceToString(item.price ?? 0),

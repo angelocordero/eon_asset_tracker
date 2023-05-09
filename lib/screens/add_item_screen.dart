@@ -26,8 +26,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late DateTime _datePurchased;
   late DateTime _dateReceived;
 
-  final DateTime _firstDate =
-      DateTime.now().subtract(const Duration(days: 365 * 5));
+  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 5));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 5));
 
   late ItemStatus _itemStatus;
@@ -35,12 +34,10 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late ItemCategory _category;
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _personAccountableController =
-      TextEditingController();
+  final TextEditingController _personAccountableController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _unitController = TextEditingController();
-  final TextEditingController _itemDescriptionController =
-      TextEditingController();
+  final TextEditingController _itemDescriptionController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
 
   bool _isPurchased = false;
@@ -136,10 +133,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                       if (conn == null) return;
 
-                      Item item = Item.withoutID(
-                        personAccountable:
-                            _personAccountableController.text.trim(),
-                        departmentID: _department.departmentID,
+                      Item item = Item.toDatabase(
+                        personAccountable: _personAccountableController.text.trim(),
+                        department: _department,
                         name: _nameController.text.trim(),
                         description: _itemDescriptionController.text.trim(),
                         unit: _unitController.text.trim(),
@@ -151,12 +147,13 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         datePurchased: _isPurchased ? _datePurchased : null,
                         dateReceived: _dateReceived,
                         status: _itemStatus,
-                        categoryID: _category.categoryID,
+                        category: _category,
                         remarks: _remarksController.text.trim(),
+                        categories: ref.read(categoriesProvider),
+                        departments: ref.read(departmentsProvider),
                       );
 
-                      await DatabaseAPI.add(
-                          conn: ref.read(sqlConnProvider)!, item: item);
+                      await DatabaseAPI.add(conn: ref.read(sqlConnProvider)!, item: item);
 
                       await ref.read(inventoryProvider.notifier).refresh();
 
@@ -357,9 +354,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           child: TextField(
             enabled: _isPurchased,
             controller: _priceController,
-            inputFormatters: [
-              FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)
-            ],
+            inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)],
             decoration: InputDecoration(
               icon: Text(
                 '₱',
@@ -470,9 +465,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               ),
               value: _itemStatus,
               items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) =>
-                      DropdownMenuItem<ItemStatus>(
-                          value: value, child: Text(value.name)))
+                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
                   .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
@@ -528,9 +521,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               ),
               value: _category,
               items: _categories
-                  .map<DropdownMenuItem<ItemCategory>>((value) =>
-                      DropdownMenuItem<ItemCategory>(
-                          value: value, child: Text(value.categoryName)))
+                  .map<DropdownMenuItem<ItemCategory>>((value) => DropdownMenuItem<ItemCategory>(value: value, child: Text(value.categoryName)))
                   .toList(),
               onChanged: (ItemCategory? category) {
                 if (category == null) return;

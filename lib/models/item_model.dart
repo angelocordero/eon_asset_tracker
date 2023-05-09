@@ -1,11 +1,13 @@
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../core/constants.dart';
-import '../core/utils.dart';
+import 'category_model.dart';
+import 'department_model.dart';
 
 class Item {
   String assetID;
-  String departmentID;
+  Department department;
   String? personAccountable;
   String name;
   String? description;
@@ -14,12 +16,12 @@ class Item {
   DateTime? datePurchased;
   DateTime dateReceived;
   ItemStatus status;
-  String categoryID;
+  ItemCategory category;
   String? remarks;
 
   Item({
     required this.assetID,
-    required this.departmentID,
+    required this.department,
     this.personAccountable,
     required this.name,
     this.description,
@@ -28,43 +30,79 @@ class Item {
     this.datePurchased,
     required this.dateReceived,
     required this.status,
-    required this.categoryID,
+    required this.category,
     this.remarks,
   });
 
-  Item.withoutID({
-    required this.departmentID,
-    this.personAccountable,
-    required this.name,
-    this.description,
-    required this.unit,
-    this.price,
-    this.datePurchased,
-    required this.dateReceived,
-    required this.status,
-    required this.categoryID,
-    this.remarks,
-  }) : assetID = generateItemID();
+  // Item.toDatabase({
+  //   required this.department,
+  //   this.personAccountable,
+  //   required this.name,
+  //   this.description,
+  //   required this.unit,
+  //   this.price,
+  //   this.datePurchased,
+  //   required this.dateReceived,
+  //   required this.status,
+  //   required this.category,
+  //   this.remarks,
+  // }) : assetID = generateItemID();
 
-  factory Item.fromResultRow(ResultRow row) {
+  factory Item.toDatabase({
+    required Department department,
+    String? personAccountable,
+    required String name,
+    String? description,
+    required String unit,
+    double? price,
+    DateTime? datePurchased,
+    required DateTime dateReceived,
+    required ItemStatus status,
+    required ItemCategory category,
+    String? remarks,
+    required List<ItemCategory> categories,
+    required List<Department> departments,
+  }) {
     return Item(
-        assetID: row[0],
-        departmentID: row[1],
-        personAccountable: row[2],
-        name: row[3],
-        description: row[4],
-        unit: row[5],
-        price: row[6],
-        datePurchased: row[7] == null ? null : (row[7] as DateTime),
-        dateReceived: (row[8] as DateTime).toLocal(),
-        status: ItemStatus.values.byName(row[9]),
-        categoryID: row[10],
-        remarks: row[11]);
+      assetID: generateItemID(),
+      department: department,
+      personAccountable: personAccountable,
+      name: name,
+      description: description,
+      unit: unit,
+      price: price,
+      datePurchased: datePurchased,
+      dateReceived: dateReceived,
+      status: status,
+      category: category,
+      remarks: remarks,
+    );
+  }
+
+  factory Item.fromDatabase({
+   required ResultRow row,
+   required List<ItemCategory> categories,
+   required List<Department> departments,
+  }) {
+    return Item(
+      assetID: row[0],
+      department: departments.firstWhere((element) => element.departmentID == row[1]),
+      personAccountable: row[2],
+      name: row[3],
+      description: row[4],
+      unit: row[5],
+      price: row[6],
+      datePurchased: row[7] == null ? null : (row[7] as DateTime),
+      dateReceived: (row[8] as DateTime).toLocal(),
+      status: ItemStatus.values.byName(row[9]),
+      category: categories.firstWhere((element) => element.categoryID == row[10]),
+      remarks: row[11],
+    );
   }
 
   Item copyWith({
     String? assetID,
-    String? departmentID,
+    Department? department,
     String? personAccountable,
     String? name,
     String? description,
@@ -73,12 +111,12 @@ class Item {
     DateTime? datePurchased,
     DateTime? dateReceived,
     ItemStatus? status,
-    String? categoryID,
+    ItemCategory? category,
     String? remarks,
   }) {
     return Item(
       assetID: assetID ?? this.assetID,
-      departmentID: departmentID ?? this.departmentID,
+      department: department ?? this.department,
       personAccountable: personAccountable ?? this.personAccountable,
       name: name ?? this.name,
       description: description ?? this.description,
@@ -87,7 +125,7 @@ class Item {
       datePurchased: datePurchased,
       dateReceived: dateReceived ?? this.dateReceived,
       status: status ?? this.status,
-      categoryID: categoryID ?? this.categoryID,
+      category: category ?? this.category,
       remarks: remarks ?? this.remarks,
     );
   }
@@ -97,7 +135,7 @@ class Item {
     if (identical(this, other)) return true;
 
     return other.assetID == assetID &&
-        other.departmentID == departmentID &&
+        other.department == department &&
         other.personAccountable == personAccountable &&
         other.name == name &&
         other.description == description &&
@@ -106,14 +144,14 @@ class Item {
         other.datePurchased == datePurchased &&
         other.dateReceived == dateReceived &&
         other.status == status &&
-        other.categoryID == categoryID &&
+        other.category == category &&
         other.remarks == remarks;
   }
 
   @override
   int get hashCode {
     return assetID.hashCode ^
-        departmentID.hashCode ^
+        department.hashCode ^
         personAccountable.hashCode ^
         name.hashCode ^
         description.hashCode ^
@@ -121,13 +159,13 @@ class Item {
         price.hashCode ^
         datePurchased.hashCode ^
         dateReceived.hashCode ^
-        categoryID.hashCode ^
+        category.hashCode ^
         status.hashCode ^
         remarks.hashCode;
   }
 
   @override
   String toString() {
-    return 'Item(assetID: $assetID, departmentID: $departmentID, personAccountable: $personAccountable, name: $name, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, categoryID: $categoryID, remarks: $remarks)';
+    return 'Item(assetID: $assetID, department: $department, personAccountable: $personAccountable, name: $name, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, category: $category, remarks: $remarks)';
   }
 }

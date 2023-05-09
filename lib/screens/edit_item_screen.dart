@@ -22,8 +22,6 @@ class EditItemScreen extends ConsumerStatefulWidget {
 }
 
 class _EditItemScreenState extends ConsumerState<EditItemScreen> {
-  late List<Department> _departments;
-  late List<ItemCategory> _categories;
 
   final DateTime _firstDate =
       DateTime.now().subtract(const Duration(days: 365 * 5));
@@ -40,9 +38,6 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
   @override
   void initState() {
-    _departments = ref.read(departmentsProvider);
-    _categories = ref.read(categoriesProvider);
-
     _nameController = TextEditingController.fromValue(
         TextEditingValue(text: widget.item.name));
     _personAccountableController = TextEditingController.fromValue(
@@ -302,9 +297,9 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value: _departments.firstWhere((element) =>
-                  element.departmentID == widget.item.departmentID),
-              items: _departments.map((value) {
+      
+              value: widget.item.department,
+              items: ref.watch(departmentsProvider).map((value) {
                 return DropdownMenuItem(
                   value: value,
                   child: Text(value.departmentName),
@@ -313,7 +308,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               onChanged: (Department? dept) {
                 if (dept == null) return;
                 setState(() {
-                  widget.item.departmentID = dept.departmentID;
+                  widget.item.department = dept;
                 });
               },
             ),
@@ -531,9 +526,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value: _categories.firstWhere(
-                  (element) => element.categoryID == widget.item.categoryID),
-              items: _categories
+              value: widget.item.category,
+              items: ref.watch(categoriesProvider)
                   .map<DropdownMenuItem<ItemCategory>>(
                     (value) => DropdownMenuItem<ItemCategory>(
                       value: value,
@@ -544,7 +538,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               onChanged: (ItemCategory? category) {
                 if (category == null) return;
                 setState(() {
-                  widget.item.categoryID = category.categoryID;
+                  widget.item.category= category;
                 });
               },
             ),
