@@ -11,8 +11,6 @@ class DashboardTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print(ref.watch(dashboardDataProvider.notifier).isLoading);
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
       child: Visibility(

@@ -132,6 +132,6 @@ class LoginScreen extends ConsumerWidget {
     // ignore: use_build_context_synchronously
     Navigator.pushReplacementNamed(context, 'home');
     ref.read(dashboardDataProvider.notifier).init();
-    ref.read(inventoryProvider.notifier).init();
+    ref.read(inventoryProvider.notifier).init(0);
   }
 }

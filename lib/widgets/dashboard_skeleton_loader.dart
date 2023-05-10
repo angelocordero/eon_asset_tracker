@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 
+@Deprecated('kalain')
 class DashboardSkeletonLoader extends StatelessWidget {
   const DashboardSkeletonLoader({super.key});
 

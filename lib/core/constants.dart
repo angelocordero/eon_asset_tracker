@@ -9,6 +9,8 @@ enum ItemStatus {
 
 BorderRadius defaultBorderRadius = BorderRadius.circular(8);
 
+int itemsPerPage = 50;
+
 const List<Color> sampleColors = [
   Color(0xffdd7878),
   Color(0xffea76cb),

@@ -27,7 +27,13 @@ class ReportPDF {
 
     pdf.addPage(
       pw.MultiPage(
-        theme: pw.ThemeData(defaultTextStyle: pw.TextStyle(font: fallbackFont)),
+        theme: pw.ThemeData(
+          textAlign: pw.TextAlign.center,
+          defaultTextStyle: pw.TextStyle(
+            font: fallbackFont,
+            fontSize: 8,
+          ),
+        ),
         margin: const pw.EdgeInsets.all(10.0),
         pageFormat: PdfPageFormat.letter.landscape,
         header: (context) {
@@ -54,6 +60,7 @@ class ReportPDF {
         build: (context) {
           return [
             pw.Table.fromTextArray(
+              cellAlignment: pw.Alignment.center,
               columnWidths: {
                 0: const pw.FlexColumnWidth(12.25),
                 1: const pw.FlexColumnWidth(12.25),
@@ -68,7 +75,6 @@ class ReportPDF {
               },
               headerStyle: const pw.TextStyle(fontSize: 8),
               data: inventoryItems.map((Item item) {
-              
                 return [
                   item.assetID,
                   item.name,
@@ -78,9 +84,7 @@ class ReportPDF {
                   item.status.name,
                   item.unit,
                   priceToString(item.price ?? 0),
-                  item.datePurchased == null
-                      ? ''
-                      : dateToString(item.datePurchased!),
+                  item.datePurchased == null ? '' : dateToString(item.datePurchased!),
                   dateToString(item.dateReceived),
                 ];
               }).toList(),

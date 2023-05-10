@@ -143,12 +143,17 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         datePurchased: _isPurchased ? widget.item.datePurchased ?? DateTime.now() : null,
                       );
 
-                      await DatabaseAPI.update(conn: conn, item: newItem);
+                      try {
+                        await DatabaseAPI.update(conn: conn, item: newItem);
 
-                      // ignore: use_build_context_synchronously
-                      Navigator.pop(context);
+                        // ignore: use_build_context_synchronously
+                        Navigator.pop(context);
 
-                      EasyLoading.dismiss();
+                        EasyLoading.dismiss();
+                      } catch (e) {
+                        EasyLoading.showError(e.toString());
+                        return;
+                      }
 
                       await ref.read(inventoryProvider.notifier).refresh();
 

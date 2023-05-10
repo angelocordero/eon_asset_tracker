@@ -43,8 +43,7 @@ class HomeScreen extends ConsumerWidget {
             controller: _controller,
             theme: const SidebarXTheme(
               itemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
-              selectedItemPadding:
-                  EdgeInsets.only(top: 20, left: 10, right: 10),
+              selectedItemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
               itemTextPadding: EdgeInsets.only(left: 20),
               selectedItemTextPadding: EdgeInsets.only(left: 20),
               textStyle: TextStyle(color: Colors.grey),
@@ -127,7 +126,6 @@ class HomeScreen extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                // Navigator.pop(context);
                 Navigator.pushReplacementNamed(context, 'login');
               },
               child: const Text('Confirm'),

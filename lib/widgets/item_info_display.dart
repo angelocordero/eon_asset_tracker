@@ -1,5 +1,6 @@
 import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
+import 'package:eon_asset_tracker/widgets/pagination_navigator.dart';
 import 'package:eon_asset_tracker/widgets/qr_code_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,11 +11,9 @@ import '../models/item_model.dart';
 class ItemInfoDisplay extends ConsumerWidget {
   const ItemInfoDisplay({super.key});
 
-  static final TextEditingController _descriptionController =
-      TextEditingController();
+  static final TextEditingController _descriptionController = TextEditingController();
 
-  static final TextEditingController _remarksController =
-      TextEditingController();
+  static final TextEditingController _remarksController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,8 +56,7 @@ class ItemInfoDisplay extends ConsumerWidget {
               maxLines: 10,
               minLines: 10,
               decoration: const InputDecoration(
-                disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
+                disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                 labelText: 'Remarks',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 labelStyle: TextStyle(color: Colors.white),
@@ -86,8 +84,7 @@ class ItemInfoDisplay extends ConsumerWidget {
                                 context,
                                 CustomRoute(
                                   builder: (context) {
-                                    return QRCodeDisplay(
-                                        assetID: selectedItem.assetID);
+                                    return QRCodeDisplay(assetID: selectedItem.assetID);
                                   },
                                 ),
                               );
@@ -107,9 +104,9 @@ class ItemInfoDisplay extends ConsumerWidget {
           const VerticalDivider(
             width: 40,
           ),
-          Flexible(
+          const Flexible(
             flex: 5,
-            child: Container(),
+            child: PaginationNavigator(),
           ),
         ],
       ),

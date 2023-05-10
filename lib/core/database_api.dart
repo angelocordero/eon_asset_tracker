@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -260,10 +261,13 @@ class DatabaseAPI {
     MySqlConnection? conn,
     List<Department> departments,
     List<ItemCategory> categories,
+    int page,
   ) async {
     if (conn == null) return Future.value([]);
 
-    var results = await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC', []);
+    int offset = (itemsPerPage * page);
+
+    var results = await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC LIMIT $itemsPerPage OFFSET $offset', []);
 
     return results.map<Item>((row) {
       return Item.fromDatabase(

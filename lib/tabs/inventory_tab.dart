@@ -195,9 +195,13 @@ class InventoryTab extends ConsumerWidget {
 
                 if (selectedAssetID == null) return;
 
-                await DatabaseAPI.delete(conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
-
-                EasyLoading.dismiss();
+                try {
+                  await DatabaseAPI.delete(conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
+                  EasyLoading.dismiss();
+                } catch (e) {
+                  EasyLoading.showError(e.toString());
+                  return;
+                }
 
                 // ignore: use_build_context_synchronously
                 Navigator.pop(context);

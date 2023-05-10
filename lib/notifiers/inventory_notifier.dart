@@ -25,12 +25,12 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
 
   get isLoading => _isLoading;
 
-  Future<void> init() async {
+  Future<void> init(int page) async {
     if (conn == null) return;
 
     _isLoading = true;
 
-    state = await DatabaseAPI.getInventory(conn, departments, categories);
+    state = await DatabaseAPI.getInventory(conn, departments, categories, page);
 
     _isLoading = false;
   }
@@ -43,7 +43,7 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
 
     await Future.delayed(const Duration(milliseconds: 200));
 
-    state = await DatabaseAPI.getInventory(conn, departments, categories);
+    state = await DatabaseAPI.getInventory(conn, departments, categories, 0);
 
     _isLoading = false;
   }
