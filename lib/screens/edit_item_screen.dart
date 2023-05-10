@@ -22,9 +22,7 @@ class EditItemScreen extends ConsumerStatefulWidget {
 }
 
 class _EditItemScreenState extends ConsumerState<EditItemScreen> {
-
-  final DateTime _firstDate =
-      DateTime.now().subtract(const Duration(days: 365 * 5));
+  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 5));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 5));
 
   late TextEditingController _nameController;
@@ -38,20 +36,12 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
   @override
   void initState() {
-    _nameController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.name));
-    _personAccountableController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.personAccountable ?? ''));
-    _priceController = TextEditingController.fromValue(TextEditingValue(
-        text: widget.item.price.toString() != 'null'
-            ? widget.item.price.toString()
-            : "0.00"));
-    _unitController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.unit));
-    _itemDescriptionController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.description ?? ''));
-    _remarksController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.remarks ?? ''));
+    _nameController = TextEditingController.fromValue(TextEditingValue(text: widget.item.name));
+    _personAccountableController = TextEditingController.fromValue(TextEditingValue(text: widget.item.personAccountable ?? ''));
+    _priceController = TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
+    _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit));
+    _itemDescriptionController = TextEditingController.fromValue(TextEditingValue(text: widget.item.description ?? ''));
+    _remarksController = TextEditingController.fromValue(TextEditingValue(text: widget.item.remarks ?? ''));
 
     if (widget.item.price != null || widget.item.datePurchased != null) {
       _isPurchased = true;
@@ -136,10 +126,11 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
                       if (conn == null) return;
 
+                      EasyLoading.show();
+
                       Item newItem = widget.item.copyWith(
                         name: _nameController.text.trim(),
-                        personAccountable:
-                            _personAccountableController.text.trim(),
+                        personAccountable: _personAccountableController.text.trim(),
                         description: _itemDescriptionController.text.trim(),
                         unit: _unitController.text.trim(),
                         price: _isPurchased
@@ -149,19 +140,19 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                             : null,
                         // price: price,
                         remarks: _remarksController.text.trim(),
-                        datePurchased: _isPurchased
-                            ? widget.item.datePurchased ?? DateTime.now()
-                            : null,
+                        datePurchased: _isPurchased ? widget.item.datePurchased ?? DateTime.now() : null,
                       );
 
                       await DatabaseAPI.update(conn: conn, item: newItem);
 
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+
+                      EasyLoading.dismiss();
+
                       await ref.read(inventoryProvider.notifier).refresh();
 
                       await ref.read(dashboardDataProvider.notifier).refresh();
-
-                      // ignore: use_build_context_synchronously
-                      Navigator.pop(context);
                     },
                     child: const Text('Update'),
                   ),
@@ -297,7 +288,6 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-      
               value: widget.item.department,
               items: ref.watch(departmentsProvider).map((value) {
                 return DropdownMenuItem(
@@ -356,9 +346,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
           child: TextField(
             enabled: _isPurchased,
             controller: _priceController,
-            inputFormatters: [
-              FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)
-            ],
+            inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)],
             decoration: InputDecoration(
               icon: Text(
                 '₱',
@@ -393,8 +381,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               borderRadius: defaultBorderRadius,
               side: const BorderSide(color: Colors.grey),
             ),
-            title:
-                Text(dateToString(widget.item.datePurchased ?? DateTime.now())),
+            title: Text(dateToString(widget.item.datePurchased ?? DateTime.now())),
             onTap: () => _datePurchasedPicker(context),
             trailing: const Icon(Icons.calendar_month),
           ),
@@ -469,11 +456,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 ),
               ),
               value: widget.item.status,
-              items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) =>
-                      DropdownMenuItem<ItemStatus>(
-                          value: value, child: Text(value.name)))
-                  .toList(),
+              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -527,7 +510,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 ),
               ),
               value: widget.item.category,
-              items: ref.watch(categoriesProvider)
+              items: ref
+                  .watch(categoriesProvider)
                   .map<DropdownMenuItem<ItemCategory>>(
                     (value) => DropdownMenuItem<ItemCategory>(
                       value: value,
@@ -538,7 +522,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               onChanged: (ItemCategory? category) {
                 if (category == null) return;
                 setState(() {
-                  widget.item.category= category;
+                  widget.item.category = category;
                 });
               },
             ),
@@ -562,8 +546,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-        widget.item.datePurchased =
-            DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
+        widget.item.datePurchased = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }
@@ -582,8 +565,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-        widget.item.dateReceived =
-            DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
+        widget.item.dateReceived = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }

@@ -1,22 +1,22 @@
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql1/mysql1.dart';
 
-import 'home_screen.dart';
+import '../models/user_model.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
-  static final TextEditingController usernameController =
-      TextEditingController();
-  static final TextEditingController passwordController =
-      TextEditingController();
+  static final TextEditingController usernameController = TextEditingController();
+  static final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    MySqlConnection? conn = ref.watch(sqlConnProvider);
+    usernameController.clear();
+    passwordController.clear();
 
     return Scaffold(
       body: Center(
@@ -34,13 +34,13 @@ class LoginScreen extends ConsumerWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                passwordField(context, conn),
+                passwordField(context, ref),
                 const SizedBox(
                   height: 20,
                 ),
                 ElevatedButton(
                     onPressed: () async {
-                      await authenticate(context, conn);
+                      await authenticate(context, ref);
                     },
                     child: const Text('Login')),
               ],
@@ -63,16 +63,19 @@ class LoginScreen extends ConsumerWidget {
         SizedBox(
           width: 150,
           child: TextField(
+            autofocus: true,
             controller: usernameController,
             decoration: const InputDecoration(
-                isDense: true, contentPadding: EdgeInsets.all(8)),
+              isDense: true,
+              contentPadding: EdgeInsets.all(8),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget passwordField(BuildContext context, MySqlConnection? conn) {
+  Widget passwordField(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -85,10 +88,9 @@ class LoginScreen extends ConsumerWidget {
           width: 150,
           child: TextField(
             onSubmitted: (value) async {
-              await authenticate(context, conn);
+              await authenticate(context, ref);
             },
-            decoration: const InputDecoration(
-                isDense: true, contentPadding: EdgeInsets.all(8)),
+            decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
             obscureText: true,
             controller: passwordController,
           ),
@@ -97,34 +99,39 @@ class LoginScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> authenticate(BuildContext context, MySqlConnection? conn) async {
+  Future<void> authenticate(BuildContext context, WidgetRef ref) async {
+    EasyLoading.show();
+
+    MySqlConnection? conn = ref.read(sqlConnProvider);
+
     String username = usernameController.text.trim();
     String passwordHash = hashPassword(passwordController.text.trim());
 
     if (conn == null) {
-      debugPrint('connection to database failed');
+      EasyLoading.showError('connection to database failed');
       return;
     }
 
-    bool? authenticated = await authenticateUser(username, passwordHash, conn);
+    User? user;
 
-    if (authenticated == null) {
-      debugPrint('authentication failed');
+    try {
+      user = await authenticateUser(username, passwordHash, conn);
+    } catch (e) {
+      debugPrint(e.toString());
+      EasyLoading.showError(e.toString());
+    }
+
+    if (user == null) {
+      EasyLoading.showError('user does not exist');
       return;
     }
 
-    if (authenticated == false) {
-      debugPrint('user does not exist');
-      return;
-    }
+    ref.read(userProvider.notifier).state = user;
+
+    await EasyLoading.dismiss();
     // ignore: use_build_context_synchronously
-    await Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return const HomeScreen();
-        },
-      ),
-    );
+    Navigator.pushReplacementNamed(context, 'home');
+    ref.read(dashboardDataProvider.notifier).init();
+    ref.read(inventoryProvider.notifier).init();
   }
 }

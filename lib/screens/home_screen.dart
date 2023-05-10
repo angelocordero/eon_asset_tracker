@@ -14,6 +14,28 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Eon Asset Tracker | ${ref.watch(appbarTitleProvider)}'),
+        actions: [
+          Center(
+            child: Row(
+              children: [
+                const Text(
+                  'Logged in as: ',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  ref.watch(userProvider)?.username ?? '',
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+        ],
       ),
       body: Row(
         children: [
@@ -38,7 +60,30 @@ class HomeScreen extends ConsumerWidget {
               selectedIconTheme: IconThemeData(color: Colors.white),
               iconTheme: IconThemeData(color: Colors.grey),
             ),
-            footerDivider: const Divider(),
+            footerBuilder: (context, extended) {
+              return Column(
+                children: [
+                  extended
+                      ? ListTile(
+                          title: const SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Text('Log Out'),
+                          ),
+                          leading: const Icon(Icons.logout),
+                          onTap: () {
+                            showConfirmLogoutDialog(context);
+                          },
+                        )
+                      : IconButton(
+                          onPressed: () {
+                            showConfirmLogoutDialog(context);
+                          },
+                          icon: const Icon(Icons.logout),
+                        ),
+                  const Divider(),
+                ],
+              );
+            },
             items: [
               SidebarXItem(
                 icon: Icons.home,
@@ -61,6 +106,35 @@ class HomeScreen extends ConsumerWidget {
           )
         ],
       ),
+    );
+  }
+
+  Future<dynamic> showConfirmLogoutDialog(
+    BuildContext context,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm log out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, 'login');
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

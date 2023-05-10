@@ -42,108 +42,114 @@ class InventoryTab extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
-      child: Column(
-        children: [
-          header(context, ref),
-          Flexible(
-            flex: 7,
-            child: StickyHeadersTable(
-              legendCell: Center(
-                child: Checkbox(
-                  value: ref.watch(checkedItemProvider).length == rows.length,
-                  onChanged: (checked) {
-                    if (checked == null) return;
-                    List<String> buffer = ref.read(checkedItemProvider);
+      child: Visibility(
+        visible: ref.watch(inventoryProvider.notifier).isLoading,
+        replacement: Column(
+          children: [
+            header(context, ref),
+            Flexible(
+              flex: 7,
+              child: StickyHeadersTable(
+                legendCell: Center(
+                  child: Checkbox(
+                    value: ref.watch(checkedItemProvider).length == rows.length,
+                    onChanged: (checked) {
+                      if (checked == null) return;
+                      List<String> buffer = ref.read(checkedItemProvider);
 
-                    if (checked) {
-                      buffer.addAll(rows.map((e) => e.assetID).toList());
-                    } else {
-                      buffer.clear();
-                    }
+                      if (checked) {
+                        buffer.addAll(rows.map((e) => e.assetID).toList());
+                      } else {
+                        buffer.clear();
+                      }
 
-                    ref.read(checkedItemProvider.notifier).state = buffer.toSet().toList();
-                  },
+                      ref.read(checkedItemProvider.notifier).state = buffer.toSet().toList();
+                    },
+                  ),
                 ),
-              ),
-              onContentCellPressed: (i, j) {
-                ref.read(selectedItemProvider.notifier).state = rows[j];
-              },
-              showHorizontalScrollbar: false,
-              showVerticalScrollbar: true,
-              cellDimensions: const CellDimensions.variableColumnWidth(
-                columnWidths: [
-                  250,
-                  250,
-                  200,
-                  250,
-                  200,
-                  150,
-                  150,
-                  150,
-                  220,
-                  220,
-                ],
-                contentCellHeight: 80,
-                stickyLegendWidth: 80,
-                stickyLegendHeight: 80,
-              ),
-              columnsLength: columns.length,
-              rowsLength: rows.length,
-              columnsTitleBuilder: (i) => Text(columns[i]),
-              rowsTitleBuilder: (j) {
-                Item item = rows[j];
-
-                return Row(
-                  children: [
-                    Text((j + 1).toString()),
-                    const SizedBox(
-                      width: 15,
-                    ),
-                    InventoryCheckbox(assetID: item.assetID),
+                onContentCellPressed: (i, j) {
+                  ref.read(selectedItemProvider.notifier).state = rows[j];
+                },
+                showHorizontalScrollbar: false,
+                showVerticalScrollbar: true,
+                cellDimensions: const CellDimensions.variableColumnWidth(
+                  columnWidths: [
+                    250,
+                    250,
+                    200,
+                    250,
+                    200,
+                    150,
+                    150,
+                    150,
+                    220,
+                    220,
                   ],
-                );
-              },
-              contentCellBuilder: (i, j) {
-                Item item = rows[j];
+                  contentCellHeight: 80,
+                  stickyLegendWidth: 80,
+                  stickyLegendHeight: 80,
+                ),
+                columnsLength: columns.length,
+                rowsLength: rows.length,
+                columnsTitleBuilder: (i) => Text(columns[i]),
+                rowsTitleBuilder: (j) {
+                  Item item = rows[j];
 
-                String? selectedItemAssetID = ref.watch(selectedItemProvider)?.assetID;
+                  return Row(
+                    children: [
+                      Text((j + 1).toString()),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      InventoryCheckbox(assetID: item.assetID),
+                    ],
+                  );
+                },
+                contentCellBuilder: (i, j) {
+                  Item item = rows[j];
 
-                bool selected = item.assetID == selectedItemAssetID;
+                  String? selectedItemAssetID = ref.watch(selectedItemProvider)?.assetID;
 
-                switch (i) {
-                  case 0:
-                    return tableDataTile(item.assetID, selected);
-                  case 1:
-                    return tableDataTile(item.name, selected);
-                  case 2:
-                    return tableDataTile(item.department.departmentName, selected);
-                  case 3:
-                    return tableDataTile(item.personAccountable ?? '', selected);
-                  case 4:
-                    return tableDataTile(item.category.categoryName, selected);
-                  case 5:
-                    return tableDataTile(item.status.name, selected);
-                  case 6:
-                    return tableDataTile(item.unit, selected);
-                  case 7:
-                    return tableDataTile(priceToString(item.price), selected);
-                  case 8:
-                    return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!.toLocal()), selected);
-                  case 9:
-                    return tableDataTile(dateToString(item.dateReceived.toLocal()), selected);
+                  bool selected = item.assetID == selectedItemAssetID;
 
-                  default:
-                    return Container();
-                }
-              },
+                  switch (i) {
+                    case 0:
+                      return tableDataTile(item.assetID, selected);
+                    case 1:
+                      return tableDataTile(item.name, selected);
+                    case 2:
+                      return tableDataTile(item.department.departmentName, selected);
+                    case 3:
+                      return tableDataTile(item.personAccountable ?? '', selected);
+                    case 4:
+                      return tableDataTile(item.category.categoryName, selected);
+                    case 5:
+                      return tableDataTile(item.status.name, selected);
+                    case 6:
+                      return tableDataTile(item.unit, selected);
+                    case 7:
+                      return tableDataTile(priceToString(item.price), selected);
+                    case 8:
+                      return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!.toLocal()), selected);
+                    case 9:
+                      return tableDataTile(dateToString(item.dateReceived.toLocal()), selected);
+
+                    default:
+                      return Container();
+                  }
+                },
+              ),
             ),
-          ),
-          const Divider(),
-          const Flexible(
-            flex: 2,
-            child: ItemInfoDisplay(),
-          ),
-        ],
+            const Divider(),
+            const Flexible(
+              flex: 2,
+              child: ItemInfoDisplay(),
+            ),
+          ],
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }
@@ -167,7 +173,7 @@ class InventoryTab extends ConsumerWidget {
 
   Future<dynamic> showDeleteDialog(
     BuildContext context,
-    AsyncCallback callback,
+    WidgetRef ref,
   ) async {
     showDialog(
       context: context,
@@ -185,9 +191,20 @@ class InventoryTab extends ConsumerWidget {
               onPressed: () async {
                 EasyLoading.show();
 
-                Navigator.pop(context);
-                await callback();
+                String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
+
+                if (selectedAssetID == null) return;
+
+                await DatabaseAPI.delete(conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
+
                 EasyLoading.dismiss();
+
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+
+                await ref.read(inventoryProvider.notifier).refresh();
+
+                await ref.read(dashboardDataProvider.notifier).refresh();
               },
               child: const Text('Confirm'),
             ),
@@ -271,16 +288,18 @@ class InventoryTab extends ConsumerWidget {
           message: 'Print QR Codes',
           child: IconButton.outlined(
             onPressed: () {
-              if (ref.read(checkedItemProvider).isEmpty) return;
+              if (ref.read(checkedItemProvider).isEmpty) {
+                EasyLoading.showInfo('No items selected by checkbox');
+                return;
+              }
 
+              List<Item> items = ref.read(checkedItemProvider).map((entry) {
+                return ref.read(inventoryProvider).firstWhere((element) => element.assetID == entry);
+              }).toList();
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    List<Item> items = ref.read(checkedItemProvider).map((entry) {
-                      return ref.read(inventoryProvider).firstWhere((element) => element.assetID == entry);
-                    }).toList();
-
                     return Scaffold(
                       appBar: AppBar(
                         title: const Text('Print QR Code'),
@@ -316,18 +335,11 @@ class InventoryTab extends ConsumerWidget {
         Tooltip(
           message: 'Delete selected item',
           child: IconButton.outlined(
-            onPressed: () {
-              showDeleteDialog(context, () async {
-                String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
-
-                if (selectedAssetID == null) return;
-
-                await DatabaseAPI.delete(conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
-
-                await ref.read(inventoryProvider.notifier).refresh();
-
-                await ref.read(dashboardDataProvider.notifier).refresh();
-              });
+            onPressed: () async {
+              await showDeleteDialog(
+                context,
+                ref,
+              );
             },
             icon: const Icon(Icons.delete),
           ),

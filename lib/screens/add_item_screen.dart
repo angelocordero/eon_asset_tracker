@@ -133,6 +133,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                       if (conn == null) return;
 
+                      EasyLoading.show();
+
                       Item item = Item.toDatabase(
                         personAccountable: _personAccountableController.text.trim(),
                         department: _department,
@@ -155,12 +157,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                       await DatabaseAPI.add(conn: ref.read(sqlConnProvider)!, item: item);
 
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+
+                      EasyLoading.dismiss();
+
                       await ref.read(inventoryProvider.notifier).refresh();
 
                       await ref.read(dashboardDataProvider.notifier).refresh();
-
-                      // ignore: use_build_context_synchronously
-                      Navigator.pop(context);
                     },
                     child: const Text('Apply'),
                   ),
@@ -464,9 +468,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _itemStatus,
-              items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
-                  .toList(),
+              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -520,9 +522,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _category,
-              items: _categories
-                  .map<DropdownMenuItem<ItemCategory>>((value) => DropdownMenuItem<ItemCategory>(value: value, child: Text(value.categoryName)))
-                  .toList(),
+              items: _categories.map<DropdownMenuItem<ItemCategory>>((value) => DropdownMenuItem<ItemCategory>(value: value, child: Text(value.categoryName))).toList(),
               onChanged: (ItemCategory? category) {
                 if (category == null) return;
                 setState(() {

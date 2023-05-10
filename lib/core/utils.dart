@@ -3,19 +3,22 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:eon_asset_tracker/models/category_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../models/department_model.dart';
+import '../models/user_model.dart';
 
 String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
 }
 
 String generateItemID() {
-  String eonCustomAlphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  String eonCustomAlphabet =
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   String randomID1 = customAlphabet(eonCustomAlphabet, 5);
   String randomID2 = customAlphabet(eonCustomAlphabet, 5);
@@ -24,20 +27,36 @@ String generateItemID() {
   return '$randomID1-$randomID2-$randomID3';
 }
 
-Future<bool?> authenticateUser(String username, String passwordHash, MySqlConnection conn) async {
-  try {
-    await Future.delayed(const Duration(seconds: 1));
+Future<User?> authenticateUser(
+    String username, String passwordHash, MySqlConnection? conn) async {
+  if (conn == null) return null;
 
-    Iterable results = await conn.query('SELECT * FROM `users` WHERE `username`=? and `password_hash`=?', [username, passwordHash]);
+  try {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    Results results = await conn.query(
+        'SELECT * FROM `users` WHERE `username`=? and `password_hash`=?',
+        [username, passwordHash]);
 
     if (results.isNotEmpty) {
-      return true;
+      ResultRow row = results.first;
+
+      return row
+          .map(
+            (element) => User(
+              userID: row[0],
+              username: row[1],
+              isAdmin: row[2] == 1 ? true : false,
+            ),
+          )
+          .first;
     } else {
-      return false;
+      return null;
     }
   } catch (e) {
     debugPrint(e.toString());
-    return null;
+    EasyLoading.showError(e.toString());
+    return Future.error('');
   }
 }
 
@@ -50,7 +69,9 @@ String dateTimeToString(DateTime dateTime) {
 }
 
 String priceToString(double? price) {
-  return price == null ? '' : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
+  return price == null
+      ? ''
+      : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
 }
 
 QrImageView generateQRImage({required String assetID, double? size}) {
@@ -59,8 +80,6 @@ QrImageView generateQRImage({required String assetID, double? size}) {
     data: assetID,
     backgroundColor: Colors.transparent,
     foregroundColor: Colors.white,
-    embeddedImage: const AssetImage('assets/logo.jpg'),
-    embeddedImageStyle: QrEmbeddedImageStyle(),
   );
 }
 

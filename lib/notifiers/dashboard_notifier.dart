@@ -17,14 +17,24 @@ class DashboardNotifier extends StateNotifier<DashboardData> {
   List<Department> departments;
   List<ItemCategory> categories;
 
-  init() async {
+  bool _isLoading = true;
+
+  set loading(bool state) {
+    _isLoading = state;
+  }
+
+  get isLoading => _isLoading;
+
+  Future<void> init() async {
     if (conn == null) return;
 
     state = await _setState();
   }
 
   Future<DashboardData> _setState() async {
-    return DashboardData(
+    _isLoading = true;
+
+    DashboardData dashboardData = DashboardData(
       statusDashboardData: await DatabaseAPI.statusData(conn: conn),
       categoriesDashbordData: await DatabaseAPI.categoriesData(
         conn: conn,
@@ -36,10 +46,21 @@ class DashboardNotifier extends StateNotifier<DashboardData> {
       ),
       totalItems: await DatabaseAPI.getTotal(conn: conn),
     );
+
+    await Future.delayed(
+      const Duration(seconds: 1),
+    );
+
+    _isLoading = false;
+    return dashboardData;
   }
 
   refresh() async {
     if (conn == null) return;
+
+    _isLoading = true;
+
+    state = DashboardData.empty();
 
     await Future.delayed(const Duration(milliseconds: 200));
 

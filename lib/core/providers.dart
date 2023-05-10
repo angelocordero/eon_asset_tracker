@@ -7,22 +7,22 @@ import 'package:riverpod/riverpod.dart';
 
 import '../models/category_model.dart';
 import '../models/item_model.dart';
+import '../models/user_model.dart';
 
-final sqlConnProvider = StateProvider<MySqlConnection?>((ref) {
-  return null;
-});
+final sqlConnProvider = StateProvider<MySqlConnection?>((ref) => null);
 
-final departmentsProvider = StateProvider<List<Department>>((ref) {
-  return [];
-});
+final userProvider = StateProvider<User?>((ref) => null);
 
-final categoriesProvider = StateProvider<List<ItemCategory>>((ref) {
-  return [];
-});
+final departmentsProvider = StateProvider<List<Department>>((ref) => []);
 
-final inventoryProvider =
-    StateNotifierProvider<InventoryNotifier, List<Item>>((ref) {
-  return InventoryNotifier(ref);
+final categoriesProvider = StateProvider<List<ItemCategory>>((ref) => []);
+
+final inventoryProvider = StateNotifierProvider<InventoryNotifier, List<Item>>((ref) {
+  return InventoryNotifier(
+    conn: ref.watch(sqlConnProvider),
+    departments: ref.watch(departmentsProvider),
+    categories: ref.watch(categoriesProvider),
+  );
 });
 
 final selectedItemProvider = StateProvider<Item?>((ref) {
@@ -43,8 +43,7 @@ final searchQueryProvider = StateProvider<String>((ref) {
   return 'Asset ID';
 });
 
-final dashboardDataProvider =
-    StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
+final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
   return DashboardNotifier(
     conn: ref.watch(sqlConnProvider),
     departments: ref.watch(departmentsProvider),
@@ -52,6 +51,4 @@ final dashboardDataProvider =
   );
 });
 
-final checkedItemProvider = StateProvider<List<String>>((ref) {
-  return [];
-});
+final checkedItemProvider = StateProvider<List<String>>((ref) => []);

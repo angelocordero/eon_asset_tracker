@@ -1,5 +1,6 @@
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mysql1/mysql1.dart';
 
 import '../models/category_model.dart';
@@ -105,7 +106,7 @@ class DatabaseAPI {
     try {
       await conn.query('UPDATE `assets` SET `is_enabled` = 0 WHERE `asset_id` = ?', [assetID]);
     } catch (e) {
-      debugPrint(e.toString());
+      return Future.error('Error in deleting item');
     }
   }
 
@@ -154,6 +155,7 @@ class DatabaseAPI {
       }
     } catch (e) {
       debugPrint(e.toString());
+      EasyLoading.showError(e.toString());
     }
 
     try {
@@ -173,6 +175,9 @@ class DatabaseAPI {
           )
           .toList();
     } catch (e) {
+      debugPrint(e.toString());
+      EasyLoading.showError(e.toString());
+
       return [];
     }
   }
@@ -209,7 +214,7 @@ class DatabaseAPI {
         item.assetID,
       ]);
     } catch (e) {
-      debugPrint(e.toString());
+      return Future.error('Error in editing item');
     }
   }
 
@@ -247,7 +252,7 @@ class DatabaseAPI {
         item.remarks
       ]);
     } catch (e) {
-      debugPrint(e.toString());
+      return Future.error('Error in adding item');
     }
   }
 

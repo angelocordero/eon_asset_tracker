@@ -29,6 +29,7 @@ dependencies:
   qr_flutter: 
     git:
       url: https://github.com/theyakka/qr.flutter.git
+  skeleton_loader: ^2.0.0+4
 
 dev_dependencies:
   flutter_test:
@@ -41,5 +42,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/
     - fonts/

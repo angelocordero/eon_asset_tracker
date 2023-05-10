@@ -11,93 +11,96 @@ class DashboardTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print(ref.watch(dashboardDataProvider.notifier).isLoading);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
-      child: ListView(
-        children: [
-          AspectRatio(
-            aspectRatio: 4,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(
-                  flex: 3,
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Total Items',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              Tooltip(
-                                message: 'Refresh Page',
-                                child: IconButton.outlined(
-                                  onPressed: () async {
-                                    await ref
-                                        .read(dashboardDataProvider.notifier)
-                                        .refresh();
-                                  },
-                                  icon: const Icon(Icons.refresh),
+      child: Visibility(
+        visible: ref.watch(dashboardDataProvider.notifier).isLoading,
+        replacement: ListView(
+          children: [
+            AspectRatio(
+              aspectRatio: 4,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Flexible(
+                    flex: 3,
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Total Items',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                Tooltip(
+                                  message: 'Refresh Page',
+                                  child: IconButton.outlined(
+                                    onPressed: () async {
+                                      await ref.read(dashboardDataProvider.notifier).refresh();
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  ref.watch(dashboardDataProvider).totalItems.toString(),
+                                  style: const TextStyle(fontSize: 50),
                                 ),
                               ),
-                            ],
-                          ),
-                          Expanded(
-                            child: Center(
-                              child: Text(
-                                ref
-                                    .watch(dashboardDataProvider)
-                                    .totalItems
-                                    .toString(),
-                                style: const TextStyle(fontSize: 50),
-                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const Flexible(
-                  flex: 7,
-                  child: Card(
-                    child: DashboardDepartmentChart(),
+                  const Flexible(
+                    flex: 7,
+                    child: Card(
+                      child: DashboardDepartmentChart(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          const AspectRatio(
-            aspectRatio: 4,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(
-                  flex: 3,
-                  child: Card(
-                    child: DashboardStatusChart(),
-                  ),
-                ),
-                Flexible(
-                  flex: 7,
-                  child: Card(
-                    child: DashboardCategoryChart(),
-                  ),
-                ),
-              ],
+            const SizedBox(
+              height: 20,
             ),
-          ),
-        ],
+            const AspectRatio(
+              aspectRatio: 4,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Flexible(
+                    flex: 3,
+                    child: Card(
+                      child: DashboardStatusChart(),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 7,
+                    child: Card(
+                      child: DashboardCategoryChart(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }
