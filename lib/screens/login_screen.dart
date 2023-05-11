@@ -1,9 +1,9 @@
+import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql_client/mysql_client.dart';
 
 import '../models/user_model.dart';
 
@@ -102,20 +102,13 @@ class LoginScreen extends ConsumerWidget {
   Future<void> authenticate(BuildContext context, WidgetRef ref) async {
     EasyLoading.show();
 
-    MySqlConnection? conn = ref.read(sqlConnProvider);
-
     String username = usernameController.text.trim();
     String passwordHash = hashPassword(passwordController.text.trim());
-
-    if (conn == null) {
-      EasyLoading.showError('connection to database failed');
-      return;
-    }
 
     User? user;
 
     try {
-      user = await authenticateUser(username, passwordHash, conn);
+      user = await DatabaseAPI.authenticateUser(username, passwordHash, ref);
     } catch (e) {
       debugPrint(e.toString());
       EasyLoading.showError(e.toString());

@@ -13,7 +13,7 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
     required this.categories,
   }) : super([]);
 
-  MySqlConnection? conn;
+  MySQLConnection? conn;
   List<Department> departments;
   List<ItemCategory> categories;
 
@@ -49,7 +49,7 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
   }
 
   void search({
-    required MySqlConnection? conn,
+    required MySQLConnection? conn,
     required String query,
     required String searchBy,
   }) async {

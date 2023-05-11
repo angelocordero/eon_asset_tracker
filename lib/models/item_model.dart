@@ -11,7 +11,7 @@ class Item {
   String? personAccountable;
   String name;
   String? description;
-  String unit;
+  String? unit;
   double? price;
   DateTime? datePurchased;
   DateTime dateReceived;
@@ -25,7 +25,7 @@ class Item {
     this.personAccountable,
     required this.name,
     this.description,
-    required this.unit,
+    this.unit,
     this.price,
     this.datePurchased,
     required this.dateReceived,
@@ -85,18 +85,18 @@ class Item {
     required List<Department> departments,
   }) {
     return Item(
-      assetID: row[0],
-      department: departments.firstWhere((element) => element.departmentID == row[1]),
-      personAccountable: row[2],
-      name: row[3],
-      description: row[4],
-      unit: row[5],
-      price: row[6],
-      datePurchased: row[7] == null ? null : (row[7] as DateTime),
-      dateReceived: (row[8] as DateTime).toLocal(),
-      status: ItemStatus.values.byName(row[9]),
-      category: categories.firstWhere((element) => element.categoryID == row[10]),
-      remarks: row[11],
+      assetID: row.typedColByName<String>('asset_id')!,
+      department: departments.firstWhere((element) => element.departmentID == row.typedColByName<String>('department_id')),
+      personAccountable: row.typedColByName<String?>('person_accountable'),
+      name: row.typedColByName<String>('item_name')!,
+      description: row.typedColByName<String?>('item_description'),
+      unit: row.typedColByName<String?>('unit'),
+      price: row.typedColByName<double?>('price'),
+      datePurchased:  row.typedColByName<DateTime?>('date_purchased')?.toLocal() ,
+      dateReceived: row.typedColByName<DateTime>('date_received')!.toLocal(),
+      status: ItemStatus.values.byName(row.typedColByName<String>('status')!),
+      category: categories.firstWhere((element) => element.categoryID == row.typedColByName<String>('category')!),
+      remarks: row.typedColByName<String?>('remarks'),
     );
   }
 

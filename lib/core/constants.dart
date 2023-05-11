@@ -2,6 +2,16 @@
 
 import 'package:flutter/material.dart';
 
+import '../models/connection_settings_model.dart';
+
+ConnectionSettings sqlConnSettings = ConnectionSettings(
+  host: '127.0.0.1',
+  port: 3306,
+  user: 'admin',
+  password: 'admin',
+  database: 'eon',
+);
+
 enum ItemStatus {
   Good,
   Defective,

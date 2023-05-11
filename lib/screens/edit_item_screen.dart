@@ -38,8 +38,9 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   void initState() {
     _nameController = TextEditingController.fromValue(TextEditingValue(text: widget.item.name));
     _personAccountableController = TextEditingController.fromValue(TextEditingValue(text: widget.item.personAccountable ?? ''));
-    _priceController = TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
-    _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit));
+    _priceController =
+        TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
+    _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit ?? ''));
     _itemDescriptionController = TextEditingController.fromValue(TextEditingValue(text: widget.item.description ?? ''));
     _remarksController = TextEditingController.fromValue(TextEditingValue(text: widget.item.remarks ?? ''));
 
@@ -122,10 +123,6 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         return;
                       }
 
-                      MySqlConnection? conn = ref.read(sqlConnProvider);
-
-                      if (conn == null) return;
-
                       EasyLoading.show();
 
                       Item newItem = widget.item.copyWith(
@@ -144,20 +141,19 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                       );
 
                       try {
-                        await DatabaseAPI.update(conn: conn, item: newItem);
+                        await DatabaseAPI.update(conn: ref.read(sqlConnProvider), item: newItem);
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);
 
                         EasyLoading.dismiss();
-                      } catch (e) {
-                        EasyLoading.showError(e.toString());
+
+                        ref.read(inventoryProvider.notifier).refresh();
+                        ref.read(dashboardDataProvider.notifier).refresh();
+                      } catch (e, st) {
+                        showErrorAndStacktrace(e, st);
                         return;
                       }
-
-                      await ref.read(inventoryProvider.notifier).refresh();
-
-                      await ref.read(dashboardDataProvider.notifier).refresh();
                     },
                     child: const Text('Update'),
                   ),
@@ -461,7 +457,9 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 ),
               ),
               value: widget.item.status,
-              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
+              items: ItemStatus.values
+                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
+                  .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {

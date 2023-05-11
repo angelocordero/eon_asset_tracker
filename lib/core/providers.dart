@@ -45,7 +45,7 @@ final searchQueryProvider = StateProvider<String>((ref) {
 
 final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
   return DashboardNotifier(
-    conn: ref.watch(sqlConnProvider),
+    ref: ref,
     departments: ref.watch(departmentsProvider),
     categories: ref.watch(categoriesProvider),
   );

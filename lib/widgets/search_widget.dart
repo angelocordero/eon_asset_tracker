@@ -80,7 +80,7 @@ class SearchWidget extends ConsumerWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            MySqlConnection? conn = ref.read(sqlConnProvider);
+            MySQLConnection? conn = ref.read(sqlConnProvider);
             String searchBy = ref.read(searchQueryProvider);
             ref.read(inventoryProvider.notifier).search(
                   conn: conn,

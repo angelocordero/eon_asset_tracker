@@ -126,7 +126,7 @@ class InventoryTab extends ConsumerWidget {
                     case 5:
                       return tableDataTile(item.status.name, selected);
                     case 6:
-                      return tableDataTile(item.unit, selected);
+                      return tableDataTile(item.unit ?? '', selected);
                     case 7:
                       return tableDataTile(priceToString(item.price), selected);
                     case 8:
