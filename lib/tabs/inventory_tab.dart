@@ -263,6 +263,9 @@ class InventoryTab extends ConsumerWidget {
                 context,
                 itemLength,
                 () async {
+
+
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

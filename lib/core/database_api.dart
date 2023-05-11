@@ -278,6 +278,26 @@ class DatabaseAPI {
     }).toList();
   }
 
+    static Future<List<Item>> getALl(
+    MySqlConnection? conn,
+    List<Department> departments,
+    List<ItemCategory> categories,
+  ) async {
+    if (conn == null) return Future.value([]);
+
+
+    var results = await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC', []);
+
+    return results.map<Item>((row) {
+      return Item.fromDatabase(
+        row: row,
+        categories: categories,
+        departments: departments,
+      );
+    }).toList();
+  }
+
+
   static Future<List<Department>> getDepartments(MySqlConnection conn) async {
     var results = await conn.query('SELECT * FROM `departments` WHERE 1', []);
 

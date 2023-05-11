@@ -59,6 +59,7 @@ class ReportPDF {
         },
         build: (context) {
           return [
+            // ignore: deprecated_member_use
             pw.Table.fromTextArray(
               cellAlignment: pw.Alignment.center,
               columnWidths: {

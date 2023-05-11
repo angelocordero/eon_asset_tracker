@@ -68,7 +68,7 @@ class QRCodePDF {
           crossAxisAlignment: pw.CrossAxisAlignment.center,
           children: [
             pw.Flexible(
-              flex: 40,
+              flex: 3,
               child: pw.Column(
                 mainAxisSize: pw.MainAxisSize.min,
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -91,7 +91,7 @@ class QRCodePDF {
             ),
             pw.SizedBox(width: 0),
             pw.Flexible(
-              flex: 60,
+              flex: 7,
               child: pw.Column(
                 mainAxisSize: pw.MainAxisSize.max,
                 crossAxisAlignment: pw.CrossAxisAlignment.start,

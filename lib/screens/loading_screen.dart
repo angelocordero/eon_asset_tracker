@@ -13,7 +13,7 @@ class LoadingScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
-        var settings = ConnectionSettings(host: '127.0.0.1', port: 3306, user: 'root', password: 'root', db: 'eon');
+        var settings = ConnectionSettings(host: '127.0.0.1', port: 3306, user: 'admin', password: 'admin', db: 'eon');
         try {
           MySqlConnection conn = await MySqlConnection.connect(settings);
 
