@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql_client/mysql_client.dart';
 
 import '../core/database_api.dart';
 import '../models/category_model.dart';
@@ -128,7 +127,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                         return;
                       }
-
 
                       EasyLoading.show();
 
