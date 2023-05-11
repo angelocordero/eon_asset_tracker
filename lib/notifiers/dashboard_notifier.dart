@@ -1,6 +1,6 @@
 import 'package:eon_asset_tracker/models/dashboard_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 import '../core/database_api.dart';
 import '../models/category_model.dart';

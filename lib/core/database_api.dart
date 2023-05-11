@@ -2,54 +2,54 @@ import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 import '../models/category_model.dart';
 import '../models/item_model.dart';
 
 class DatabaseAPI {
-  static Future<int> getTotal({required MySqlConnection? conn}) async {
+  static Future<int> getTotal({required MySQLConnection? conn}) async {
     if (conn == null) return 0;
 
-    Results results = await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ', []);
+    IResultSet result = await conn.execute('SELECT * FROM `assets` WHERE `is_enabled` = 1 ', {});
 
-    return results.length;
+    return result.length;
   }
 
-  static Future<Map<String, int>> statusData({required MySqlConnection? conn}) async {
+  static Future<Map<String, int>> statusData({required MySQLConnection? conn}) async {
     Map<String, int> buffer = {};
 
     if (conn == null) return buffer;
 
-    Results results = await conn.query('SELECT `status`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `status`');
+    IResultSet result = await conn.execute('SELECT `status`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `status`');
 
-    for (ResultRow row in results) {
-      buffer[row[0] as String] = row[1] ?? 0;
+    for (ResultSetRow row in result.rows) {
+      buffer[row.typedColByName<String>('status').toString()] = row.typedColByName<int>('count') ?? 0;
     }
 
     return buffer;
   }
 
-  static Future<List<Map<String, dynamic>>> departmentsData({required MySqlConnection? conn, required List<Department> departments}) async {
+  static Future<List<Map<String, dynamic>>> departmentsData({required MySQLConnection? conn, required List<Department> departments}) async {
     List<Map<String, dynamic>> buffer = [];
 
     if (conn == null) return buffer;
 
-    Results results = await conn.query('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+    IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
-    List<ResultRow> rows = results.toList();
+    List<ResultSetRow> rows = results.rows.toList();
 
-    List<String> rowDepartment = rows.map((e) => e['department_id'] as String).toList();
+    List<String> rowDepartment = rows.map((e) => e.typedColByName<String>('department_id')!).toList();
 
     for (int i = 0; i < departments.length; i++) {
       if (rowDepartment.contains(departments[i].departmentID)) {
-        ResultRow row = rows.firstWhere((element) {
-          return element['department_id'] == departments[i].departmentID;
+        ResultSetRow row = rows.firstWhere((element) {
+          return element.typedColByName<String>('department_id') == departments[i].departmentID;
         });
 
         buffer.add({
           'departmentName': departments[i].departmentName,
-          'count': row['count'],
+          'count': row.typedColByName<int>('count'),
           'index': i,
         });
       } else {
@@ -69,21 +69,21 @@ class DatabaseAPI {
 
     if (conn == null) return buffer;
 
-    Results results = await conn.query('SELECT `category_id`, COUNT(*) as count FROM `assets`  WHERE `is_enabled` = 1 GROUP BY `category_id`');
+    IResultSet results = await conn.query('SELECT `category_id`, COUNT(*) as count FROM `assets`  WHERE `is_enabled` = 1 GROUP BY `category_id`');
 
-    List<ResultRow> rows = results.toList();
+    List<ResultSetRow> rows = results.rows.toList();
 
-    List<String> rowCategories = rows.map((e) => e['category_id'] as String).toList();
+    List<String> rowCategories = rows.map((e) => e.typedColByName<String>('category_id')!).toList();
 
     for (int i = 0; i < categories.length; i++) {
       if (rowCategories.contains(categories[i].categoryID)) {
-        ResultRow row = rows.firstWhere((element) {
-          return element['category_id'] == categories[i].categoryID;
+        ResultSetRow row = rows.firstWhere((element) {
+          return element.typedColByName<String>('category_id') == categories[i].categoryID;
         });
 
         buffer.add({
           'departmentName': categories[i].categoryName,
-          'count': row['count'],
+          'count': row.typedColByName<int>('count'),
           'index': i,
         });
       } else {
@@ -99,24 +99,27 @@ class DatabaseAPI {
   }
 
   static Future<void> delete({
-    required MySqlConnection? conn,
+    required MySQLConnection? conn,
     required String assetID,
   }) async {
     if (conn == null) return;
 
     try {
-      await conn.query('UPDATE `assets` SET `is_enabled` = 0 WHERE `asset_id` = ?', [assetID]);
+      await conn.execute(
+        'UPDATE `assets` SET `is_enabled` = 0 WHERE `asset_id` = :assetID',
+        {'assetID': assetID},
+      );
     } catch (e) {
       return Future.error('Error in deleting item');
     }
   }
 
-  static Future<Results> _searchQuery({required MySqlConnection conn, required String searchBy, required String query}) async {
-    return await conn.query('SELECT * FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1 ORDER BY `timestamp` DESC', []);
+  static Future<IResultSet> _searchQuery({required MySQLConnection conn, required String searchBy, required String query}) async {
+    return await conn.execute('SELECT * FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1 ORDER BY `timestamp` DESC');
   }
 
   static Future<List<Item>> search({
-    required MySqlConnection? conn,
+    required MySQLConnection? conn,
     required String query,
     required String searchBy,
     required List<Department> departments,
@@ -160,13 +163,13 @@ class DatabaseAPI {
     }
 
     try {
-      Results results = await _searchQuery(
+      IResultSet results = await _searchQuery(
         conn: conn,
         searchBy: columnString,
         query: query,
       );
 
-      return results
+      return results.rows
           .map<Item>(
             (row) => Item.fromDatabase(
               row: row,
@@ -184,47 +187,51 @@ class DatabaseAPI {
   }
 
   static Future<void> update({
-    required MySqlConnection conn,
+    required MySQLConnection? conn,
     required Item item,
   }) async {
+    if (conn == null) return;
+
     try {
-      await conn.query('''UPDATE `assets` SET   
-          department_id = ?,
-          person_accountable = ?,
-          item_name = ? ,
-          item_description = ?,
-          unit = ?,
-          price = ? ,
-          date_purchased = ?,
-          date_received = ?,
-          status = ?,
-          category_id = ?,
-          remarks = ?
-          WHERE `asset_id`=?''', [
-        item.department.departmentID,
-        item.personAccountable,
-        item.name,
-        item.description,
-        item.unit,
-        item.price,
-        item.datePurchased?.toUtc(),
-        item.dateReceived.toUtc(),
-        item.status.name,
-        item.category.categoryID,
-        item.remarks,
-        item.assetID,
-      ]);
+      await conn.execute('''UPDATE `assets` SET   
+          department_id = :departmentID,
+          person_accountable = :personAccountable,
+          item_name = :itemName ,
+          item_description = :itemDescription,
+          unit = :unit,
+          price = :price,
+          date_purchased = :datePurchased,
+          date_received = :dateReceived,
+          status = :status,
+          category_id = :categoryID,
+          remarks = :remarks
+          WHERE `asset_id`= :assetID''', {
+        'departmentID': item.department.departmentID,
+        'personAccountable': item.personAccountable,
+        'itemName': item.name,
+        'itemDescription': item.description,
+        'unit': item.unit,
+        'price': item.price,
+        'datePurchased': item.datePurchased?.toUtc(),
+        'dateReceived': item.dateReceived.toUtc(),
+        'status': item.status.name,
+        'categoryID': item.category.categoryID,
+        'remarks': item.remarks,
+        'assetID': item.assetID,
+      });
     } catch (e) {
       return Future.error('Error in editing item');
     }
   }
 
   static Future<void> add({
-    required MySqlConnection conn,
+    required MySQLConnection? conn,
     required Item item,
   }) async {
+    if (conn == null) return;
+
     try {
-      await conn.query('''INSERT INTO assets (
+      await conn.execute('''INSERT INTO assets (
           asset_id, 
           department_id,
           person_accountable,
@@ -238,20 +245,20 @@ class DatabaseAPI {
           category_id,
           remarks)
           VALUES
-          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', [
-        item.assetID,
-        item.department.departmentID,
-        item.personAccountable,
-        item.name,
-        item.description,
-        item.unit,
-        item.price,
-        item.datePurchased?.toUtc(),
-        item.dateReceived.toUtc(),
-        item.status.name,
-        item.category.categoryID,
-        item.remarks
-      ]);
+          (:assetID, departmentID, personAccountable, itemName, itemDescription, unit, price,)''', {
+        'departmentID': item.department.departmentID,
+        'personAccountable': item.personAccountable,
+        'itemName': item.name,
+        'itemDescription': item.description,
+        'unit': item.unit,
+        'price': item.price,
+        'datePurchased': item.datePurchased?.toUtc(),
+        'dateReceived': item.dateReceived.toUtc(),
+        'status': item.status.name,
+        'categoryID': item.category.categoryID,
+        'remarks': item.remarks,
+        'assetID': item.assetID,
+      });
     } catch (e) {
       return Future.error('Error in adding item');
     }
@@ -278,13 +285,12 @@ class DatabaseAPI {
     }).toList();
   }
 
-    static Future<List<Item>> getALl(
+  static Future<List<Item>> getALl(
     MySqlConnection? conn,
     List<Department> departments,
     List<ItemCategory> categories,
   ) async {
     if (conn == null) return Future.value([]);
-
 
     var results = await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC', []);
 
@@ -296,7 +302,6 @@ class DatabaseAPI {
       );
     }).toList();
   }
-
 
   static Future<List<Department>> getDepartments(MySqlConnection conn) async {
     var results = await conn.query('SELECT * FROM `departments` WHERE 1', []);

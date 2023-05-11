@@ -1,5 +1,5 @@
 import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 import '../core/constants.dart';
 import 'category_model.dart';
@@ -80,9 +80,9 @@ class Item {
   }
 
   factory Item.fromDatabase({
-   required ResultRow row,
-   required List<ItemCategory> categories,
-   required List<Department> departments,
+    required ResultSetRow row,
+    required List<ItemCategory> categories,
+    required List<Department> departments,
   }) {
     return Item(
       assetID: row[0],

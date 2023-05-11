@@ -2,14 +2,14 @@ import 'package:eon_asset_tracker/models/dashboard_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:eon_asset_tracker/notifiers/dashboard_notifier.dart';
 import 'package:eon_asset_tracker/notifiers/inventory_notifier.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:mysql_client/mysql_client.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../models/category_model.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 
-final sqlConnProvider = StateProvider<MySqlConnection?>((ref) => null);
+final sqlConnProvider = StateProvider<MySQLConnection?>((ref) => null);
 
 final userProvider = StateProvider<User?>((ref) => null);
 

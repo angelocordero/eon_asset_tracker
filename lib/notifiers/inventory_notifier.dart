@@ -1,7 +1,7 @@
 import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/models/item_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 import '../models/category_model.dart';
 import '../models/department_model.dart';

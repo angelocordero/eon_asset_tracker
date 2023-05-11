@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:mysql_client/mysql_client.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -30,17 +30,17 @@ Future<User?> authenticateUser(String username, String passwordHash, MySqlConnec
   try {
     await Future.delayed(const Duration(milliseconds: 200));
 
-    Results results = await conn.query('SELECT * FROM `users` WHERE `username`=? and `password_hash`=?', [username, passwordHash]);
+    IResultSet results = await conn.query('SELECT * FROM `users` WHERE `username`=? and `password_hash`=?', [username, passwordHash]);
 
     if (results.isNotEmpty) {
-      ResultRow row = results.first;
+      ResultSetRow row = results.rows.first;
 
       return row
           .map(
             (element) => User(
-              userID: row[0],
-              username: row[1],
-              isAdmin: row[2] == 1 ? true : false,
+              userID: row.typedColByName<String>('user_id')!,
+              username: row.typedColByName<String>('username')!,
+              isAdmin: row.typedColByName<int>('is_enabled')! == 1 ? true : false,
             ),
           )
           .first;
