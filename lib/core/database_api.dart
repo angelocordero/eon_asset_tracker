@@ -12,38 +12,13 @@ import '../models/user_model.dart';
 import '../notifiers/dashboard_notifier.dart';
 
 class DatabaseAPI {
-  static Future<void> init(WidgetRef ref) async {
+  static Future<DashboardData> initDashboard(StateNotifierProviderRef<DashboardNotifier, DashboardData> ref) async {
     MySQLConnection? conn;
 
     try {
-      conn = await MySQLConnection.createConnection(
-        host: sqlConnSettings.host,
-        port: sqlConnSettings.port,
-        userName: sqlConnSettings.user,
-        password: sqlConnSettings.password,
-        databaseName: sqlConnSettings.database,
-      );
+      conn = await createSqlConn();
 
-      ref.read(sqlConnProvider.notifier).state = conn;
-
-      conn.connect();
-    } catch (e, st) {
-      showErrorAndStacktrace(e, st);
-    } finally {
-      if (conn != null && conn.connected) {
-        conn.close();
-      }
-    }
-  }
-
-  static Future<DashboardData> initDashboard(StateNotifierProviderRef<DashboardNotifier, DashboardData> ref) async {
-    MySQLConnection? conn = ref.read(sqlConnProvider);
-
-    if (conn == null) return DashboardData.empty();
-
-    conn.connect();
-
-    try {
+      await conn.connect();
       return DashboardData(
         totalItems: await _getTotal(conn),
         statusDashboardData: await _getTotalStatusCount(conn),
@@ -54,19 +29,17 @@ class DatabaseAPI {
       showErrorAndStacktrace(e, st);
       return DashboardData.empty();
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
-  static Future<void> delete({
-    required MySQLConnection? conn,
-    required String assetID,
-  }) async {
-    if (conn == null) return;
-
-    conn.connect();
+  static Future<void> delete(String assetID) async {
+    MySQLConnection? conn;
 
     try {
+      conn = await createSqlConn();
+
+      await conn.connect();
       await conn.execute(
         'UPDATE `assets` SET `is_enabled` = 0 WHERE `asset_id` = :assetID',
         {'assetID': assetID},
@@ -74,18 +47,17 @@ class DatabaseAPI {
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
   static Future<List<Item>> search({
-    required MySQLConnection? conn,
     required String query,
     required String searchBy,
     required List<Department> departments,
     required List<ItemCategory> categories,
   }) async {
-    if (conn == null) return Future.value([]);
+    MySQLConnection? conn;
 
     String? columnString;
 
@@ -120,11 +92,13 @@ class DatabaseAPI {
     }
 
     try {
+      conn = await createSqlConn();
+
       if (columnString == null) {
         return Future.error('No column found');
       }
 
-      conn.connect();
+      await conn.connect();
 
       IResultSet results = await _searchQuery(
         conn: conn,
@@ -146,18 +120,20 @@ class DatabaseAPI {
 
       return [];
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
-  static Future<void> update({
-    required MySQLConnection? conn,
-    required Item item,
-  }) async {
-    if (conn == null) return;
+  static Future<void> update(Item item) async {
+    MySQLConnection? conn;
 
     try {
-      conn.connect();
+      DateTime dateReceived = item.dateReceived;
+      DateTime? datePurchased = item.datePurchased;
+
+      conn = await createSqlConn();
+
+      await conn.connect();
 
       await conn.execute('''UPDATE `assets` SET   
           department_id = :departmentID,
@@ -178,8 +154,8 @@ class DatabaseAPI {
         'itemDescription': item.description,
         'unit': item.unit,
         'price': item.price,
-        'datePurchased': item.datePurchased?.toUtc(),
-        'dateReceived': item.dateReceived.toUtc(),
+        'datePurchased': datePurchased == null ? null : '${datePurchased.year}-${datePurchased.month}-${datePurchased.day}',
+        'dateReceived': '${dateReceived.year}-${dateReceived.month}-${dateReceived.day}',
         'status': item.status.name,
         'categoryID': item.category.categoryID,
         'remarks': item.remarks,
@@ -188,18 +164,22 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
   static Future<void> add({
-    required MySQLConnection? conn,
     required Item item,
   }) async {
-    if (conn == null) return;
+    MySQLConnection? conn;
 
     try {
-      conn.connect();
+      DateTime dateReceived = item.dateReceived;
+      DateTime? datePurchased = item.datePurchased;
+
+      conn = await createSqlConn();
+
+      await conn.connect();
 
       await conn.execute('''INSERT INTO assets (
           asset_id, 
@@ -215,15 +195,18 @@ class DatabaseAPI {
           category_id,
           remarks)
           VALUES
-          (:assetID, departmentID, personAccountable, itemName, itemDescription, unit, price,)''', {
+          (:assetID, :departmentID, :personAccountable, :itemName, :itemDescription, :unit, :price,
+          
+            :datePurchased, :dateReceived, :status, :categoryID, :remarks
+          )''', {
         'departmentID': item.department.departmentID,
         'personAccountable': item.personAccountable,
         'itemName': item.name,
         'itemDescription': item.description,
         'unit': item.unit,
         'price': item.price,
-        'datePurchased': item.datePurchased?.toUtc(),
-        'dateReceived': item.dateReceived.toUtc(),
+        'datePurchased': datePurchased == null ? null : '${datePurchased.year}-${datePurchased.month}-${datePurchased.day}',
+        'dateReceived': '${dateReceived.year}-${dateReceived.month}-${dateReceived.day}',
         'status': item.status.name,
         'categoryID': item.category.categoryID,
         'remarks': item.remarks,
@@ -232,22 +215,23 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
   static Future<List<Item>> getInventory(
-    MySQLConnection? conn,
     List<Department> departments,
     List<ItemCategory> categories,
     int page,
   ) async {
-    if (conn == null) return Future.value([]);
+    MySQLConnection? conn;
 
     try {
       int offset = (itemsPerPage * page);
 
-      conn.connect();
+      conn = await createSqlConn();
+
+      await conn.connect();
 
       var results = await conn.execute(
         'SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC LIMIT $itemsPerPage OFFSET $offset',
@@ -264,19 +248,19 @@ class DatabaseAPI {
       showErrorAndStacktrace(e, st);
       return Future.value([]);
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
   static Future<List<Item>> getAll(
-    MySQLConnection? conn,
     List<Department> departments,
     List<ItemCategory> categories,
   ) async {
-    if (conn == null) return Future.value([]);
+    MySQLConnection? conn;
 
     try {
-      conn.connect();
+      conn = await createSqlConn();
+      await conn.connect();
 
       var results = await conn.execute('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC');
 
@@ -291,43 +275,41 @@ class DatabaseAPI {
       showErrorAndStacktrace(e, st);
       return Future.value([]);
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
   static Future<User?> authenticateUser(String username, String passwordHash, WidgetRef ref) async {
-    MySQLConnection? conn = ref.read(sqlConnProvider);
-
-    if (conn == null) return null;
+    MySQLConnection? conn;
 
     try {
+      conn = await createSqlConn();
+
       await Future.delayed(const Duration(milliseconds: 200));
 
-      conn.connect();
+      await conn.connect();
 
       IResultSet results = await conn.execute(
         'SELECT * FROM `users` WHERE `username`= :username and `password_hash`= :password',
         {'username': username, 'password': passwordHash},
       );
 
-      if (results.isNotEmpty) {
-        ResultSetRow row = results.rows.first;
+      if (results.rows.isEmpty) return Future.error('No user found');
 
-        ref.read(departmentsProvider.notifier).state = await _getDepartments(conn);
-        ref.read(categoriesProvider.notifier).state = await _getCategories(conn);
+      ResultSetRow row = results.rows.first;
 
-        return User(
-          userID: row.typedColByName<String>('user_id')!,
-          username: row.typedColByName<String>('username')!,
-          isAdmin: row.typedColByName<int>('is_enabled')! == 1 ? true : false,
-        );
-      } else {
-        return Future.error('No user found');
-      }
+      ref.read(departmentsProvider.notifier).state = await _getDepartments(conn);
+      ref.read(categoriesProvider.notifier).state = await _getCategories(conn);
+
+      return User(
+        userID: row.typedColByName<String>('user_id')!,
+        username: row.typedColByName<String>('username')!,
+        isAdmin: row.typedColByName<int>('admin')! == 1 ? true : false,
+      );
     } catch (e) {
       return Future.error(e.toString());
     } finally {
-      conn.close();
+      await conn?.close();
     }
   }
 
@@ -361,8 +343,7 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results =
-          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 

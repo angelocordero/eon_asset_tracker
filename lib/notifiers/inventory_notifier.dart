@@ -1,19 +1,16 @@
 import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/models/item_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql_client/mysql_client.dart';
 
 import '../models/category_model.dart';
 import '../models/department_model.dart';
 
 class InventoryNotifier extends StateNotifier<List<Item>> {
   InventoryNotifier({
-    required this.conn,
     required this.departments,
     required this.categories,
   }) : super([]);
 
-  MySQLConnection? conn;
   List<Department> departments;
   List<ItemCategory> categories;
 
@@ -26,30 +23,26 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
   get isLoading => _isLoading;
 
   Future<void> init(int page) async {
-    if (conn == null) return;
-
     _isLoading = true;
 
-    state = await DatabaseAPI.getInventory(conn, departments, categories, page);
+    state = await DatabaseAPI.getInventory(departments, categories, page);
 
     _isLoading = false;
   }
 
   Future<void> refresh() async {
-    if (conn == null) return;
     _isLoading = true;
 
     state = [];
 
     await Future.delayed(const Duration(milliseconds: 200));
 
-    state = await DatabaseAPI.getInventory(conn, departments, categories, 0);
+    state = await DatabaseAPI.getInventory(departments, categories, 0);
 
     _isLoading = false;
   }
 
   void search({
-    required MySQLConnection? conn,
     required String query,
     required String searchBy,
   }) async {
@@ -59,7 +52,6 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
     }
 
     state = await DatabaseAPI.search(
-      conn: conn,
       query: query,
       searchBy: searchBy,
       departments: departments,

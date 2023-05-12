@@ -34,20 +34,6 @@ class Item {
     this.remarks,
   });
 
-  // Item.toDatabase({
-  //   required this.department,
-  //   this.personAccountable,
-  //   required this.name,
-  //   this.description,
-  //   required this.unit,
-  //   this.price,
-  //   this.datePurchased,
-  //   required this.dateReceived,
-  //   required this.status,
-  //   required this.category,
-  //   this.remarks,
-  // }) : assetID = generateItemID();
-
   factory Item.toDatabase({
     required Department department,
     String? personAccountable,
@@ -87,16 +73,17 @@ class Item {
     return Item(
       assetID: row.typedColByName<String>('asset_id')!,
       department: departments.firstWhere((element) => element.departmentID == row.typedColByName<String>('department_id')),
-      personAccountable: row.typedColByName<String?>('person_accountable'),
+      personAccountable: row.colByName('person_accountable'),
       name: row.typedColByName<String>('item_name')!,
-      description: row.typedColByName<String?>('item_description'),
-      unit: row.typedColByName<String?>('unit'),
-      price: row.typedColByName<double?>('price'),
-      datePurchased:  row.typedColByName<DateTime?>('date_purchased')?.toLocal() ,
-      dateReceived: row.typedColByName<DateTime>('date_received')!.toLocal(),
+      description: row.colByName('item_description'),
+      unit: row.colByName('unit'),
+      price: row.colByName('price') == null ? null : double.tryParse((row.colByName('price')) as String),
+      //datePurchased: null,
+      dateReceived: DateTime.parse(row.colByName('date_received').toString()),
+      datePurchased: row.colByName('date_purchased') == null ? null : DateTime.tryParse((row.colByName('date_purchased') as String))!,
       status: ItemStatus.values.byName(row.typedColByName<String>('status')!),
-      category: categories.firstWhere((element) => element.categoryID == row.typedColByName<String>('category')!),
-      remarks: row.typedColByName<String?>('remarks'),
+      category: categories.firstWhere((element) => element.categoryID == row.typedColByName<String>('category_id')!),
+      remarks: row.colByName('remarks'),
     );
   }
 

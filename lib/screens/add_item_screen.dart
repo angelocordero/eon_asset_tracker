@@ -150,7 +150,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         departments: ref.read(departmentsProvider),
                       );
                       try {
-                        await DatabaseAPI.add(conn: ref.read(sqlConnProvider), item: item);
+                        await DatabaseAPI.add(item: item);
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);
@@ -466,9 +466,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _itemStatus,
-              items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
-                  .toList(),
+              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -522,9 +520,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _category,
-              items: _categories
-                  .map<DropdownMenuItem<ItemCategory>>((value) => DropdownMenuItem<ItemCategory>(value: value, child: Text(value.categoryName)))
-                  .toList(),
+              items: _categories.map<DropdownMenuItem<ItemCategory>>((value) => DropdownMenuItem<ItemCategory>(value: value, child: Text(value.categoryName))).toList(),
               onChanged: (ItemCategory? category) {
                 if (category == null) return;
                 setState(() {

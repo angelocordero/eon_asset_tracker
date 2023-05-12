@@ -1,16 +1,22 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:mysql_client/mysql_client.dart';
 
-import '../models/connection_settings_model.dart';
-
-ConnectionSettings sqlConnSettings = ConnectionSettings(
-  host: '127.0.0.1',
-  port: 3306,
-  user: 'admin',
-  password: 'admin',
-  database: 'eon',
-);
+Future<MySQLConnection> createSqlConn() async {
+  try {
+    return await MySQLConnection.createConnection(
+      // host: '127.0.0.1',
+      host: '192.168.1.32',
+      port: 3306,
+      userName: 'admin',
+      password: 'admin',
+      databaseName: 'eon',
+    );
+  } catch (e, st) {
+    return Future.error(e, st);
+  }
+}
 
 enum ItemStatus {
   Good,

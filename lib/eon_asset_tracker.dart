@@ -1,6 +1,5 @@
 import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/screens/home_screen.dart';
-import 'package:eon_asset_tracker/screens/loading_screen.dart';
 import 'package:eon_asset_tracker/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -27,7 +26,7 @@ class EonAssetTracker extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.dark,
-      home: const LoadingScreen(),
+      home: const LoginScreen(),
       builder: EasyLoading.init(),
       routes: {
         'login': (context) => const LoginScreen(),

@@ -130,9 +130,9 @@ class InventoryTab extends ConsumerWidget {
                     case 7:
                       return tableDataTile(priceToString(item.price), selected);
                     case 8:
-                      return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!.toLocal()), selected);
+                      return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!), selected);
                     case 9:
-                      return tableDataTile(dateToString(item.dateReceived.toLocal()), selected);
+                      return tableDataTile(dateToString(item.dateReceived), selected);
 
                     default:
                       return Container();
@@ -196,7 +196,7 @@ class InventoryTab extends ConsumerWidget {
                 if (selectedAssetID == null) return;
 
                 try {
-                  await DatabaseAPI.delete(conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
+                  await DatabaseAPI.delete(selectedAssetID);
                   EasyLoading.dismiss();
                 } catch (e) {
                   EasyLoading.showError(e.toString());
@@ -263,9 +263,6 @@ class InventoryTab extends ConsumerWidget {
                 context,
                 itemLength,
                 () async {
-
-
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(

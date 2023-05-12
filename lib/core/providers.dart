@@ -2,14 +2,11 @@ import 'package:eon_asset_tracker/models/dashboard_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:eon_asset_tracker/notifiers/dashboard_notifier.dart';
 import 'package:eon_asset_tracker/notifiers/inventory_notifier.dart';
-import 'package:mysql_client/mysql_client.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../models/category_model.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
-
-final sqlConnProvider = StateProvider<MySQLConnection?>((ref) => null);
 
 final userProvider = StateProvider<User?>((ref) => null);
 
@@ -19,7 +16,6 @@ final categoriesProvider = StateProvider<List<ItemCategory>>((ref) => []);
 
 final inventoryProvider = StateNotifierProvider<InventoryNotifier, List<Item>>((ref) {
   return InventoryNotifier(
-    conn: ref.watch(sqlConnProvider),
     departments: ref.watch(departmentsProvider),
     categories: ref.watch(categoriesProvider),
   );

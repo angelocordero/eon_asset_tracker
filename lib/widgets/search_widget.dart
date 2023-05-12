@@ -1,7 +1,6 @@
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql_client/mysql_client.dart';
 
 import '../core/constants.dart';
 
@@ -80,10 +79,8 @@ class SearchWidget extends ConsumerWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            MySQLConnection? conn = ref.read(sqlConnProvider);
             String searchBy = ref.read(searchQueryProvider);
             ref.read(inventoryProvider.notifier).search(
-                  conn: conn,
                   query: controller.text.trim(),
                   searchBy: searchBy,
                 );
