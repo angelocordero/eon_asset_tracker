@@ -207,6 +207,7 @@ class InventoryTab extends ConsumerWidget {
                 Navigator.pop(context);
 
                 await ref.read(inventoryProvider.notifier).refresh();
+                ref.read(currentInventoryPage.notifier).state = 0;
 
                 await ref.read(dashboardDataProvider.notifier).refresh();
               },
@@ -329,9 +330,10 @@ class InventoryTab extends ConsumerWidget {
             onPressed: () {
               ref.read(checkedItemProvider.notifier).state = [];
               ref.read(inventoryProvider.notifier).refresh();
+              ref.read(currentInventoryPage.notifier).state = 0;
 
               _searchController.clear();
-              ref.read(searchQueryProvider.notifier).state = 'Asset ID';
+              ref.read(searchFilterProvider.notifier).state = 'Asset ID';
             },
             icon: const Icon(Icons.refresh),
           ),

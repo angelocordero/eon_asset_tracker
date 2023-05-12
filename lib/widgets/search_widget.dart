@@ -56,7 +56,7 @@ class SearchWidget extends ConsumerWidget {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value: ref.watch(searchQueryProvider),
+              value: ref.watch(searchFilterProvider),
               items: _searchByList.map((value) {
                 return DropdownMenuItem(
                   value: value,
@@ -69,7 +69,7 @@ class SearchWidget extends ConsumerWidget {
               onChanged: (String? input) {
                 if (input == null) return;
 
-                ref.read(searchQueryProvider.notifier).state = input;
+                ref.read(searchFilterProvider.notifier).state = input;
               },
             ),
           ),
@@ -79,11 +79,10 @@ class SearchWidget extends ConsumerWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            String searchBy = ref.read(searchQueryProvider);
-            ref.read(inventoryProvider.notifier).search(
-                  query: controller.text.trim(),
-                  searchBy: searchBy,
-                );
+            ref.read(searchQueryProvider.notifier).state = controller.text.trim();
+
+            ref.read(currentInventoryPage.notifier).state = 0;
+            ref.read(inventoryProvider.notifier).getItems(0);
           },
           child: const Text('Search'),
         ),

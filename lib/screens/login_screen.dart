@@ -18,6 +18,8 @@ class LoginScreen extends ConsumerWidget {
     usernameController.clear();
     passwordController.clear();
 
+    ref.watch(queryResultItemCount);
+
     return Scaffold(
       body: Center(
         child: Card(
@@ -39,10 +41,11 @@ class LoginScreen extends ConsumerWidget {
                   height: 20,
                 ),
                 ElevatedButton(
-                    onPressed: () async {
-                      await authenticate(context, ref);
-                    },
-                    child: const Text('Login')),
+                  onPressed: () async {
+                    await authenticate(context, ref);
+                  },
+                  child: const Text('Login'),
+                ),
               ],
             ),
           ),
@@ -125,6 +128,6 @@ class LoginScreen extends ConsumerWidget {
     // ignore: use_build_context_synchronously
     Navigator.pushReplacementNamed(context, 'home');
     ref.read(dashboardDataProvider.notifier).init();
-    ref.read(inventoryProvider.notifier).init(0);
+    ref.read(inventoryProvider.notifier).getItems(0);
   }
 }

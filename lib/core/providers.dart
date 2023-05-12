@@ -16,6 +16,7 @@ final categoriesProvider = StateProvider<List<ItemCategory>>((ref) => []);
 
 final inventoryProvider = StateNotifierProvider<InventoryNotifier, List<Item>>((ref) {
   return InventoryNotifier(
+    ref: ref,
     departments: ref.watch(departmentsProvider),
     categories: ref.watch(categoriesProvider),
   );
@@ -35,9 +36,11 @@ final appbarTitleProvider = StateProvider<String>((ref) {
   return 'Home';
 });
 
-final searchQueryProvider = StateProvider<String>((ref) {
+final searchFilterProvider = StateProvider<String>((ref) {
   return 'Asset ID';
 });
+
+final searchQueryProvider = StateProvider<String>((ref) => '');
 
 final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
   return DashboardNotifier(
@@ -48,3 +51,7 @@ final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, Dashboard
 });
 
 final checkedItemProvider = StateProvider<List<String>>((ref) => []);
+
+final currentInventoryPage = StateProvider<int>((ref) => 0);
+
+final queryResultItemCount = StateProvider<int>((ref) => 0);

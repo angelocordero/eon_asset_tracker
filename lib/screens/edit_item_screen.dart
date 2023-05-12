@@ -147,6 +147,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         EasyLoading.dismiss();
 
                         ref.read(inventoryProvider.notifier).refresh();
+                        ref.read(currentInventoryPage.notifier).state = 0;
                         ref.read(dashboardDataProvider.notifier).refresh();
                       } catch (e, st) {
                         showErrorAndStacktrace(e, st);

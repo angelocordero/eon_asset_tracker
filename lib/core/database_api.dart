@@ -20,7 +20,7 @@ class DatabaseAPI {
 
       await conn.connect();
       return DashboardData(
-        totalItems: await _getTotal(conn),
+        totalItems: await getTotal(conn),
         statusDashboardData: await _getTotalStatusCount(conn),
         categoriesDashbordData: await _getCategoriesCount(conn: conn, categories: ref.read(categoriesProvider)),
         departmentsDashboardData: await _getDepartmentsCount(conn: conn, departments: ref.read(departmentsProvider)),
@@ -51,7 +51,7 @@ class DatabaseAPI {
     }
   }
 
-  static Future<List<Item>> search({
+  static Future<int> getSearchResultTotalCount({
     required String query,
     required String searchBy,
     required List<Department> departments,
@@ -100,8 +100,76 @@ class DatabaseAPI {
 
       await conn.connect();
 
+      IResultSet results = await _searchQueryResultTotal(
+        conn: conn,
+        searchBy: columnString,
+        query: query,
+      );
+
+      // ignore: sdk_version_since
+      return results.rows.firstOrNull?.typedColByName<int>('count') ?? 0;
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+
+      return 0;
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<List<Item>> search({
+    required String query,
+    required String searchBy,
+    required page,
+    required List<Department> departments,
+    required List<ItemCategory> categories,
+  }) async {
+    MySQLConnection? conn;
+
+    String? columnString;
+
+    switch (searchBy) {
+      case 'Asset ID':
+        columnString = 'asset_id';
+        break;
+
+      case 'Item Name':
+        columnString = 'item_name';
+        break;
+
+      case 'Person Accountable':
+        columnString = 'person_accountable';
+        break;
+
+      case 'Unit':
+        columnString = 'unit';
+        break;
+
+      case 'Item Description':
+        columnString = 'item_description';
+        break;
+
+      case 'Remarks':
+        columnString = 'remarks';
+        break;
+
+      default:
+        columnString = null;
+        break;
+    }
+
+    try {
+      conn = await createSqlConn();
+
+      if (columnString == null) {
+        return Future.error('No column found');
+      }
+
+      await conn.connect();
+
       IResultSet results = await _searchQuery(
         conn: conn,
+        page: page,
         searchBy: columnString,
         query: query,
       );
@@ -313,13 +381,14 @@ class DatabaseAPI {
     }
   }
 
-  static Future<int> _getTotal(MySQLConnection conn) async {
+  static Future<int> getTotal(MySQLConnection conn) async {
     try {
       IResultSet result = await conn.execute('SELECT * FROM `assets` WHERE `is_enabled` = 1 ', {});
 
       return result.numOfRows;
     } catch (e, st) {
-      return Future.error(e, st);
+      showErrorAndStacktrace(e, st);
+      return Future.value(0);
     }
   }
 
@@ -411,9 +480,24 @@ class DatabaseAPI {
     }
   }
 
-  static Future<IResultSet> _searchQuery({required MySQLConnection conn, required String searchBy, required String query}) async {
+  static Future<IResultSet> _searchQuery({
+    required MySQLConnection conn,
+    required int page,
+    required String searchBy,
+    required String query,
+  }) async {
+    int offset = (itemsPerPage * page);
+
     try {
-      return await conn.execute('SELECT * FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1 ORDER BY `timestamp` DESC');
+      return await conn.execute('SELECT * FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1 ORDER BY `timestamp` DESC LIMIT $itemsPerPage OFFSET $offset');
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
+
+  static Future<IResultSet> _searchQueryResultTotal({required MySQLConnection conn, required String searchBy, required String query}) async {
+    try {
+      return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1');
     } catch (e, st) {
       return Future.error(e, st);
     }
