@@ -64,12 +64,12 @@ class DatabaseAPI {
     return buffer;
   }
 
-  static Future<List<Map<String, dynamic>>> categoriesData({required MySqlConnection? conn, required List<ItemCategory> categories}) async {
+  static Future<List<Map<String, dynamic>>> categoriesData({required MySQLConnection? conn, required List<ItemCategory> categories}) async {
     List<Map<String, dynamic>> buffer = [];
 
     if (conn == null) return buffer;
 
-    IResultSet results = await conn.query('SELECT `category_id`, COUNT(*) as count FROM `assets`  WHERE `is_enabled` = 1 GROUP BY `category_id`');
+    IResultSet results = await conn.execute('SELECT `category_id`, COUNT(*) as count FROM `assets`  WHERE `is_enabled` = 1 GROUP BY `category_id`');
 
     List<ResultSetRow> rows = results.rows.toList();
 
@@ -245,7 +245,9 @@ class DatabaseAPI {
           category_id,
           remarks)
           VALUES
-          (:assetID, departmentID, personAccountable, itemName, itemDescription, unit, price,)''', {
+          (:assetID, :departmentID, :personAccountable, :itemName, :itemDescription, :unit, :price,
+          :datePurchased, :dateReceived, :status, :categoryID, :remarks,
+          )''', {
         'departmentID': item.department.departmentID,
         'personAccountable': item.personAccountable,
         'itemName': item.name,
@@ -265,7 +267,7 @@ class DatabaseAPI {
   }
 
   static Future<List<Item>> getInventory(
-    MySqlConnection? conn,
+    MySQLConnection? conn,
     List<Department> departments,
     List<ItemCategory> categories,
     int page,
@@ -274,9 +276,9 @@ class DatabaseAPI {
 
     int offset = (itemsPerPage * page);
 
-    var results = await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC LIMIT $itemsPerPage OFFSET $offset', []);
+    var results = await conn.execute('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC LIMIT $itemsPerPage OFFSET $offset');
 
-    return results.map<Item>((row) {
+    return results.rows.map<Item>((row) {
       return Item.fromDatabase(
         row: row,
         categories: categories,
@@ -286,15 +288,15 @@ class DatabaseAPI {
   }
 
   static Future<List<Item>> getALl(
-    MySqlConnection? conn,
+    MySQLConnection? conn,
     List<Department> departments,
     List<ItemCategory> categories,
   ) async {
     if (conn == null) return Future.value([]);
 
-    var results = await conn.query('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC', []);
+    var results = await conn.execute('SELECT * FROM `assets` WHERE `is_enabled` = 1 ORDER BY `timestamp` DESC');
 
-    return results.map<Item>((row) {
+    return results.rows.map<Item>((row) {
       return Item.fromDatabase(
         row: row,
         categories: categories,
@@ -303,26 +305,26 @@ class DatabaseAPI {
     }).toList();
   }
 
-  static Future<List<Department>> getDepartments(MySqlConnection conn) async {
-    var results = await conn.query('SELECT * FROM `departments` WHERE 1', []);
+  static Future<List<Department>> getDepartments(MySQLConnection conn) async {
+    var results = await conn.execute('SELECT * FROM `departments` WHERE 1',);
 
-    return results.map((row) {
+    return results.rows.map((row) {
       return Department(
-        departmentID: row[0],
-        departmentName: row[1],
-        isEnabled: row[2] == 1 ? true : false,
+        departmentID: row.typedColByName<String>('department_id')!,
+        departmentName: row.typedColByName<String>('department_name')!,
+        isEnabled: row.typedColByName<int>('is_enabled')! == 1 ? true : false,
       );
     }).toList();
   }
 
-  static Future<List<ItemCategory>> getCategories(MySqlConnection conn) async {
-    var results = await conn.query('SELECT * FROM `categories` WHERE 1', []);
+  static Future<List<ItemCategory>> getCategories(MySQLConnection conn) async {
+    var results = await conn.execute('SELECT * FROM `categories` WHERE 1');
 
-    return results.map((row) {
+    return results.rows.map((row) {
       return ItemCategory(
-        categoryID: row[0],
-        categoryName: row[1],
-        isEnabled: row[2] == 1 ? true : false,
+       categoryID: row.typedColByName<String>('category_id')!,
+        categoryName: row.typedColByName<String>('category_name')!,
+        isEnabled: row.typedColByName<int>('is_enabled')! == 1 ? true : false,
       );
     }).toList();
   }
