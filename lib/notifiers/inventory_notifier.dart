@@ -82,7 +82,12 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
 
       return;
     }
-    ref.read(queryResultItemCount.notifier).state = await DatabaseAPI.getSearchResultTotalCount(query: query, searchBy: searchBy, departments: departments, categories: categories);
+    ref.read(queryResultItemCount.notifier).state = await DatabaseAPI.getSearchResultTotalCount(
+      query: query,
+      searchBy: searchBy,
+      departments: departments,
+      categories: categories,
+    );
 
     state = await DatabaseAPI.search(
       query: query,
