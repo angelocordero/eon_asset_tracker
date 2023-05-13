@@ -86,6 +86,18 @@ class DatabaseAPI {
         columnString = 'remarks';
         break;
 
+      case 'Status':
+        columnString = 'status';
+        break;
+
+      case 'Department':
+        columnString = 'department_id';
+        break;
+
+      case 'Category':
+        columnString = 'category_id';
+        break;
+
       default:
         columnString = null;
         break;
@@ -151,6 +163,18 @@ class DatabaseAPI {
 
       case 'Remarks':
         columnString = 'remarks';
+        break;
+
+      case 'Status':
+        columnString = 'status';
+        break;
+
+      case 'Department':
+        columnString = 'department_id';
+        break;
+
+      case 'Category':
+        columnString = 'category_id';
         break;
 
       default:
