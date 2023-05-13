@@ -12,6 +12,7 @@ import 'package:eon_asset_tracker/widgets/item_info_display.dart';
 import 'package:eon_asset_tracker/widgets/search_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
@@ -118,7 +119,7 @@ class InventoryTab extends ConsumerWidget {
 
                   switch (i) {
                     case 0:
-                      return tableDataTile(item.assetID, selected);
+                      return copyableTableDataTile(item.assetID, selected);
                     case 1:
                       return tableDataTile(item.name, selected);
                     case 2:
@@ -162,6 +163,34 @@ class InventoryTab extends ConsumerWidget {
     return Container(
       color: selected ? Colors.blueGrey : Colors.transparent,
       child: ListTile(
+        horizontalTitleGap: 0,
+        title: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+        selectedTileColor: Colors.blueGrey,
+        selectedColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget copyableTableDataTile(String text, bool selected) {
+    return Container(
+      color: selected ? Colors.blueGrey : Colors.transparent,
+      child: ListTile(
+        trailing: Tooltip(
+          message: 'Copy Asset ID',
+          child: IconButton(
+            icon: const Icon(Icons.copy),
+            iconSize: 15,
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: text));
+              EasyLoading.showInfo('Asset ID copied to clipboard');
+            },
+          ),
+        ),
         horizontalTitleGap: 0,
         title: Text(
           text,

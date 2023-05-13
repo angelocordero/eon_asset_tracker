@@ -31,13 +31,12 @@ class ItemInfoDisplay extends ConsumerWidget {
             flex: 5,
             child: TextField(
               style: const TextStyle(color: Colors.white),
-              enabled: false,
+              readOnly: true,
               maxLines: 10,
               minLines: 10,
               decoration: const InputDecoration(
-                disabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
+                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                 labelText: 'Item Description',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 labelStyle: TextStyle(color: Colors.white),
@@ -52,11 +51,12 @@ class ItemInfoDisplay extends ConsumerWidget {
             flex: 5,
             child: TextField(
               style: const TextStyle(color: Colors.white),
-              enabled: false,
+              readOnly: true,
               maxLines: 10,
               minLines: 10,
               decoration: const InputDecoration(
-                disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                 labelText: 'Remarks',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 labelStyle: TextStyle(color: Colors.white),

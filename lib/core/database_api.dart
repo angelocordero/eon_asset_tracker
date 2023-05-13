@@ -139,11 +139,17 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      IResultSet results = await _searchQueryResultTotal(
-        conn: conn,
-        searchBy: columnString,
-        query: query,
-      );
+      IResultSet results;
+
+      if (query == 'No Category' && searchBy == 'Category') {
+        results = await _nullSearchQueryResultTotal(conn: conn, searchBy: searchBy);
+      } else {
+        results = await _searchQueryResultTotal(
+          conn: conn,
+          searchBy: columnString,
+          query: query,
+        );
+      }
 
       // ignore: sdk_version_since
       return results.rows.firstOrNull?.typedColByName<int>('count') ?? 0;
@@ -218,12 +224,22 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      IResultSet results = await _searchQuery(
-        conn: conn,
-        page: page,
-        searchBy: columnString,
-        query: query,
-      );
+      IResultSet results;
+
+      if (query == 'No Category' && searchBy == 'Category') {
+        results = await _nullSearchQuery(
+          conn: conn,
+          page: page,
+          searchBy: searchBy,
+        );
+      } else {
+        results = await _searchQuery(
+          conn: conn,
+          page: page,
+          searchBy: columnString,
+          query: query,
+        );
+      }
 
       return results.rows
           .map<Item>(
@@ -531,6 +547,29 @@ class DatabaseAPI {
     }
   }
 
+  static Future<IResultSet> _nullSearchQuery({
+    required MySQLConnection conn,
+    required int page,
+    required String searchBy,
+  }) async {
+    int offset = (itemsPerPage * page);
+
+    String columnString = '';
+
+    switch (searchBy) {
+      case 'Category':
+        columnString = 'category_id';
+        break;
+      default:
+    }
+
+    try {
+      return await conn.execute('SELECT * FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1 ORDER BY `timestamp` DESC LIMIT $itemsPerPage OFFSET $offset');
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
+
   static Future<IResultSet> _searchQuery({
     required MySQLConnection conn,
     required int page,
@@ -541,6 +580,26 @@ class DatabaseAPI {
 
     try {
       return await conn.execute('SELECT * FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1 ORDER BY `timestamp` DESC LIMIT $itemsPerPage OFFSET $offset');
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
+
+  static Future<IResultSet> _nullSearchQueryResultTotal({
+    required MySQLConnection conn,
+    required String searchBy,
+  }) async {
+    String columnString = '';
+
+    switch (searchBy) {
+      case 'Category':
+        columnString = 'category_id';
+        break;
+      default:
+    }
+
+    try {
+      return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
     } catch (e, st) {
       return Future.error(e, st);
     }

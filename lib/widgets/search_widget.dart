@@ -142,24 +142,47 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
                 },
               );
             } else if (input == 'Category') {
-              setState(
-                () {
-                  ref.read(searchQueryProvider.notifier).state = ref.read(categoriesProvider).first.categoryID;
-                  _searchField = _queryDropdownField(
-                    ref.read(categoriesProvider).map(
-                      (e) {
-                        return DropdownMenuItem(
+              // List<String> categoryIDs = ref.read(categoriesProvider).map((e) => e.categoryID).toList();
+
+              List<String> categoryIDs = [];
+
+              if (categoryIDs.isNotEmpty) {
+                ref.read(searchQueryProvider.notifier).state = categoryIDs.first;
+                setState(
+                  () {
+                    _searchField = _queryDropdownField(
+                      ref.read(categoriesProvider).map(
+                        (e) {
+                          return DropdownMenuItem(
+                            onTap: () {
+                              ref.read(searchQueryProvider.notifier).state = e.categoryID;
+                            },
+                            value: e.categoryID,
+                            child: Text(e.categoryName),
+                          );
+                        },
+                      ).toList(),
+                    );
+                  },
+                );
+              } else {
+                ref.read(searchQueryProvider.notifier).state = 'No Category';
+                setState(
+                  () {
+                    _searchField = _queryDropdownField(
+                      [
+                        DropdownMenuItem(
                           onTap: () {
-                            ref.read(searchQueryProvider.notifier).state = e.categoryID;
+                            ref.read(searchQueryProvider.notifier).state = 'No Category';
                           },
-                          value: e.categoryID,
-                          child: Text(e.categoryName),
-                        );
-                      },
-                    ).toList(),
-                  );
-                },
-              );
+                          value: 'No Category',
+                          child: const Text('No Category'),
+                        )
+                      ],
+                    );
+                  },
+                );
+              }
             }
 
             ref.read(searchFilterProvider.notifier).state = input;
