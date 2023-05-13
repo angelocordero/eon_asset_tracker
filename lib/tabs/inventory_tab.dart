@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
@@ -5,6 +7,7 @@ import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/pdf/report_pdf.dart';
 import 'package:eon_asset_tracker/screens/add_item_screen.dart';
 import 'package:eon_asset_tracker/screens/edit_item_screen.dart';
+import 'package:eon_asset_tracker/widgets/admin_password_prompt.dart';
 import 'package:eon_asset_tracker/widgets/item_info_display.dart';
 import 'package:eon_asset_tracker/widgets/search_widget.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +18,7 @@ import 'package:printing/printing.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 
 import '../models/item_model.dart';
+import '../models/user_model.dart';
 import '../pdf/qr_code_pdf.dart';
 import '../widgets/inventory_checkbox.dart';
 
@@ -189,27 +193,36 @@ class InventoryTab extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () async {
-                EasyLoading.show();
+                User? user = await ref.read(userProvider);
 
-                String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
+                if (user == null) return;
 
-                if (selectedAssetID == null) return;
+                await adminCheck(
+                  context: context,
+                  user: user,
+                  callback: () async {
+                    EasyLoading.show();
 
-                try {
-                  await DatabaseAPI.delete(selectedAssetID);
-                  EasyLoading.dismiss();
-                } catch (e) {
-                  EasyLoading.showError(e.toString());
-                  return;
-                }
+                    String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
 
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context);
+                    if (selectedAssetID == null) return;
 
-                await ref.read(inventoryProvider.notifier).refresh();
-                ref.read(currentInventoryPage.notifier).state = 0;
+                    try {
+                      await DatabaseAPI.delete(selectedAssetID);
+                      EasyLoading.dismiss();
+                    } catch (e) {
+                      EasyLoading.showError(e.toString());
+                      return;
+                    }
 
-                await ref.read(dashboardDataProvider.notifier).refresh();
+                    Navigator.pop(context);
+
+                    await ref.read(inventoryProvider.notifier).refresh();
+                    ref.read(currentInventoryPage.notifier).state = 0;
+
+                    await ref.read(dashboardDataProvider.notifier).refresh();
+                  },
+                );
               },
               child: const Text('Confirm'),
             ),
@@ -353,18 +366,28 @@ class InventoryTab extends ConsumerWidget {
         Tooltip(
           message: 'Edit selected item',
           child: IconButton.outlined(
-            onPressed: () {
-              Item? item = ref.read(selectedItemProvider);
+            onPressed: () async {
+              Item? item = await ref.read(selectedItemProvider);
 
               if (item == null) return;
 
-              Navigator.push(
-                context,
-                CustomRoute(
-                  builder: (context) {
-                    return EditItemScreen(item: item);
-                  },
-                ),
+              User? user = await ref.read(userProvider);
+
+              if (user == null) return;
+
+              await adminCheck(
+                context: context,
+                user: user,
+                callback: () async {
+                  await Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        return EditItemScreen(item: item);
+                      },
+                    ),
+                  );
+                },
               );
             },
             icon: const Icon(Icons.edit),
@@ -373,14 +396,24 @@ class InventoryTab extends ConsumerWidget {
         Tooltip(
           message: 'Add new item',
           child: IconButton.outlined(
-            onPressed: () {
-              Navigator.push(
-                context,
-                CustomRoute(
-                  builder: (context) {
-                    return const AddItemScreen();
-                  },
-                ),
+            onPressed: () async {
+              User? user = await ref.read(userProvider);
+
+              if (user == null) return;
+
+              await adminCheck(
+                context: context,
+                user: user,
+                callback: () async {
+                  await Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        return const AddItemScreen();
+                      },
+                    ),
+                  );
+                },
               );
             },
             icon: const Icon(Icons.add),
@@ -388,5 +421,35 @@ class InventoryTab extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Future<void> adminCheck({required BuildContext context, required User user, required AsyncCallback callback}) async {
+    if (!user.isAdmin) {
+      Navigator.push(
+        context,
+        CustomRoute(
+          builder: (context) {
+            final TextEditingController controller = TextEditingController();
+
+            return AdminPasswordPrompt(
+              controller: controller,
+              callback: () async {
+                bool admin = await DatabaseAPI.getAdminPassword(controller.text.trim());
+
+                if (admin) {
+                  Navigator.pop(context);
+
+                  await callback();
+                } else {
+                  EasyLoading.showError('Wrong admin password');
+                }
+              },
+            );
+          },
+        ),
+      );
+    } else {
+      await callback();
+    }
   }
 }

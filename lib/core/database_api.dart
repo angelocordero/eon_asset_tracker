@@ -12,7 +12,9 @@ import '../models/user_model.dart';
 import '../notifiers/dashboard_notifier.dart';
 
 class DatabaseAPI {
-  static Future<DashboardData> initDashboard(StateNotifierProviderRef<DashboardNotifier, DashboardData> ref) async {
+  static Future<DashboardData> initDashboard(
+    StateNotifierProviderRef<DashboardNotifier, DashboardData> ref,
+  ) async {
     MySQLConnection? conn;
 
     try {
@@ -31,6 +33,31 @@ class DatabaseAPI {
     } finally {
       await conn?.close();
     }
+  }
+
+  static Future<bool> getAdminPassword(String password) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      IResultSet results = await conn.execute('''
+                                              SELECT `password_hash`
+                                              FROM `users`
+                                              WHERE `admin` = 1
+                                              UNION
+                                              SELECT `hash` AS `password_hash`
+                                              FROM `master`;
+                                              ''');
+
+      List<String?> list = results.rows.map((e) => e.typedColAt<String>(0)).toList();
+
+      if (list.contains(hashPassword(password))) return true;
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
+    return false;
   }
 
   static Future<void> delete(String assetID) async {

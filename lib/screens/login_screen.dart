@@ -94,7 +94,7 @@ class LoginScreen extends ConsumerWidget {
               await authenticate(context, ref);
             },
             decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
-            obscureText: true,
+            obscureText: false,
             controller: passwordController,
           ),
         ),
