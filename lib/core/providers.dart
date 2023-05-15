@@ -4,6 +4,7 @@ import 'package:eon_asset_tracker/notifiers/admin_panel_notifier.dart';
 import 'package:eon_asset_tracker/notifiers/dashboard_notifier.dart';
 import 'package:eon_asset_tracker/notifiers/inventory_notifier.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:sidebarx/sidebarx.dart';
 
 import '../models/category_model.dart';
 import '../models/item_model.dart';
@@ -42,8 +43,6 @@ final currentInventoryPage = StateProvider<int>((ref) => 0);
 final queryResultItemCount = StateProvider<int>((ref) => 0);
 
 final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
-  ref.watch(categoriesProvider);
-  ref.watch(departmentsProvider);
 
   return DashboardNotifier(
     ref: ref,
@@ -64,4 +63,12 @@ final adminPanelProvider = StateNotifierProvider<AdminPanelNotifier, Map<String,
     categories: ref.watch(categoriesProvider),
     ref: ref,
   );
+});
+
+final tabSwitcherIndexProvider = StateProvider<int>((ref) {
+  return 0;
+});
+
+final sidebarControllerProvider = StateProvider<SidebarXController>((ref) {
+  return SidebarXController(selectedIndex: 0);
 });

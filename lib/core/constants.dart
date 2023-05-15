@@ -7,11 +7,11 @@ Future<MySQLConnection> createSqlConn() async {
   try {
     return await MySQLConnection.createConnection(
       host: '127.0.0.1',
-      // host: '192.168.1.32',
       port: 3306,
-      userName: 'admin',
-      password: 'admin',
+      userName: 'root',
+      password: 'cordero12',
       databaseName: 'eon',
+      secure: false,
     );
   } catch (e, st) {
     return Future.error(e, st);

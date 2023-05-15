@@ -24,6 +24,16 @@ class DashboardNotifier extends StateNotifier<DashboardData> {
     state = await _setState();
   }
 
+  Future<void> refresh() async {
+    _isLoading = true;
+
+    state = DashboardData.empty();
+
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    state = await _setState();
+  }
+
   Future<DashboardData> _setState() async {
     _isLoading = true;
 
@@ -35,15 +45,5 @@ class DashboardNotifier extends StateNotifier<DashboardData> {
 
     _isLoading = false;
     return dashboardData;
-  }
-
-  refresh() async {
-    _isLoading = true;
-
-    state = DashboardData.empty();
-
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    state = await _setState();
   }
 }

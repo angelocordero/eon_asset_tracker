@@ -20,7 +20,7 @@ class DashboardCategoryChart extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'Items per Category',
+            'I T E M S   P E R   C A T E G O R Y',
             style: TextStyle(fontSize: 20),
           ),
           const SizedBox(

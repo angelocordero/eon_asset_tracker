@@ -80,11 +80,7 @@ class AdminPanelTab extends ConsumerWidget {
   Expanded _categoriesList(BuildContext context, WidgetRef ref) {
     List<ItemCategory> categories = ref.watch(adminPanelProvider.select((value) => List<ItemCategory>.from(value['categories']!)));
 
-    categories.sort(
-      (a, b) {
-        return a.categoryName.compareTo(b.categoryName);
-      },
-    );
+   
 
     return Expanded(
       child: Column(
@@ -248,11 +244,7 @@ class AdminPanelTab extends ConsumerWidget {
   Expanded _departmentsList(BuildContext context, WidgetRef ref) {
     List<Department> departments = ref.watch(adminPanelProvider.select((value) => List<Department>.from(value['departments']!)));
 
-    departments.sort(
-      (a, b) {
-        return a.departmentName.compareTo(b.departmentName);
-      },
-    );
+   
 
     return Expanded(
       child: Column(

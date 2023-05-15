@@ -4,6 +4,7 @@ import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sidebarx/sidebarx.dart';
 
 import '../models/user_model.dart';
 
@@ -28,7 +29,7 @@ class LoginScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('User Login'),
+                const Text('U S E R   L O G I N'),
                 const SizedBox(
                   height: 20,
                 ),
@@ -124,14 +125,10 @@ class LoginScreen extends ConsumerWidget {
 
     ref.read(userProvider.notifier).state = user;
 
+    ref.read(sidebarControllerProvider.notifier).state = SidebarXController(selectedIndex: 0);
+
     await EasyLoading.dismiss();
     // ignore: use_build_context_synchronously
-    Navigator.pushReplacementNamed(context, 'home');
-    ref.read(dashboardDataProvider.notifier).init();
-    ref.read(inventoryProvider.notifier).getItems(0);
-
-    if (user.isAdmin) {
-      ref.read(adminPanelProvider.notifier).init();
-    }
+    await Navigator.pushReplacementNamed(context, 'home');
   }
 }

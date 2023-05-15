@@ -18,7 +18,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'Items per Department',
+            'I T E M S   P E R   D E P A R T M E N T',
             style: TextStyle(fontSize: 20),
           ),
           const SizedBox(

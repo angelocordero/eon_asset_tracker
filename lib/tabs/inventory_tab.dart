@@ -315,7 +315,7 @@ class InventoryTab extends ConsumerWidget {
                       builder: (context) {
                         return Scaffold(
                           appBar: AppBar(
-                            title: const Text('Print QR Code'),
+                            title: const Text('Print Report'),
                           ),
                           body: PdfPreview(
                             build: (format) async => await ReportPDF(

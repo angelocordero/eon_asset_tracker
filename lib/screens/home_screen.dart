@@ -11,9 +11,16 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(dashboardDataProvider.notifier).init();
+    ref.read(inventoryProvider.notifier).getItems(0);
+
+    if (ref.read(userProvider)?.isAdmin ?? false) {
+      ref.read(adminPanelProvider.notifier).init();
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Eon Asset Tracker | ${ref.watch(appbarTitleProvider)}'),
+        title: Text('EON ASSET TRACKER  |  ${ref.watch(appbarTitleProvider)}'),
         actions: [
           Center(
             child: Row(
@@ -66,7 +73,10 @@ class HomeScreen extends ConsumerWidget {
                       ? ListTile(
                           title: const SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: Text('L O G   O U T'),
+                            child: Text(
+                              'L O G   O U T',
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
                           leading: const Icon(Icons.logout),
                           onTap: () {
@@ -88,14 +98,15 @@ class HomeScreen extends ConsumerWidget {
                 icon: Icons.home,
                 label: 'H O M E',
                 onTap: () {
-                  ref.read(appbarTitleProvider.notifier).state = 'Home';
+                  ref.read(appbarTitleProvider.notifier).state = 'HOME';
                 },
               ),
               SidebarXItem(
                 icon: Icons.inventory_2,
                 label: 'I N V E N T O R Y',
+                // label: 'INVENTORY',
                 onTap: () {
-                  ref.read(appbarTitleProvider.notifier).state = 'Inventory';
+                  ref.read(appbarTitleProvider.notifier).state = 'INVENTORY';
                 },
               ),
               if (ref.watch(userProvider)?.isAdmin ?? false)
@@ -103,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
                   icon: Icons.admin_panel_settings,
                   label: 'A D M I N',
                   onTap: () {
-                    ref.read(appbarTitleProvider.notifier).state = 'Admin Panel';
+                    ref.read(appbarTitleProvider.notifier).state = 'ADMIN PANEL';
                   },
                 ),
             ],

@@ -43,7 +43,10 @@ QrImageView generateQRImage({required String assetID, double? size}) {
 }
 
 void showErrorAndStacktrace(Object e, StackTrace st) {
-  if (e.toString().contains('didChangeDependency')) return;
+  if (e.toString().contains('didChangeDependency')) {
+    EasyLoading.dismiss();
+    return;
+  }
 
   EasyLoading.showError(e.toString());
   debugPrint(e.toString());

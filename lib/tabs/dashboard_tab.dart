@@ -34,7 +34,7 @@ class DashboardTab extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Total Items',
+                                  'T O T A L   I T E M S',
                                   style: TextStyle(fontSize: 20),
                                 ),
                                 Tooltip(

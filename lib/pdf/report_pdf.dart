@@ -31,7 +31,7 @@ class ReportPDF {
           textAlign: pw.TextAlign.center,
           defaultTextStyle: pw.TextStyle(
             font: fallbackFont,
-            fontSize: 8,
+            fontSize: 6,
           ),
         ),
         margin: const pw.EdgeInsets.all(10.0),
@@ -44,8 +44,8 @@ class ReportPDF {
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text('Asset Tracker'),
-                  pw.Text('Inventory Report'),
+                  pw.Text('E O N   A S S E T   T R A C K E R'),
+                  pw.Text('I N V E N T O R Y   R E P O R T'),
                   pw.Text(
                     dateTimeToString(DateTime.now()),
                   ),
@@ -59,8 +59,7 @@ class ReportPDF {
         },
         build: (context) {
           return [
-            // ignore: deprecated_member_use
-            pw.Table.fromTextArray(
+            pw.TableHelper.fromTextArray(
               cellAlignment: pw.Alignment.center,
               columnWidths: {
                 0: const pw.FlexColumnWidth(12.25),
@@ -74,7 +73,7 @@ class ReportPDF {
                 8: const pw.FlexColumnWidth(10.78),
                 9: const pw.FlexColumnWidth(10.78),
               },
-              headerStyle: const pw.TextStyle(fontSize: 8),
+              headerStyle: const pw.TextStyle(fontSize: 7),
               data: inventoryItems.map((Item item) {
                 return [
                   item.assetID,
@@ -91,16 +90,16 @@ class ReportPDF {
               }).toList(),
               headerCount: 10,
               headers: [
-                'Asset ID',
-                'Item Name',
-                'Department',
-                'Person Accountable',
-                'Category',
-                'Status',
-                'Unit',
-                'Price',
-                'Date Purchased',
-                'Date Received',
+                'A S S E T   I D',
+                'I T E M   N A M E',
+                'D E P A R T M E N T',
+                'P E R S O N\nA C C O U N T A B L E',
+                'C A T E G O R Y',
+                'S T A T U S',
+                'U N I T',
+                'P R I C E',
+                'D A T E\nP U R C H A S E D',
+                'D A T E\nR E C E I V E D',
               ],
             ),
           ];
