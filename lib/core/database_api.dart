@@ -35,6 +35,23 @@ class DatabaseAPI {
     }
   }
 
+  static Future<List<User>> getUsers(List<Department> departments) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      IResultSet results = await conn.execute('SELECT * FROM `users` WHERE `is_enabled` = 1');
+
+      return results.rows.map((e) => User.fromDatabase(row: e, departments: departments)).toList();
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+      return [];
+    }
+  }
+
   static Future<bool> getAdminPassword(String password) async {
     MySQLConnection? conn;
 
@@ -157,6 +174,118 @@ class DatabaseAPI {
       showErrorAndStacktrace(e, st);
 
       return 0;
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> addDepartment(String departmentName) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('INSERT INTO `departments` (department_id, department_name) VALUES (:departmentID, :departmentName)', {
+        'departmentName': departmentName,
+        'departmentID': generateRandomID(),
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> editDepartment(Department department) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('UPDATE `departments` SET `department_name` = :departmentName WHERE `department_id` = :departmentID AND `is_enabled` = 1 ', {
+        'departmentName': department.departmentName,
+        'departmentID': department.departmentID,
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> deleteDepartment(String departmentID) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      await conn.execute(
+        'UPDATE `departments` SET `is_enabled` = 0 WHERE `department_id` = :departmentID',
+        {'departmentID': departmentID},
+      );
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> addCategory(String categoryName) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('INSERT INTO `categories` (category_id, category_name) VALUES (:categoryID, :categoryName)', {
+        'categoryName': categoryName,
+        'categoryID': generateRandomID(),
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> editCategory(ItemCategory category) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('UPDATE `categories` SET `category_name` = :categoryName WHERE `category_id` = :categoryID AND `is_enabled` = 1 ', {
+        'categoryName': category.categoryName,
+        'categoryID': category.categoryID,
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> deleteCategory(String categoryID) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      await conn.execute(
+        'UPDATE `categories` SET `is_enabled` = 0 WHERE `category_id` = :categoryID',
+        {'categoryID': categoryID},
+      );
+    } catch (e, st) {
+      return Future.error(e, st);
     } finally {
       await conn?.close();
     }
@@ -414,6 +543,25 @@ class DatabaseAPI {
     }
   }
 
+  static Future refreshDepartmentsAndCategories(ref) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      ref.read(departmentsProvider.notifier).state = await _getDepartments(conn);
+      ref.read(categoriesProvider.notifier).state = await _getCategories(conn);
+
+      await ref.read(dashboardDataProvider.notifier).refresh();
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    } finally {
+      conn?.close();
+    }
+  }
+
   static Future<User?> authenticateUser(String username, String passwordHash, WidgetRef ref) async {
     MySQLConnection? conn;
 
@@ -436,11 +584,7 @@ class DatabaseAPI {
       ref.read(departmentsProvider.notifier).state = await _getDepartments(conn);
       ref.read(categoriesProvider.notifier).state = await _getCategories(conn);
 
-      return User(
-        userID: row.typedColByName<String>('user_id')!,
-        username: row.typedColByName<String>('username')!,
-        isAdmin: row.typedColByName<int>('admin')! == 1 ? true : false,
-      );
+      return User.fromDatabase(row: row, departments: ref.read(departmentsProvider));
     } catch (e) {
       return Future.error(e.toString());
     } finally {
@@ -615,13 +759,12 @@ class DatabaseAPI {
 
   static Future<List<Department>> _getDepartments(MySQLConnection conn) async {
     try {
-      var results = await conn.execute('SELECT * FROM `departments` WHERE 1');
+      var results = await conn.execute('SELECT * FROM `departments` WHERE `is_enabled` = 1');
 
       return results.rows.map((row) {
         return Department(
           departmentID: row.typedColByName<String>('department_id')!,
           departmentName: row.typedColByName<String>('department_name')!,
-          isEnabled: row.typedColByName<int>('is_enabled')! == 1 ? true : false,
         );
       }).toList();
     } catch (e, st) {
@@ -631,7 +774,7 @@ class DatabaseAPI {
 
   static Future<List<ItemCategory>> _getCategories(MySQLConnection conn) async {
     try {
-      var results = await conn.execute('SELECT * FROM `categories` WHERE 1');
+      var results = await conn.execute('SELECT * FROM `categories` WHERE `is_enabled` = 1');
 
       return results.rows.map((row) {
         return ItemCategory(

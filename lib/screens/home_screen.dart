@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.controller});
 
-  static final _controller = SidebarXController(selectedIndex: 0);
+  final SidebarXController controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +40,7 @@ class HomeScreen extends ConsumerWidget {
       body: Row(
         children: [
           SidebarX(
-            controller: _controller,
+            controller: controller,
             theme: const SidebarXTheme(
               itemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
               selectedItemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
@@ -66,7 +66,7 @@ class HomeScreen extends ConsumerWidget {
                       ? ListTile(
                           title: const SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: Text('Log Out'),
+                            child: Text('L O G   O U T'),
                           ),
                           leading: const Icon(Icons.logout),
                           onTap: () {
@@ -86,22 +86,30 @@ class HomeScreen extends ConsumerWidget {
             items: [
               SidebarXItem(
                 icon: Icons.home,
-                label: 'Home',
+                label: 'H O M E',
                 onTap: () {
                   ref.read(appbarTitleProvider.notifier).state = 'Home';
                 },
               ),
               SidebarXItem(
                 icon: Icons.inventory_2,
-                label: 'Inventory',
+                label: 'I N V E N T O R Y',
                 onTap: () {
                   ref.read(appbarTitleProvider.notifier).state = 'Inventory';
                 },
               ),
+              if (ref.watch(userProvider)?.isAdmin ?? false)
+                SidebarXItem(
+                  icon: Icons.admin_panel_settings,
+                  label: 'A D M I N',
+                  onTap: () {
+                    ref.read(appbarTitleProvider.notifier).state = 'Admin Panel';
+                  },
+                ),
             ],
           ),
           Expanded(
-            child: TabSwitcher(controller: _controller),
+            child: TabSwitcher(controller: controller),
           )
         ],
       ),

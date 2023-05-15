@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/tabs/admin_panel_tab.dart';
 import 'package:eon_asset_tracker/tabs/inventory_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,8 @@ class TabSwitcher extends ConsumerWidget {
             return const DashboardTab();
           case 1:
             return const InventoryTab();
+          case 2:
+            return const AdminPanelTab();
           default:
             return Container();
         }

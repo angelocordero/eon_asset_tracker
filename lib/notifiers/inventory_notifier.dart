@@ -13,10 +13,11 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
     required this.ref,
     required this.departments,
     required this.categories,
-  }) : super([]);
+  }) : super([]) {
+    asd();
+  }
 
   StateNotifierProviderRef<InventoryNotifier, List<Item>> ref;
-
   List<Department> departments;
   List<ItemCategory> categories;
 
@@ -27,6 +28,12 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
   }
 
   get isLoading => _isLoading;
+
+  void asd() {
+    ref.read(searchQueryProvider.notifier).state = '';
+
+    getItems(0);
+  }
 
   Future<void> getItems(int page) async {
     String query = await ref.read(searchQueryProvider);

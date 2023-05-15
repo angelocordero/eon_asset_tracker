@@ -3,6 +3,7 @@ import 'package:eon_asset_tracker/screens/home_screen.dart';
 import 'package:eon_asset_tracker/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:sidebarx/sidebarx.dart';
 
 class EonAssetTracker extends StatelessWidget {
   const EonAssetTracker({super.key});
@@ -18,6 +19,7 @@ class EonAssetTracker extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      showPerformanceOverlay: false,
       theme: ThemeData.dark().copyWith(
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
@@ -30,7 +32,9 @@ class EonAssetTracker extends StatelessWidget {
       builder: EasyLoading.init(),
       routes: {
         'login': (context) => const LoginScreen(),
-        'home': (context) => const HomeScreen(),
+        'home': (context) => HomeScreen(
+              controller: SidebarXController(selectedIndex: 0),
+            ),
       },
     );
   }

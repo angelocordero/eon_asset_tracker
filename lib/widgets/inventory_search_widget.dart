@@ -4,16 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/constants.dart';
 
-class SearchWidget extends ConsumerStatefulWidget {
-  const SearchWidget({super.key, required this.controller});
+class InventorySearchWidget extends ConsumerStatefulWidget {
+  const InventorySearchWidget({super.key, required this.controller});
 
   final TextEditingController controller;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _SearchWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _InventorySearchWidgetState();
 }
 
-class _SearchWidgetState extends ConsumerState<SearchWidget> {
+class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
   Widget _searchField = Container();
 
   @override
@@ -142,9 +142,7 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
                 },
               );
             } else if (input == 'Category') {
-              // List<String> categoryIDs = ref.read(categoriesProvider).map((e) => e.categoryID).toList();
-
-              List<String> categoryIDs = [];
+              List<String> categoryIDs = ref.read(categoriesProvider).map((e) => e.categoryID).toList();
 
               if (categoryIDs.isNotEmpty) {
                 ref.read(searchQueryProvider.notifier).state = categoryIDs.first;

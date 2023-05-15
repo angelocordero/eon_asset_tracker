@@ -2,18 +2,13 @@ import 'package:eon_asset_tracker/models/dashboard_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/database_api.dart';
-import '../models/category_model.dart';
-import '../models/department_model.dart';
 
 class DashboardNotifier extends StateNotifier<DashboardData> {
   DashboardNotifier({
     required this.ref,
-    required this.departments,
-    required this.categories,
-  }) : super(DashboardData.empty());
-
-  List<Department> departments;
-  List<ItemCategory> categories;
+  }) : super(DashboardData.empty()) {
+    init();
+  }
 
   StateNotifierProviderRef<DashboardNotifier, DashboardData> ref;
 

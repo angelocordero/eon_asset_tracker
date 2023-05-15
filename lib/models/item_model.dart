@@ -50,7 +50,7 @@ class Item {
     required List<Department> departments,
   }) {
     return Item(
-      assetID: generateItemID(),
+      assetID: generateRandomID(),
       department: department,
       personAccountable: personAccountable,
       name: name,
@@ -78,7 +78,6 @@ class Item {
       description: row.colByName('item_description'),
       unit: row.colByName('unit'),
       price: row.colByName('price') == null ? null : double.tryParse((row.colByName('price')) as String),
-      //datePurchased: null,
       dateReceived: DateTime.parse(row.colByName('date_received').toString()),
       datePurchased: row.colByName('date_purchased') == null ? null : DateTime.tryParse((row.colByName('date_purchased') as String))!,
       status: ItemStatus.values.byName(row.typedColByName<String>('status')!),

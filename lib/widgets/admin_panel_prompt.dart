@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class AdminPasswordPrompt extends StatelessWidget {
-  const AdminPasswordPrompt({super.key, required this.controller, required this.callback});
+class AdminPanelPrompt extends StatelessWidget {
+  const AdminPanelPrompt({super.key, required this.controller, required this.callback, required this.title});
 
   final TextEditingController controller;
 
   final AsyncCallback callback;
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +19,9 @@ class AdminPasswordPrompt extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Please enter admin password',
-                style: TextStyle(fontSize: 15),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 15),
               ),
               const SizedBox(
                 height: 20,
@@ -28,11 +30,7 @@ class AdminPasswordPrompt extends StatelessWidget {
                 width: 200,
                 child: TextField(
                   controller: controller,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.all(8),
-                  ),
-                  obscureText: true,
+                  decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
                 ),
               ),
               const SizedBox(
@@ -41,20 +39,20 @@ class AdminPasswordPrompt extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ElevatedButton(
+                  IconButton.outlined(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('Cancel'),
+                    icon: const Icon(Icons.close),
                   ),
                   const SizedBox(
                     width: 20,
                   ),
-                  ElevatedButton(
+                  IconButton.outlined(
                     onPressed: () async {
                       await callback();
                     },
-                    child: const Text('Confirm'),
+                    icon: const Icon(Icons.check),
                   ),
                 ],
               )

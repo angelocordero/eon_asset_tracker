@@ -37,7 +37,7 @@ class ItemInfoDisplay extends ConsumerWidget {
               decoration: const InputDecoration(
                 focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                 enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                labelText: 'Item Description',
+                labelText: '  I T E M   D E S C R I P T I O N  ',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 labelStyle: TextStyle(color: Colors.white),
               ),
@@ -57,7 +57,7 @@ class ItemInfoDisplay extends ConsumerWidget {
               decoration: const InputDecoration(
                 focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                 enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                labelText: 'Remarks',
+                labelText: '  R E M A R K S  ',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 labelStyle: TextStyle(color: Colors.white),
               ),

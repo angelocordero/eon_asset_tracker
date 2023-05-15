@@ -11,7 +11,7 @@ String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
 }
 
-String generateItemID() {
+String generateRandomID() {
   String eonCustomAlphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   String randomID1 = customAlphabet(eonCustomAlphabet, 5);
@@ -43,6 +43,8 @@ QrImageView generateQRImage({required String assetID, double? size}) {
 }
 
 void showErrorAndStacktrace(Object e, StackTrace st) {
+  if (e.toString().contains('didChangeDependency')) return;
+
   EasyLoading.showError(e.toString());
   debugPrint(e.toString());
   debugPrintStack(label: e.toString(), stackTrace: st);

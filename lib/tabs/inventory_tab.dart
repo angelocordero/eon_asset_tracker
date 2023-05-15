@@ -9,7 +9,7 @@ import 'package:eon_asset_tracker/screens/add_item_screen.dart';
 import 'package:eon_asset_tracker/screens/edit_item_screen.dart';
 import 'package:eon_asset_tracker/widgets/admin_password_prompt.dart';
 import 'package:eon_asset_tracker/widgets/item_info_display.dart';
-import 'package:eon_asset_tracker/widgets/search_widget.dart';
+import 'package:eon_asset_tracker/widgets/inventory_search_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,16 +27,16 @@ class InventoryTab extends ConsumerWidget {
   const InventoryTab({super.key});
 
   static final List<String> columns = [
-    'Asset ID',
-    'Item Name',
-    'Department',
-    'Person Accountable',
-    'Category',
-    'Status',
-    'Unit',
-    'Price',
-    'Date Purchased',
-    'Date Received',
+    'A S S E T   I D',
+    'I T E M   N A M E',
+    'D E P A R T M E N T',
+    'P E R S O N\nA C C O U N T A B L E',
+    'C A T E G O R Y',
+    'S T A T U S',
+    'U N I T',
+    'P R I C E',
+    'D A T E\nP U R C H A S E D',
+    'D A T E\nR E C E I V E D',
   ];
 
   static final _searchController = TextEditingController();
@@ -96,7 +96,10 @@ class InventoryTab extends ConsumerWidget {
                 ),
                 columnsLength: columns.length,
                 rowsLength: rows.length,
-                columnsTitleBuilder: (i) => Text(columns[i]),
+                columnsTitleBuilder: (i) => Text(
+                  columns[i],
+                  textAlign: TextAlign.center,
+                ),
                 rowsTitleBuilder: (j) {
                   Item item = rows[j];
 
@@ -292,7 +295,7 @@ class InventoryTab extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        SearchWidget(controller: _searchController),
+        InventorySearchWidget(controller: _searchController),
         const Spacer(),
         Tooltip(
           message: 'Generate Report',

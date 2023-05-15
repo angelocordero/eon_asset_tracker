@@ -94,7 +94,7 @@ class LoginScreen extends ConsumerWidget {
               await authenticate(context, ref);
             },
             decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
-            obscureText: false,
+            obscureText: true,
             controller: passwordController,
           ),
         ),
@@ -129,5 +129,9 @@ class LoginScreen extends ConsumerWidget {
     Navigator.pushReplacementNamed(context, 'home');
     ref.read(dashboardDataProvider.notifier).init();
     ref.read(inventoryProvider.notifier).getItems(0);
+
+    if (user.isAdmin) {
+      ref.read(adminPanelProvider.notifier).init();
+    }
   }
 }
