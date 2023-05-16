@@ -114,6 +114,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
               User user = User.toDatabase(username: _userNameController.text.trim(), department: department, status: status);
 
               await ref.read(adminPanelProvider.notifier).addUser(
+                    ref,
                     user,
                     _passwordController.text.trim(),
                     _confirmPasswordController.text.trim(),
@@ -153,7 +154,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 ),
               ),
               value: departments.first,
-              items: departments.map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName))).toList(),
+              items: departments
+                  .map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName)))
+                  .toList(),
               onChanged: (Department? newDepartment) {
                 if (newDepartment == null) return;
                 setState(() {

@@ -13,7 +13,7 @@ class PaginationNavigator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int inventoryItemCount = ref.watch(queryResultItemCount);
+    int inventoryItemCount = ref.watch(inventoryProvider).count;
 
     int pages = (inventoryItemCount / itemsPerPage).ceil();
 
@@ -152,7 +152,9 @@ class PaginationNavigator extends ConsumerWidget {
   }
 
   Future<void> _goToPage(WidgetRef ref, int buttonNum) async {
-    await ref.read(inventoryProvider.notifier).getItems(buttonNum - 1);
+    await ref
+        .read(inventoryProvider.notifier)
+        .getInventoryFromPage(page: buttonNum - 1, query: ref.read(searchQueryProvider), filter: ref.read(searchFilterProvider));
     ref.read(currentInventoryPage.notifier).state = buttonNum - 1;
   }
 }

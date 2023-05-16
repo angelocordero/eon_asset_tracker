@@ -67,12 +67,15 @@ class Item {
 
   factory Item.fromDatabase({
     required ResultSetRow row,
-    required List<ItemCategory> categories,
-    required List<Department> departments,
   }) {
+    Department department =
+        Department(departmentID: row.typedColByName<String>('department_id')!, departmentName: row.typedColByName<String>('department_name')!);
+    ItemCategory category =
+        ItemCategory(categoryID: row.typedColByName<String>('category_id')!, categoryName: row.typedColByName<String>('category_name')!);
+
     return Item(
       assetID: row.typedColByName<String>('asset_id')!,
-      department: departments.firstWhere((element) => element.departmentID == row.typedColByName<String>('department_id')),
+      department: department,
       personAccountable: row.colByName('person_accountable'),
       name: row.typedColByName<String>('item_name')!,
       description: row.colByName('item_description'),
@@ -81,8 +84,8 @@ class Item {
       dateReceived: DateTime.parse(row.colByName('date_received').toString()),
       datePurchased: row.colByName('date_purchased') == null ? null : DateTime.tryParse((row.colByName('date_purchased') as String))!,
       status: ItemStatus.values.byName(row.typedColByName<String>('status')!),
-      category: categories.firstWhere((element) => element.categoryID == row.typedColByName<String>('category_id')!),
       remarks: row.colByName('remarks'),
+      category: category,
     );
   }
 

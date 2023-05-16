@@ -12,7 +12,6 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.read(dashboardDataProvider.notifier).init();
-    ref.read(inventoryProvider.notifier).getItems(0);
 
     if (ref.read(userProvider)?.isAdmin ?? false) {
       ref.read(adminPanelProvider.notifier).init();

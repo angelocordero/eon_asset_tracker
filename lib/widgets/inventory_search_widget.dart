@@ -1,4 +1,5 @@
 import 'package:eon_asset_tracker/core/providers.dart';
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,18 +24,6 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
     super.initState();
   }
 
-  static final List<String> _searchByList = [
-    'Asset ID',
-    'Item Name',
-    'Person Accountable',
-    'Unit',
-    'Item Description',
-    'Remarks',
-    'Status',
-    'Department',
-    'Category',
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -55,14 +44,24 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
   ElevatedButton _searchButton(WidgetRef ref) {
     return ElevatedButton(
       onPressed: () {
-        String input = ref.read(searchFilterProvider);
+        InventorySearchFilter filter = ref.read(searchFilterProvider);
 
-        if (input == 'Asset ID' || input == 'Item Name' || input == 'Person Accountable' || input == 'Unit' || input == 'Item Description' || input == 'Remarks') {
+        if (filter == InventorySearchFilter.assetID ||
+            filter == InventorySearchFilter.itemName ||
+            filter == InventorySearchFilter.personAccountable ||
+            filter == InventorySearchFilter.unit ||
+            filter == InventorySearchFilter.itemDescription ||
+            filter == InventorySearchFilter.remarks) {
           ref.read(searchQueryProvider.notifier).state = widget.controller.text.trim();
         }
 
         ref.read(currentInventoryPage.notifier).state = 0;
-        ref.read(inventoryProvider.notifier).getItems(0);
+
+        if (ref.read(searchQueryProvider).trim().isEmpty) {
+          ref.read(inventoryProvider.notifier).initUnfilteredInventory();
+        } else {
+          ref.read(inventoryProvider.notifier).initFilteredInventory(ref.read(searchQueryProvider).trim(), filter);
+        }
       },
       child: const Text('Search'),
     );
@@ -73,7 +72,7 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
       width: 200,
       child: ButtonTheme(
         alignedDropdown: true,
-        child: DropdownButtonFormField<String>(
+        child: DropdownButtonFormField<InventorySearchFilter>(
           isExpanded: true,
           iconSize: 12,
           focusColor: Colors.transparent,
@@ -87,23 +86,28 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
             ),
           ),
           value: ref.watch(searchFilterProvider),
-          items: _searchByList.map((value) {
-            return DropdownMenuItem<String>(
+          items: InventorySearchFilter.values.map((value) {
+            return DropdownMenuItem<InventorySearchFilter>(
               value: value,
               child: Text(
-                value,
+                inventoryFilterEnumToDisplayString(value) ?? '',
                 overflow: TextOverflow.ellipsis,
               ),
             );
           }).toList(),
-          onChanged: (String? input) {
-            if (input == null) return;
+          onChanged: (InventorySearchFilter? filter) {
+            if (filter == null) return;
 
-            if (input == 'Asset ID' || input == 'Item Name' || input == 'Person Accountable' || input == 'Unit' || input == 'Item Description' || input == 'Remarks') {
+            if (filter == InventorySearchFilter.assetID ||
+                filter == InventorySearchFilter.itemName ||
+                filter == InventorySearchFilter.personAccountable ||
+                filter == InventorySearchFilter.unit ||
+                filter == InventorySearchFilter.itemDescription ||
+                filter == InventorySearchFilter.remarks) {
               setState(() {
                 _searchField = _queryTextField();
               });
-            } else if (input == 'Status') {
+            } else if (filter == InventorySearchFilter.status) {
               setState(
                 () {
                   ref.read(searchQueryProvider.notifier).state = ItemStatus.values.first.name;
@@ -122,7 +126,7 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
                   );
                 },
               );
-            } else if (input == 'Department') {
+            } else if (filter == InventorySearchFilter.department) {
               setState(
                 () {
                   ref.read(searchQueryProvider.notifier).state = ref.read(departmentsProvider).first.departmentID;
@@ -141,7 +145,7 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
                   );
                 },
               );
-            } else if (input == 'Category') {
+            } else if (filter == InventorySearchFilter.category) {
               List<String> categoryIDs = ref.read(categoriesProvider).map((e) => e.categoryID).toList();
 
               if (categoryIDs.isNotEmpty) {
@@ -183,7 +187,7 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
               }
             }
 
-            ref.read(searchFilterProvider.notifier).state = input;
+            ref.read(searchFilterProvider.notifier).state = filter;
           },
         ),
       ),

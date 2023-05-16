@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
@@ -43,7 +44,7 @@ class InventoryTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<Item> rows = ref.watch(inventoryProvider);
+    List<Item> rows = ref.watch(inventoryProvider).items;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
@@ -240,7 +241,7 @@ class InventoryTab extends ConsumerWidget {
                     if (selectedAssetID == null) return;
 
                     try {
-                      await DatabaseAPI.delete(selectedAssetID);
+                      await DatabaseAPI.deleteItem(selectedAssetID);
                       EasyLoading.dismiss();
                     } catch (e) {
                       EasyLoading.showError(e.toString());
@@ -301,7 +302,7 @@ class InventoryTab extends ConsumerWidget {
           message: 'Generate Report',
           child: IconButton.outlined(
             onPressed: () async {
-              int itemLength = ref.read(inventoryProvider).length;
+              int itemLength = ref.read(inventoryProvider).items.length;
 
               if (itemLength == 0) return;
 
@@ -319,9 +320,7 @@ class InventoryTab extends ConsumerWidget {
                           ),
                           body: PdfPreview(
                             build: (format) async => await ReportPDF(
-                              inventoryItems: ref.read(inventoryProvider),
-                              departments: ref.read(departmentsProvider),
-                              categories: ref.read(categoriesProvider),
+                              inventoryItems: ref.read(inventoryProvider).items,
                             ).generate(),
                           ),
                         );
@@ -344,8 +343,9 @@ class InventoryTab extends ConsumerWidget {
               }
 
               List<Item> items = ref.read(checkedItemProvider).map((entry) {
-                return ref.read(inventoryProvider).firstWhere((element) => element.assetID == entry);
+                return ref.read(inventoryProvider).items.firstWhere((element) => element.assetID == entry);
               }).toList();
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -378,7 +378,7 @@ class InventoryTab extends ConsumerWidget {
               ref.read(currentInventoryPage.notifier).state = 0;
 
               _searchController.clear();
-              ref.read(searchFilterProvider.notifier).state = 'Asset ID';
+              ref.read(searchFilterProvider.notifier).state = InventorySearchFilter.assetID;
             },
             icon: const Icon(Icons.refresh),
           ),

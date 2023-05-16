@@ -116,7 +116,7 @@ class ResetPasswordScreen extends ConsumerWidget {
 
               if (user == null) return;
 
-              ref.read(adminPanelProvider.notifier).resetPassword(user, _passwordController.text.trim());
+              ref.read(adminPanelProvider.notifier).resetPassword(ref, user, _passwordController.text.trim());
 
               // ignore: use_build_context_synchronously
               Navigator.pop(context);

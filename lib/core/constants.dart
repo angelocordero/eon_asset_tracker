@@ -9,7 +9,7 @@ Future<MySQLConnection> createSqlConn() async {
       host: '127.0.0.1',
       port: 3306,
       userName: 'root',
-      password: 'root',
+      password: 'cordero12',
       databaseName: 'eon',
       secure: false,
     );
@@ -39,3 +39,15 @@ const List<Color> sampleColors = [
   Color(0xff7287fd),
   Color(0xff04a5e5),
 ];
+
+enum InventorySearchFilter {
+  assetID,
+  itemName,
+  personAccountable,
+  unit,
+  itemDescription,
+  remarks,
+  status,
+  department,
+  category,
+}

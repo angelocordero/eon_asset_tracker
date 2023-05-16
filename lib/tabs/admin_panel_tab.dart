@@ -21,8 +21,6 @@ class AdminPanelTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print((ref.watch(adminPanelProvider)['departments'])!.length);
-
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Visibility(
@@ -95,7 +93,7 @@ class AdminPanelTab extends ConsumerWidget {
 
                     if (user == null) return;
 
-                    await ref.read(adminPanelProvider.notifier).delete(user);
+                    await ref.read(adminPanelProvider.notifier).delete(ref, user);
                   } catch (e, st) {
                     showErrorAndStacktrace(e, st);
                   }
@@ -202,7 +200,7 @@ class AdminPanelTab extends ConsumerWidget {
                                           categoryName: controller.text.trim(),
                                         );
 
-                                        await ref.read(adminPanelProvider.notifier).editCategory(category);
+                                        await ref.read(adminPanelProvider.notifier).editCategory(ref, category);
                                       },
                                     );
                                   },
@@ -243,9 +241,9 @@ class AdminPanelTab extends ConsumerWidget {
                           title: 'Add Category',
                           controller: controller,
                           callback: () async {
-                            await ref.read(adminPanelProvider.notifier).addCategory(controller.text.trim());
+                            await ref.read(adminPanelProvider.notifier).addCategory(ref, controller.text.trim());
                             // ignore: use_build_context_synchronously
-                            // Navigator.pop(context);
+                            Navigator.pop(context);
                           },
                         );
                       },
@@ -282,7 +280,7 @@ class AdminPanelTab extends ConsumerWidget {
               onPressed: () {
                 Navigator.pop(context);
 
-                ref.read(adminPanelProvider.notifier).deleteDepartment(departmentID);
+                ref.read(adminPanelProvider.notifier).deleteDepartment(ref, departmentID);
               },
               icon: const Icon(Icons.check),
             ),
@@ -313,7 +311,7 @@ class AdminPanelTab extends ConsumerWidget {
               onPressed: () {
                 Navigator.pop(context);
 
-                ref.read(adminPanelProvider.notifier).deleteCategory(categoryID);
+                ref.read(adminPanelProvider.notifier).deleteCategory(ref, categoryID);
               },
               icon: const Icon(Icons.check),
             ),
@@ -364,7 +362,7 @@ class AdminPanelTab extends ConsumerWidget {
                                           departmentName: controller.text.trim(),
                                         );
 
-                                        await ref.read(adminPanelProvider.notifier).editDepartment(department);
+                                        await ref.read(adminPanelProvider.notifier).editDepartment(ref, department);
                                       },
                                     );
                                   },
@@ -405,9 +403,9 @@ class AdminPanelTab extends ConsumerWidget {
                           title: 'Add Department',
                           controller: controller,
                           callback: () async {
-                            await ref.read(adminPanelProvider.notifier).addDepartment(controller.text.trim());
+                            await ref.read(adminPanelProvider.notifier).addDepartment(ref, controller.text.trim());
                             // ignore: use_build_context_synchronously
-                            //Navigator.pop(context);
+                            Navigator.pop(context);
                           },
                         );
                       },

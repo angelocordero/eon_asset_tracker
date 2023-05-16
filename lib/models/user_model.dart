@@ -16,23 +16,17 @@ class User {
     required this.department,
   });
 
-  factory User.fromDatabase({
-    required ResultSetRow row,
-    required List<Department> departments,
-  }) {
-    Department? department;
-
-    try {
-      department = departments.firstWhere((element) => element.departmentID == row.typedColByName<String>('department_id'));
-    } catch (e) {
-      department = null;
-    }
-
+  factory User.fromDatabase(
+    ResultSetRow row,
+  ) {
     return User(
       userID: row.typedColByName<String>('user_id')!,
       username: row.typedColByName<String>('username')!,
       isAdmin: row.typedColByName<int>('admin') == 1 ? true : false,
-      department: department,
+      department: Department(
+        departmentID: row.typedColByName<String>('department_id')!,
+        departmentName: row.typedColByName<String>('department_name')!,
+      ),
     );
   }
 

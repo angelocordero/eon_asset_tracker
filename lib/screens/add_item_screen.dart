@@ -150,7 +150,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         departments: ref.read(departmentsProvider),
                       );
                       try {
-                        await DatabaseAPI.add(item: item);
+                        await DatabaseAPI.addItem(item: item);
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);

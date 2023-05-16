@@ -139,7 +139,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                       );
 
                       try {
-                        await DatabaseAPI.update(newItem);
+                        await DatabaseAPI.updateItem(newItem);
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);

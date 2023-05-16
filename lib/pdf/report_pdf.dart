@@ -5,19 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../models/category_model.dart';
-import '../models/department_model.dart';
 import '../models/item_model.dart';
 
 class ReportPDF {
   List<Item> inventoryItems;
-  List<Department> departments;
-  List<ItemCategory> categories;
 
   ReportPDF({
     required this.inventoryItems,
-    required this.departments,
-    required this.categories,
   });
 
   Future<Uint8List> generate() async {

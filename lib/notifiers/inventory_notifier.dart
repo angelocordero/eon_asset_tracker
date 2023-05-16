@@ -1,23 +1,15 @@
 import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/database_api.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/models/item_model.dart';
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
 
-import '../models/category_model.dart';
-import '../models/department_model.dart';
+import '../models/inventory_model.dart';
 
-class InventoryNotifier extends StateNotifier<List<Item>> {
-  InventoryNotifier({
-    required this.ref,
-    required this.departments,
-    required this.categories,
-  }) : super([]);
-
-  StateNotifierProviderRef<InventoryNotifier, List<Item>> ref;
-  List<Department> departments;
-  List<ItemCategory> categories;
+class InventoryNotifier extends StateNotifier<Inventory> {
+  InventoryNotifier() : super(Inventory.empty()) {
+    refresh();
+  }
 
   bool _isLoading = true;
 
@@ -27,73 +19,73 @@ class InventoryNotifier extends StateNotifier<List<Item>> {
 
   get isLoading => _isLoading;
 
-  Future<void> getItems(int page) async {
-    String query = await ref.read(searchQueryProvider);
+  Future<void> initUnfilteredInventory() async {
+    _isLoading = true;
 
-    if (query.isEmpty) {
-      await _init(page);
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      state = state.copyWith(items: await DatabaseAPI.getInventoryUnfiltered(0), count: await DatabaseAPI.getTotalInventoryCount(conn));
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    } finally {
+      _isLoading = false;
+      conn?.close();
+    }
+  }
+
+  Future<void> initFilteredInventory(String query, InventorySearchFilter filter) async {
+    _isLoading = true;
+
+    state = state.copyWith(
+      items: await DatabaseAPI.searchInventory(query: query, filter: filter, page: 0),
+      count: await DatabaseAPI.getSearchResultTotalCount(query: query, filter: filter),
+    );
+
+    _isLoading = false;
+  }
+
+  Future<void> getInventoryFromPage({required int page, String? query, InventorySearchFilter? filter}) async {
+    if (query == null || filter == null || query.isEmpty) {
+      await _getUnfilteredFromPage(page);
     } else {
-      await _search(
+      await _searchFromPage(
         query: query,
-        searchBy: ref.read(searchFilterProvider),
+        filter: filter,
         page: page,
       );
     }
   }
 
-  Future<void> _init(int page) async {
-    _isLoading = true;
-
-    MySQLConnection conn = await createSqlConn();
-
-    await conn.connect();
-
-    ref.read(queryResultItemCount.notifier).state = await DatabaseAPI.getTotal(conn);
-
-    await conn.close();
-
-    if (mounted) {
-      state = await DatabaseAPI.getInventory(departments, categories, page);
-    }
-
-    _isLoading = false;
-  }
-
   Future<void> refresh() async {
     _isLoading = true;
 
-    ref.read(searchQueryProvider.notifier).state = '';
-
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    await getItems(0);
+    await initUnfilteredInventory();
 
     _isLoading = false;
   }
 
-  Future<void> _search({
+  Future<void> _getUnfilteredFromPage(int page) async {
+    _isLoading = true;
+
+    state = state.copyWith(items: await DatabaseAPI.getInventoryUnfiltered(page));
+
+    _isLoading = false;
+  }
+
+  Future<void> _searchFromPage({
     required String query,
-    required String searchBy,
+    required InventorySearchFilter filter,
     required int page,
   }) async {
     if (query.isEmpty) {
       refresh();
-
       return;
     }
-    ref.read(queryResultItemCount.notifier).state = await DatabaseAPI.getSearchResultTotalCount(
-      query: query,
-      searchBy: searchBy,
-      departments: departments,
-      categories: categories,
-    );
 
-    state = await DatabaseAPI.search(
-      query: query,
-      page: page,
-      searchBy: searchBy,
-      departments: departments,
-      categories: categories,
-    );
+    state = state.copyWith(items: await DatabaseAPI.searchInventory(query: query, filter: filter, page: page));
   }
 }

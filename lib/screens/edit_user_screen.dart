@@ -134,7 +134,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                           bool admin = await DatabaseAPI.getMasterPassword(controller.text.trim());
 
                           if (admin) {
-                            await ref.read(adminPanelProvider.notifier).editUser(user);
+                            await ref.read(adminPanelProvider.notifier).editUser(ref, user);
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                           } else {
@@ -150,7 +150,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
               );
             } else {
               try {
-                await ref.read(adminPanelProvider.notifier).editUser(user);
+                await ref.read(adminPanelProvider.notifier).editUser(ref, user);
               } catch (e, st) {
                 showErrorAndStacktrace(e, st);
               }

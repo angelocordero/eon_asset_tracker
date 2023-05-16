@@ -19,8 +19,6 @@ class LoginScreen extends ConsumerWidget {
     usernameController.clear();
     passwordController.clear();
 
-    ref.watch(queryResultItemCount);
-
     return Scaffold(
       body: Center(
         child: Card(
@@ -112,7 +110,7 @@ class LoginScreen extends ConsumerWidget {
     User? user;
 
     try {
-      user = await DatabaseAPI.authenticateUser(username, passwordHash, ref);
+      user = await DatabaseAPI.authenticateUser(ref, username, passwordHash);
     } catch (e) {
       debugPrint(e.toString());
       EasyLoading.showError(e.toString());

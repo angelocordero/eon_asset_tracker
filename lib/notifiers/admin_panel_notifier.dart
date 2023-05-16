@@ -12,111 +12,99 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
   AdminPanelNotifier({
     required this.departments,
     required this.categories,
-    required this.ref,
   }) : super(
           {'users': [], 'departments': departments, 'categories': categories},
-        );
+        ) {
+    init();
+  }
 
-  final StateNotifierProviderRef<AdminPanelNotifier, Map<String, List<dynamic>>> ref;
   List<Department> departments;
   List<ItemCategory> categories;
 
-  Future<void> init() async {
-    state['users'] = await DatabaseAPI.getUsers(departments);
-    await DatabaseAPI.refreshDepartmentsAndCategories(ref);
+  void init() async {
+    state['users'] = await DatabaseAPI.getUsers();
+    state = Map<String, List<dynamic>>.from(state);
   }
 
-  Future<void> addDepartment(String departmentName) async {
+  Future<void> addDepartment(WidgetRef ref, String departmentName) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.addDepartment(departmentName);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
-      await ref.read(dashboardDataProvider.notifier).refresh();
-
       EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
-  Future<void> editDepartment(Department department) async {
+  Future<void> editDepartment(WidgetRef ref, Department department) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.editDepartment(department);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
-      await ref.read(dashboardDataProvider.notifier).refresh();
-
       EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
-  Future<void> deleteDepartment(String departmentID) async {
+  Future<void> deleteDepartment(WidgetRef ref, String departmentID) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.deleteDepartment(departmentID);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
-      await ref.read(dashboardDataProvider.notifier).refresh();
-
       EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
-  Future<void> addCategory(String categoryName) async {
+  Future<void> addCategory(WidgetRef ref, String categoryName) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.addCategory(categoryName);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
-      await ref.read(dashboardDataProvider.notifier).refresh();
-
       EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
-  Future<void> editCategory(ItemCategory category) async {
+  Future<void> editCategory(WidgetRef ref, ItemCategory category) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.editCategory(category);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
-      await ref.read(dashboardDataProvider.notifier).refresh();
-
       EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
-  Future<void> deleteCategory(String categoryID) async {
+  Future<void> deleteCategory(WidgetRef ref, String categoryID) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.deleteCategory(categoryID);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
-      await ref.read(dashboardDataProvider.notifier).refresh();
-
       EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
-  Future<void> addUser(User user, String password, String confirmPassword) async {
+  Future<void> addUser(WidgetRef ref, User user, String password, String confirmPassword) async {
     if (password != confirmPassword) {
       EasyLoading.showError('Passwords do not match');
       return;
@@ -126,7 +114,7 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
     try {
       await DatabaseAPI.addUser(user, password);
 
-      await ref.read(adminPanelProvider.notifier).init();
+      ref.read(adminPanelProvider.notifier).init();
 
       EasyLoading.dismiss();
     } catch (e, st) {
@@ -134,12 +122,12 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
     }
   }
 
-  Future<void> editUser(User user) async {
+  Future<void> editUser(WidgetRef ref, User user) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.editUser(user);
 
-      await ref.read(adminPanelProvider.notifier).init();
+      ref.read(adminPanelProvider.notifier).init();
 
       EasyLoading.dismiss();
     } catch (e, st) {
@@ -147,12 +135,12 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
     }
   }
 
-  Future<void> delete(User user) async {
+  Future<void> delete(WidgetRef ref, User user) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.deleteUser(user);
 
-      await ref.read(adminPanelProvider.notifier).init();
+      ref.read(adminPanelProvider.notifier).init();
 
       EasyLoading.dismiss();
     } catch (e, st) {
@@ -160,12 +148,12 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
     }
   }
 
-  Future<void> resetPassword(User user, String newPassword) async {
+  Future<void> resetPassword(WidgetRef ref, User user, String newPassword) async {
     EasyLoading.show();
     try {
       await DatabaseAPI.resetPassword(user, newPassword);
 
-      await ref.read(adminPanelProvider.notifier).init();
+      ref.read(adminPanelProvider.notifier).init();
 
       EasyLoading.dismiss();
     } catch (e, st) {
