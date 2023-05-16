@@ -1,12 +1,19 @@
 import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/models/category_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
+import 'package:eon_asset_tracker/screens/add_user_screen.dart';
+import 'package:eon_asset_tracker/screens/reset_password_screen.dart';
 import 'package:eon_asset_tracker/widgets/admin_panel_prompt.dart';
+import 'package:eon_asset_tracker/widgets/admin_panel_users_list.dart';
+import 'package:eon_asset_tracker/widgets/master_password_prompt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/database_api.dart';
 import '../models/user_model.dart';
+import '../screens/edit_user_screen.dart';
 import '../widgets/admin_panel_search_widget.dart';
 
 class AdminPanelTab extends ConsumerWidget {
@@ -14,6 +21,8 @@ class AdminPanelTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print((ref.watch(adminPanelProvider)['departments'])!.length);
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Visibility(
@@ -30,15 +39,15 @@ class AdminPanelTab extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _usersList(ref),
-                  const VerticalDivider(
-                    width: 40,
-                  ),
-                  _categoriesList(context, ref),
+                  _usersList(context, ref),
                   const VerticalDivider(
                     width: 40,
                   ),
                   _departmentsList(context, ref),
+                  const VerticalDivider(
+                    width: 40,
+                  ),
+                  _categoriesList(context, ref),
                 ],
               ),
             ),
@@ -49,9 +58,7 @@ class AdminPanelTab extends ConsumerWidget {
     );
   }
 
-  Expanded _usersList(WidgetRef ref) {
-    List<User> users = ref.watch(adminPanelProvider.select((value) => List<User>.from(value['users']!)));
-
+  Expanded _usersList(BuildContext context, WidgetRef ref) {
     return Expanded(
       flex: 2,
       child: Column(
@@ -60,18 +67,95 @@ class AdminPanelTab extends ConsumerWidget {
           const Divider(
             height: 40,
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                User user = users[index];
-
-                return ListTile(
-                  title: Text(user.username),
-                );
-              },
-            ),
+          const Expanded(
+            child: AdminPanelUsersList(),
           ),
+          const Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        return const AddUserScreen();
+                      },
+                    ),
+                  );
+                },
+                child: const Text('A D D'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    User? user = ref.read(adminPanelSelectedUserProvider);
+
+                    if (user == null) return;
+
+                    await ref.read(adminPanelProvider.notifier).delete(user);
+                  } catch (e, st) {
+                    showErrorAndStacktrace(e, st);
+                  }
+                },
+                child: const Text('D E L E T E'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        return const EditUserScreen();
+                      },
+                    ),
+                  );
+                },
+                child: const Text('E D I T'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        TextEditingController masterPasswordController = TextEditingController();
+
+                        return MasterPasswordPrompt(
+                          controller: masterPasswordController,
+                          callback: () async {
+                            try {
+                              //get masterpassword
+                              bool admin = await DatabaseAPI.getMasterPassword(masterPasswordController.text.trim());
+
+                              if (admin) {
+                                // ignore: use_build_context_synchronously
+                                await Navigator.push(
+                                  context,
+                                  CustomRoute(
+                                    builder: (context) {
+                                      return const ResetPasswordScreen();
+                                    },
+                                  ),
+                                );
+                              } else {
+                                showErrorAndStacktrace('Password is not an admin password', null);
+                              }
+                            } catch (e, st) {
+                              showErrorAndStacktrace(e, st);
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  );
+                },
+                child: const Text('R E S E T   P A S S W O R D'),
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -79,8 +163,6 @@ class AdminPanelTab extends ConsumerWidget {
 
   Expanded _categoriesList(BuildContext context, WidgetRef ref) {
     List<ItemCategory> categories = ref.watch(adminPanelProvider.select((value) => List<ItemCategory>.from(value['categories']!)));
-
-   
 
     return Expanded(
       child: Column(
@@ -130,8 +212,8 @@ class AdminPanelTab extends ConsumerWidget {
                             icon: const Icon(Icons.edit),
                           ),
                           IconButton.outlined(
-                            onPressed: () {
-                              showDeleteCategoryDialog(context, ref, category.categoryID);
+                            onPressed: () async {
+                              await showDeleteCategoryDialog(context, ref, category.categoryID);
                             },
                             icon: const Icon(Icons.remove),
                           ),
@@ -163,7 +245,7 @@ class AdminPanelTab extends ConsumerWidget {
                           callback: () async {
                             await ref.read(adminPanelProvider.notifier).addCategory(controller.text.trim());
                             // ignore: use_build_context_synchronously
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
                           },
                         );
                       },
@@ -244,8 +326,6 @@ class AdminPanelTab extends ConsumerWidget {
   Expanded _departmentsList(BuildContext context, WidgetRef ref) {
     List<Department> departments = ref.watch(adminPanelProvider.select((value) => List<Department>.from(value['departments']!)));
 
-   
-
     return Expanded(
       child: Column(
         children: [
@@ -294,8 +374,8 @@ class AdminPanelTab extends ConsumerWidget {
                             icon: const Icon(Icons.edit),
                           ),
                           IconButton.outlined(
-                            onPressed: () {
-                              showDeleteDepartmentDialog(context, ref, department.departmentID);
+                            onPressed: () async {
+                              await showDeleteDepartmentDialog(context, ref, department.departmentID);
                             },
                             icon: const Icon(Icons.remove),
                           ),
@@ -327,7 +407,7 @@ class AdminPanelTab extends ConsumerWidget {
                           callback: () async {
                             await ref.read(adminPanelProvider.notifier).addDepartment(controller.text.trim());
                             // ignore: use_build_context_synchronously
-                            Navigator.pop(context);
+                            //Navigator.pop(context);
                           },
                         );
                       },

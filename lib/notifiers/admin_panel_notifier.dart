@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/category_model.dart';
 import '../models/department_model.dart';
+import '../models/user_model.dart';
 
 class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
   AdminPanelNotifier({
@@ -22,8 +23,7 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
 
   Future<void> init() async {
     state['users'] = await DatabaseAPI.getUsers(departments);
-
-    state = state;
+    await DatabaseAPI.refreshDepartmentsAndCategories(ref);
   }
 
   Future<void> addDepartment(String departmentName) async {
@@ -113,6 +113,63 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
       EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
+    }
+  }
+
+  Future<void> addUser(User user, String password, String confirmPassword) async {
+    if (password != confirmPassword) {
+      EasyLoading.showError('Passwords do not match');
+      return;
+    }
+
+    EasyLoading.show();
+    try {
+      await DatabaseAPI.addUser(user, password);
+
+      await ref.read(adminPanelProvider.notifier).init();
+
+      EasyLoading.dismiss();
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
+
+  Future<void> editUser(User user) async {
+    EasyLoading.show();
+    try {
+      await DatabaseAPI.editUser(user);
+
+      await ref.read(adminPanelProvider.notifier).init();
+
+      EasyLoading.dismiss();
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
+
+  Future<void> delete(User user) async {
+    EasyLoading.show();
+    try {
+      await DatabaseAPI.deleteUser(user);
+
+      await ref.read(adminPanelProvider.notifier).init();
+
+      EasyLoading.dismiss();
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
+
+  Future<void> resetPassword(User user, String newPassword) async {
+    EasyLoading.show();
+    try {
+      await DatabaseAPI.resetPassword(user, newPassword);
+
+      await ref.read(adminPanelProvider.notifier).init();
+
+      EasyLoading.dismiss();
+    } catch (e, st) {
+      return Future.error(e, st);
     }
   }
 }

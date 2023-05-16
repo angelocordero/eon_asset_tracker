@@ -42,7 +42,7 @@ QrImageView generateQRImage({required String assetID, double? size}) {
   );
 }
 
-void showErrorAndStacktrace(Object e, StackTrace st) {
+void showErrorAndStacktrace(Object e, StackTrace? st) {
   if (e.toString().contains('didChangeDependency')) {
     EasyLoading.dismiss();
     return;

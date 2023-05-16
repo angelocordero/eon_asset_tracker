@@ -43,7 +43,7 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      IResultSet results = await conn.execute('SELECT * FROM `users` WHERE `is_enabled` = 1');
+      IResultSet results = await conn.execute('SELECT * FROM `users` WHERE `is_enabled` = 1 ORDER BY `admin` DESC');
 
       return results.rows.map((e) => User.fromDatabase(row: e, departments: departments)).toList();
     } catch (e, st) {
@@ -66,6 +66,26 @@ class DatabaseAPI {
                                               UNION
                                               SELECT `hash` AS `password_hash`
                                               FROM `master`;
+                                              ''');
+
+      List<String?> list = results.rows.map((e) => e.typedColAt<String>(0)).toList();
+
+      if (list.contains(hashPassword(password))) return true;
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
+    return false;
+  }
+
+  static Future<bool> getMasterPassword(String password) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      IResultSet results = await conn.execute('''
+                                            SELECT * FROM `master` WHERE 1;
                                               ''');
 
       List<String?> list = results.rows.map((e) => e.typedColAt<String>(0)).toList();
@@ -198,6 +218,25 @@ class DatabaseAPI {
     }
   }
 
+  static Future<void> addCategory(String categoryName) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('INSERT INTO `categories` (category_id, category_name) VALUES (:categoryID, :categoryName)', {
+        'categoryName': categoryName,
+        'categoryID': generateRandomID(),
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
   static Future<void> editDepartment(Department department) async {
     MySQLConnection? conn;
 
@@ -235,7 +274,29 @@ class DatabaseAPI {
     }
   }
 
-  static Future<void> addCategory(String categoryName) async {
+  static Future<void> addUser(User user, String password) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      await conn.execute('''INSERT INTO `users` (user_id, username, admin, department_id ,password_hash) VALUES
+          (:userID, :username, :isAdmin, :departmentID, :passwordHash)''', {
+        'userID': user.userID,
+        'username': user.username,
+        'isAdmin': user.isAdmin ? 1 : 0,
+        'departmentID': user.department?.departmentID,
+        'passwordHash': hashPassword(password),
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> editUser(User user) async {
     MySQLConnection? conn;
 
     try {
@@ -243,9 +304,51 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute('INSERT INTO `categories` (category_id, category_name) VALUES (:categoryID, :categoryName)', {
-        'categoryName': categoryName,
-        'categoryID': generateRandomID(),
+      await conn.execute('''UPDATE `users` SET `username` = :username, `department_id` = :departmentID, `admin` = :isAdmin
+       WHERE `user_id` = :userID AND `is_enabled` = 1 ''', {
+        'username': user.username,
+        'departmentID': user.department?.departmentID,
+        'isAdmin': user.isAdmin ? 1 : 0,
+        'userID': user.userID,
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> deleteUser(User user) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('''UPDATE `users` SET `is_enabled` = 0
+       WHERE `user_id` = :userID ''', {
+        'userID': user.userID,
+      });
+    } catch (e, st) {
+      return Future.error(e, st);
+    } finally {
+      await conn?.close();
+    }
+  }
+
+  static Future<void> resetPassword(User user, String newPassword) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('''UPDATE `users` SET `password_hash` = :hash WHERE `is_enabled` = 1
+       AND `user_id` = :userID ''', {
+        'hash': hashPassword(newPassword),
+        'userID': user.userID,
       });
     } catch (e, st) {
       return Future.error(e, st);
@@ -551,14 +654,14 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      ref.read(departmentsProvider.notifier).state = await _getDepartments(conn);
-      ref.read(categoriesProvider.notifier).state = await _getCategories(conn);
+      ref.read(categoriesProvider.notifier).state = await getCategories(conn);
+      ref.read(departmentsProvider.notifier).state = await getDepartments(conn);
 
       await ref.read(dashboardDataProvider.notifier).refresh();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     } finally {
-      conn?.close();
+      await conn?.close();
     }
   }
 
@@ -581,8 +684,8 @@ class DatabaseAPI {
 
       ResultSetRow row = results.rows.first;
 
-      ref.read(departmentsProvider.notifier).state = await _getDepartments(conn);
-      ref.read(categoriesProvider.notifier).state = await _getCategories(conn);
+      ref.read(departmentsProvider.notifier).state = await getDepartments(conn);
+      ref.read(categoriesProvider.notifier).state = await getCategories(conn);
 
       return User.fromDatabase(row: row, departments: ref.read(departmentsProvider));
     } catch (e) {
@@ -757,7 +860,7 @@ class DatabaseAPI {
     }
   }
 
-  static Future<List<Department>> _getDepartments(MySQLConnection conn) async {
+  static Future<List<Department>> getDepartments(MySQLConnection conn) async {
     try {
       var results = await conn.execute('SELECT * FROM `departments` WHERE `is_enabled` = 1');
 
@@ -772,7 +875,7 @@ class DatabaseAPI {
     }
   }
 
-  static Future<List<ItemCategory>> _getCategories(MySQLConnection conn) async {
+  static Future<List<ItemCategory>> getCategories(MySQLConnection conn) async {
     try {
       var results = await conn.execute('SELECT * FROM `categories` WHERE `is_enabled` = 1');
 
@@ -780,7 +883,6 @@ class DatabaseAPI {
         return ItemCategory(
           categoryID: row.typedColByName<String>('category_id')!,
           categoryName: row.typedColByName<String>('category_name')!,
-          isEnabled: row.typedColByName<int>('is_enabled')! == 1 ? true : false,
         );
       }).toList();
     } catch (e, st) {

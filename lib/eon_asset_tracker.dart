@@ -33,7 +33,9 @@ class EonAssetTracker extends StatelessWidget {
       routes: {
         'login': (context) => const LoginScreen(),
         'home': (context) => HomeScreen(
-              controller: SidebarXController(selectedIndex: 0),
+              controller: SidebarXController(
+                selectedIndex: 0,
+              ),
             ),
       },
     );

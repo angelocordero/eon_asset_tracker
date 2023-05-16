@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 import 'department_model.dart';
@@ -22,7 +23,7 @@ class User {
     Department? department;
 
     try {
-      departments.firstWhere((element) => element.departmentID == row.typedColByName<String>('department_id'));
+      department = departments.firstWhere((element) => element.departmentID == row.typedColByName<String>('department_id'));
     } catch (e) {
       department = null;
     }
@@ -31,6 +32,19 @@ class User {
       userID: row.typedColByName<String>('user_id')!,
       username: row.typedColByName<String>('username')!,
       isAdmin: row.typedColByName<int>('admin') == 1 ? true : false,
+      department: department,
+    );
+  }
+
+  factory User.toDatabase({
+    required String username,
+    required Department department,
+    required String status,
+  }) {
+    return User(
+      userID: generateRandomID(),
+      username: username,
+      isAdmin: status == 'Admin',
       department: department,
     );
   }
@@ -50,7 +64,7 @@ class User {
   }
 
   @override
-  String toString() => 'User(userID: $userID, username: $username, isAdmin: $isAdmin)';
+  String toString() => 'User(userID: $userID, username: $username, isAdmin: $isAdmin, department: $department)';
 
   @override
   bool operator ==(covariant User other) {

@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class AdminPasswordPrompt extends StatelessWidget {
-  const AdminPasswordPrompt({super.key, required this.controller, required this.callback});
+class MasterPasswordPrompt extends StatelessWidget {
+  const MasterPasswordPrompt({super.key, required this.controller, required this.callback});
 
   final TextEditingController controller;
 
@@ -18,7 +18,7 @@ class AdminPasswordPrompt extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Please enter admin password',
+                'Please enter master password',
                 style: TextStyle(fontSize: 15),
               ),
               const SizedBox(

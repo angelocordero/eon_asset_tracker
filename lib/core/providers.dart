@@ -43,7 +43,6 @@ final currentInventoryPage = StateProvider<int>((ref) => 0);
 final queryResultItemCount = StateProvider<int>((ref) => 0);
 
 final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
-
   return DashboardNotifier(
     ref: ref,
   );
@@ -71,4 +70,14 @@ final tabSwitcherIndexProvider = StateProvider<int>((ref) {
 
 final sidebarControllerProvider = StateProvider<SidebarXController>((ref) {
   return SidebarXController(selectedIndex: 0);
+});
+
+final adminPanelSelectedUserProvider = StateProvider<User?>((ref) {
+  List<User> users = List<User>.from(ref.watch(adminPanelProvider)['users']!);
+
+  if (users.isNotEmpty) {
+    return users.first;
+  }
+
+  return null;
 });
