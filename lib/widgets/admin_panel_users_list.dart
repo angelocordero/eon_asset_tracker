@@ -11,7 +11,6 @@ class AdminPanelUsersList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     List<User> users = ref.watch(adminPanelProvider.select((value) => List<User>.from(value['users']!)));
 
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

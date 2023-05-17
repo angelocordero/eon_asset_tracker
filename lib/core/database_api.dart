@@ -211,6 +211,68 @@ class DatabaseAPI {
     }
   }
 
+  static Future<List<Item>> getItemsForReport({
+    required String query,
+    required InventorySearchFilter filter,
+  }) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      IResultSet results;
+
+      if (query.trim().isEmpty) {
+        results = await _getAllUnfiltered(conn);
+      } else {
+        results = await _getAllFiltered(conn: conn, filter: filter, query: query);
+      }
+
+      return results.rows.map<Item>((row) {
+        return Item.fromDatabase(
+          row: row,
+        );
+      }).toList();
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+      return Future.value([]);
+    } finally {
+      conn?.close();
+    }
+  }
+
+  static Future<IResultSet> _getAllUnfiltered(MySQLConnection conn) async {
+    return await conn.execute('''
+              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
+              JOIN `categories` AS c ON a.category_id = c.category_id
+              JOIN `departments` AS d ON a.department_id = d.department_id
+              WHERE  c.is_enabled = 1
+              AND d.is_enabled = 1 
+              AND a.is_enabled = 1
+              ORDER BY `timestamp` DESC, `item_name` ASC''');
+  }
+
+  static Future<IResultSet> _getAllFiltered({
+    required MySQLConnection conn,
+    required InventorySearchFilter filter,
+    required String query,
+  }) async {
+    String? columnString = inventoryFilterEnumToDatabaseString(filter);
+
+    if (columnString == null) return Future.error('Invalid filter');
+
+    return await conn.execute('''
+              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
+              JOIN `categories` AS c ON a.category_id = c.category_id
+              JOIN `departments` AS d ON a.department_id = d.department_id
+              WHERE  c.is_enabled = 1
+              AND d.is_enabled = 1 
+              AND a.is_enabled = 1 AND a.$columnString LIKE '%$query%'
+              ORDER BY `timestamp` DESC, `item_name` ASC''');
+  }
+
   static Future<List<Item>> searchInventory({
     required String query,
     required InventorySearchFilter filter,
@@ -573,8 +635,7 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results =
-          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 

@@ -7,11 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 
 class ResetPasswordScreen extends ConsumerWidget {
-  const ResetPasswordScreen({super.key});
+  const ResetPasswordScreen({super.key, required this.passwordController, required this.confirmPasswordController});
 
-  static final TextEditingController _passwordController = TextEditingController();
-  static final TextEditingController _confirmPasswordController = TextEditingController();
-
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Center(
@@ -57,7 +56,7 @@ class ResetPasswordScreen extends ConsumerWidget {
         SizedBox(
           width: 300,
           child: TextField(
-            controller: _passwordController,
+            controller: passwordController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
         ),
@@ -76,7 +75,7 @@ class ResetPasswordScreen extends ConsumerWidget {
         SizedBox(
           width: 300,
           child: TextField(
-            controller: _confirmPasswordController,
+            controller: confirmPasswordController,
           ),
         ),
       ],
@@ -90,6 +89,7 @@ class ResetPasswordScreen extends ConsumerWidget {
         ElevatedButton(
           onPressed: () {
             Navigator.pop(context);
+            Navigator.pop(context);
           },
           child: const Text('Cancel'),
         ),
@@ -98,8 +98,8 @@ class ResetPasswordScreen extends ConsumerWidget {
         ),
         ElevatedButton(
           onPressed: () async {
-            String password = _passwordController.text.trim();
-            String confirmPassword = _confirmPasswordController.text.trim();
+            String password = passwordController.text.trim();
+            String confirmPassword = confirmPasswordController.text.trim();
 
             if (password.isEmpty) {
               EasyLoading.showError('Required fields must not be empty');
@@ -116,7 +116,7 @@ class ResetPasswordScreen extends ConsumerWidget {
 
               if (user == null) return;
 
-              ref.read(adminPanelProvider.notifier).resetPassword(ref, user, _passwordController.text.trim());
+              ref.read(adminPanelProvider.notifier).resetPassword(ref, user, passwordController.text.trim());
 
               // ignore: use_build_context_synchronously
               Navigator.pop(context);

@@ -87,17 +87,19 @@ class AdminPanelTab extends ConsumerWidget {
                 child: const Text('A D D'),
               ),
               TextButton(
-                onPressed: () async {
-                  try {
-                    User? user = ref.read(adminPanelSelectedUserProvider);
+                onPressed: ref.watch(adminPanelSelectedUserProvider) == ref.watch(userProvider)
+                    ? null
+                    : () async {
+                        User? user = ref.read(adminPanelSelectedUserProvider);
 
-                    if (user == null) return;
+                        try {
+                          if (user == null) return;
 
-                    await ref.read(adminPanelProvider.notifier).delete(ref, user);
-                  } catch (e, st) {
-                    showErrorAndStacktrace(e, st);
-                  }
-                },
+                          await ref.read(adminPanelProvider.notifier).delete(ref, user);
+                        } catch (e, st) {
+                          showErrorAndStacktrace(e, st);
+                        }
+                      },
                 child: const Text('D E L E T E'),
               ),
               TextButton(
@@ -134,7 +136,10 @@ class AdminPanelTab extends ConsumerWidget {
                                   context,
                                   CustomRoute(
                                     builder: (context) {
-                                      return const ResetPasswordScreen();
+                                      return ResetPasswordScreen(
+                                        passwordController: TextEditingController(),
+                                        confirmPasswordController: TextEditingController(),
+                                      );
                                     },
                                   ),
                                 );
@@ -184,7 +189,7 @@ class AdminPanelTab extends ConsumerWidget {
                         children: [
                           IconButton.outlined(
                             onPressed: () {
-                              TextEditingController controller = TextEditingController();
+                              TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: category.categoryName));
 
                               Navigator.push(
                                 context,
@@ -346,7 +351,7 @@ class AdminPanelTab extends ConsumerWidget {
                         children: [
                           IconButton.outlined(
                             onPressed: () {
-                              TextEditingController controller = TextEditingController();
+                              TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: department.departmentName));
 
                               Navigator.push(
                                 context,

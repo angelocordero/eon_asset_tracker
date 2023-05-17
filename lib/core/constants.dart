@@ -9,7 +9,7 @@ Future<MySQLConnection> createSqlConn() async {
       host: '127.0.0.1',
       port: 3306,
       userName: 'root',
-      password: 'cordero12',
+      password: 'root',
       databaseName: 'eon',
       secure: false,
     );

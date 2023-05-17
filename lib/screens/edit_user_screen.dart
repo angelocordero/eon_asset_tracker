@@ -244,12 +244,16 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
               ),
               value: status,
               items: statusList.map<DropdownMenuItem<String>>((value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
-              onChanged: (String? newStatus) {
-                if (newStatus == null) return;
-                setState(() {
-                  status = newStatus;
-                });
-              },
+              onChanged: ref.watch(adminPanelSelectedUserProvider) == ref.watch(userProvider)
+                  ? null
+                  : (String? newStatus) {
+                      if (newStatus == null) return;
+                      setState(
+                        () {
+                          status = newStatus;
+                        },
+                      );
+                    },
             ),
           ),
         ),

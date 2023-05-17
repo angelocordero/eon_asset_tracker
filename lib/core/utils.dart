@@ -44,12 +44,12 @@ QrImageView generateQRImage({required String assetID, double? size}) {
 }
 
 void showErrorAndStacktrace(Object e, StackTrace? st) {
-  if (e.toString().contains('didChangeDependency')) {
-    EasyLoading.dismiss();
-  } else {
-    EasyLoading.showError(e.toString());
-  }
+  // if (e.toString().contains('didChangeDependency')) {
+  //   EasyLoading.dismiss();
+  // } else {
+  // }
 
+  EasyLoading.showError(e.toString());
   debugPrint(e.toString());
   debugPrintStack(label: e.toString(), stackTrace: st);
 }

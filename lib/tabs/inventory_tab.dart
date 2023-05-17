@@ -302,33 +302,49 @@ class InventoryTab extends ConsumerWidget {
           message: 'Generate Report',
           child: IconButton.outlined(
             onPressed: () async {
-              int itemLength = ref.read(inventoryProvider).items.length;
+              EasyLoading.show();
 
-              if (itemLength == 0) return;
+              List<Item> items = [];
 
-              await showReportDialog(
-                context,
-                itemLength,
-                () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return Scaffold(
-                          appBar: AppBar(
-                            title: const Text('Print Report'),
-                          ),
-                          body: PdfPreview(
-                            build: (format) async => await ReportPDF(
-                              inventoryItems: ref.read(inventoryProvider).items,
-                            ).generate(),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              );
+              try {
+                items = await DatabaseAPI.getItemsForReport(
+                  query: ref.read(searchQueryProvider),
+                  filter: ref.read(searchFilterProvider),
+                );
+
+                if (items.isNotEmpty) {
+                  EasyLoading.dismiss();
+                } else {
+                  return Future.error('Error in generating report');
+                }
+
+                await showReportDialog(
+                  context,
+                  items.length,
+                  () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return Scaffold(
+                            appBar: AppBar(
+                              title: const Text('Print Report'),
+                            ),
+                            body: PdfPreview(
+                              build: (format) async => await ReportPDF(
+                                inventoryItems: items,
+                              ).generate(),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              } catch (e, st) {
+                showErrorAndStacktrace(e, st);
+                return;
+              }
             },
             icon: const Icon(Icons.print),
           ),
