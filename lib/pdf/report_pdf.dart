@@ -53,7 +53,8 @@ class ReportPDF {
         },
         build: (context) {
           return [
-            pw.TableHelper.fromTextArray(
+            // ignore: deprecated_member_use
+            pw.Table.fromTextArray(
               cellAlignment: pw.Alignment.center,
               columnWidths: {
                 0: const pw.FlexColumnWidth(3),
@@ -69,22 +70,8 @@ class ReportPDF {
                 10: const pw.FlexColumnWidth(10.78),
               },
               headerStyle: const pw.TextStyle(fontSize: 7),
-              data: inventoryItems.map((Item item) {
-                return [
-                  '1',
-                  item.assetID,
-                  item.name,
-                  item.department.departmentName,
-                  item.personAccountable ?? '',
-                  item.category.categoryName,
-                  item.status.name,
-                  item.unit,
-                  priceToString(item.price ?? 0),
-                  item.datePurchased == null ? '' : dateToString(item.datePurchased!),
-                  dateToString(item.dateReceived),
-                ];
-              }).toList(),
-              headerCount: 10,
+              data: generateData(inventoryItems),
+              headerCount: 11,
               headers: [
                 '',
                 'A S S E T   I D',
@@ -107,27 +94,27 @@ class ReportPDF {
     return pdf.save();
   }
 
-  // List<List<dynamic>> generateData(List<Item> items) {
-  //   List<List<dynamic>> data = [];
+  List<List<dynamic>> generateData(List<Item> items) {
+    List<List<dynamic>> data = [];
 
-  //   for (int i = 0; i < items.length; i++) {
-  //     Item item = items[i];
+    for (int i = 0; i < items.length; i++) {
+      Item item = items[i];
 
-  //     data.add([
-  //       (i + 1).toString(),
-  //       item.assetID,
-  //       item.name,
-  //       item.department.departmentName,
-  //       item.personAccountable ?? '',
-  //       item.category.categoryName,
-  //       item.status.name,
-  //       item.unit,
-  //       priceToString(item.price ?? 0),
-  //       item.datePurchased == null ? '' : dateToString(item.datePurchased!),
-  //       dateToString(item.dateReceived),
-  //     ]);
-  //   }
+      data.add([
+        (i + 1).toString(),
+        item.assetID,
+        item.name,
+        item.department.departmentName,
+        item.personAccountable ?? '',
+        item.category.categoryName,
+        item.status.name,
+        item.unit,
+        item.datePurchased == null ? '' : priceToString(item.price ?? 0),
+        item.datePurchased == null ? '' : dateToString(item.datePurchased!),
+        dateToString(item.dateReceived),
+      ]);
+    }
 
-  //   return data;
-  // }
+    return data;
+  }
 }
