@@ -203,6 +203,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
           child: TextField(
             maxLength: 30,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            obscureText: true,
             controller: _passwordController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
@@ -224,6 +225,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
           child: TextField(
             maxLength: 30,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            obscureText: true,
             controller: _confirmPasswordController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
