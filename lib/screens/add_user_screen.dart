@@ -2,6 +2,7 @@ import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/models/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -154,9 +155,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 ),
               ),
               value: departments.first,
-              items: departments
-                  .map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName)))
-                  .toList(),
+              items: departments.map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName))).toList(),
               onChanged: (Department? newDepartment) {
                 if (newDepartment == null) return;
                 setState(() {
@@ -181,6 +180,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _userNameController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
@@ -200,6 +201,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _passwordController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
@@ -219,6 +222,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _confirmPasswordController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),

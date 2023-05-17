@@ -220,6 +220,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 45,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _nameController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
@@ -239,6 +241,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 500,
           child: TextField(
+            maxLength: 250,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _itemDescriptionController,
             maxLines: 8,
             minLines: 4,
@@ -259,6 +263,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 500,
           child: TextField(
+            maxLength: 250,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _remarksController,
             maxLines: 8,
             minLines: 4,
@@ -319,6 +325,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 45,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _personAccountableController,
           ),
         ),
@@ -481,6 +489,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _unitController,
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -56,6 +57,8 @@ class ResetPasswordScreen extends ConsumerWidget {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: passwordController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
@@ -75,6 +78,8 @@ class ResetPasswordScreen extends ConsumerWidget {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: confirmPasswordController,
           ),
         ),
@@ -89,7 +94,10 @@ class ResetPasswordScreen extends ConsumerWidget {
         ElevatedButton(
           onPressed: () {
             Navigator.pop(context);
-            Navigator.pop(context);
+
+            if (ref.read(userProvider)!.isAdmin && ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
+              Navigator.pop(context);
+            }
           },
           child: const Text('Cancel'),
         ),

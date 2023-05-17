@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AdminPanelPrompt extends StatelessWidget {
   const AdminPanelPrompt({super.key, required this.controller, required this.callback, required this.title});
@@ -29,6 +30,8 @@ class AdminPanelPrompt extends StatelessWidget {
               SizedBox(
                 width: 200,
                 child: TextField(
+                  maxLength: 30,
+                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   controller: controller,
                   decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
                 ),

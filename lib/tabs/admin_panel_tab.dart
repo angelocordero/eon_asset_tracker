@@ -117,43 +117,57 @@ class AdminPanelTab extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  Navigator.push(
-                    context,
-                    CustomRoute(
-                      builder: (context) {
-                        TextEditingController masterPasswordController = TextEditingController();
+                  if (ref.read(userProvider)!.isAdmin && !ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
+                    Navigator.push(
+                      context,
+                      CustomRoute(
+                        builder: (context) {
+                          return ResetPasswordScreen(
+                            passwordController: TextEditingController(),
+                            confirmPasswordController: TextEditingController(),
+                          );
+                        },
+                      ),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      CustomRoute(
+                        builder: (context) {
+                          TextEditingController masterPasswordController = TextEditingController();
 
-                        return MasterPasswordPrompt(
-                          controller: masterPasswordController,
-                          callback: () async {
-                            try {
-                              //get masterpassword
-                              bool admin = await DatabaseAPI.getMasterPassword(masterPasswordController.text.trim());
+                          return MasterPasswordPrompt(
+                            controller: masterPasswordController,
+                            callback: () async {
+                              try {
+                                //get masterpassword
+                                bool admin = await DatabaseAPI.getMasterPassword(masterPasswordController.text.trim());
 
-                              if (admin) {
-                                // ignore: use_build_context_synchronously
-                                await Navigator.push(
-                                  context,
-                                  CustomRoute(
-                                    builder: (context) {
-                                      return ResetPasswordScreen(
-                                        passwordController: TextEditingController(),
-                                        confirmPasswordController: TextEditingController(),
-                                      );
-                                    },
-                                  ),
-                                );
-                              } else {
-                                showErrorAndStacktrace('Password is not an admin password', null);
+                                if (admin) {
+                                  // ignore: use_build_context_synchronously
+                                  await Navigator.push(
+                                    context,
+                                    CustomRoute(
+                                      builder: (context) {
+                                        return ResetPasswordScreen(
+                                          passwordController: TextEditingController(),
+                                          confirmPasswordController: TextEditingController(),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  showErrorAndStacktrace('Wrong master password', null);
+                                }
+                              } catch (e, st) {
+                                showErrorAndStacktrace(e, st);
                               }
-                            } catch (e, st) {
-                              showErrorAndStacktrace(e, st);
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  );
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  }
                 },
                 child: const Text('R E S E T   P A S S W O R D'),
               ),

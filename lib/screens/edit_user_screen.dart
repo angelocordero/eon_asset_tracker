@@ -4,6 +4,7 @@ import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/models/user_model.dart';
 import 'package:eon_asset_tracker/widgets/master_password_prompt.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -212,6 +213,8 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _userNameController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
