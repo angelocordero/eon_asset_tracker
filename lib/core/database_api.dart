@@ -836,7 +836,7 @@ class DatabaseAPI {
 
   static Future<List<Department>> getDepartments(MySQLConnection conn) async {
     try {
-      var results = await conn.execute('SELECT * FROM `departments` WHERE `is_enabled` = 1');
+      var results = await conn.execute('SELECT * FROM `departments` WHERE `is_enabled` = 1 ORDER BY `department_name` ASC');
 
       return results.rows.map((row) {
         return Department(
@@ -851,7 +851,7 @@ class DatabaseAPI {
 
   static Future<List<ItemCategory>> getCategories(MySQLConnection conn) async {
     try {
-      var results = await conn.execute('SELECT * FROM `categories` WHERE `is_enabled` = 1');
+      var results = await conn.execute('SELECT * FROM `categories` WHERE `is_enabled` = 1 ORDER BY `category_name` ASC');
 
       return results.rows.map((row) {
         return ItemCategory(

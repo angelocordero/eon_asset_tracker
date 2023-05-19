@@ -121,7 +121,7 @@ class PaginationNavigator extends ConsumerWidget {
                   controller: controller,
                   onTapOutside: (event) {
                     if (controller.text.trim().isEmpty) {
-                      controller.text = '0';
+                      controller.text = '1';
                     }
                   },
                   decoration: const InputDecoration(

@@ -20,9 +20,6 @@ class AdminPanelUsersList extends ConsumerWidget {
               showCheckboxColumn: false,
               columns: const [
                 DataColumn(
-                  label: Text('U S E R   I D'),
-                ),
-                DataColumn(
                   label: Text('U S E R   N A M E'),
                 ),
                 DataColumn(
@@ -40,9 +37,6 @@ class AdminPanelUsersList extends ConsumerWidget {
                         ref.read(adminPanelSelectedUserProvider.notifier).state = e;
                       },
                       cells: [
-                        DataCell(
-                          Text(e.userID),
-                        ),
                         DataCell(
                           Text(e.username),
                         ),

@@ -8,10 +8,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 
 class ResetPasswordScreen extends ConsumerWidget {
-  const ResetPasswordScreen({super.key, required this.passwordController, required this.confirmPasswordController});
+  const ResetPasswordScreen({
+    super.key,
+    required this.passwordController,
+    required this.confirmPasswordController,
+  });
 
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Center(
@@ -34,7 +39,7 @@ class ResetPasswordScreen extends ConsumerWidget {
               const SizedBox(
                 height: 30,
               ),
-              _confirmPasswordField(),
+              _confirmPasswordField(context, ref),
               const SizedBox(
                 height: 30,
               ),
@@ -57,6 +62,7 @@ class ResetPasswordScreen extends ConsumerWidget {
         SizedBox(
           width: 300,
           child: TextField(
+            obscureText: true,
             maxLength: 30,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: passwordController,
@@ -67,7 +73,7 @@ class ResetPasswordScreen extends ConsumerWidget {
     );
   }
 
-  Column _confirmPasswordField() {
+  Column _confirmPasswordField(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,6 +84,10 @@ class ResetPasswordScreen extends ConsumerWidget {
         SizedBox(
           width: 300,
           child: TextField(
+            onSubmitted: (value) async {
+              await _submit(context, ref);
+            },
+            obscureText: true,
             maxLength: 30,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: confirmPasswordController,
@@ -106,36 +116,43 @@ class ResetPasswordScreen extends ConsumerWidget {
         ),
         ElevatedButton(
           onPressed: () async {
-            String password = passwordController.text.trim();
-            String confirmPassword = confirmPasswordController.text.trim();
-
-            if (password.isEmpty) {
-              EasyLoading.showError('Required fields must not be empty');
-              return;
-            }
-
-            if (password != confirmPassword) {
-              EasyLoading.showError('Passwords do not match');
-              return;
-            }
-
-            try {
-              User? user = ref.read(adminPanelSelectedUserProvider);
-
-              if (user == null) return;
-
-              ref.read(adminPanelProvider.notifier).resetPassword(ref, user, passwordController.text.trim());
-
-              // ignore: use_build_context_synchronously
-              Navigator.pop(context);
-              Navigator.pop(context);
-            } catch (e, st) {
-              showErrorAndStacktrace(e, st);
-            }
+            await _submit(context, ref);
           },
           child: const Text('Confirm'),
         ),
       ],
     );
+  }
+
+  _submit(BuildContext context, WidgetRef ref) async {
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    if (password.isEmpty) {
+      EasyLoading.showError('Required fields must not be empty');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      EasyLoading.showError('Passwords do not match');
+      return;
+    }
+
+    try {
+      User? user = ref.read(adminPanelSelectedUserProvider);
+
+      if (user == null) return;
+
+      ref.read(adminPanelProvider.notifier).resetPassword(ref, user, passwordController.text.trim());
+
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+
+      if (ref.read(userProvider)!.isAdmin && ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
+        Navigator.pop(context);
+      }
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
   }
 }

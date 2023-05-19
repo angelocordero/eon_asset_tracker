@@ -14,7 +14,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/database_api.dart';
 import '../models/user_model.dart';
 import '../screens/edit_user_screen.dart';
-import '../widgets/admin_panel_search_widget.dart';
 
 class AdminPanelTab extends ConsumerWidget {
   const AdminPanelTab({super.key});
@@ -28,10 +27,10 @@ class AdminPanelTab extends ConsumerWidget {
         replacement: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const AdminPanelSearchWidget(),
-            const Divider(
-              height: 40,
-            ),
+            // const AdminPanelSearchWidget(),
+            // const Divider(
+            //   height: 40,
+            // ),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -190,56 +189,73 @@ class AdminPanelTab extends ConsumerWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: categories.length,
+              itemCount: categories.length + 1,
               itemBuilder: (context, index) {
-                ItemCategory category = categories[index];
+                if (index < categories.length) {
+                  ItemCategory category = categories[index];
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text(category.categoryName),
+                        leading: Text('${(index + 1).toString()}.'),
+                        trailing: Wrap(
+                          children: [
+                            IconButton.outlined(
+                              onPressed: () {
+                                TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: category.categoryName));
 
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(category.categoryName),
-                      leading: Text('${(index + 1).toString()}.'),
-                      trailing: Wrap(
-                        children: [
-                          IconButton.outlined(
-                            onPressed: () {
-                              TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: category.categoryName));
+                                Navigator.push(
+                                  context,
+                                  CustomRoute(
+                                    builder: (context) {
+                                      return AdminPanelPrompt(
+                                        title: 'Edit Category',
+                                        controller: controller,
+                                        callback: () async {
+                                          if (controller.text.trim().isEmpty) return;
 
-                              Navigator.push(
-                                context,
-                                CustomRoute(
-                                  builder: (context) {
-                                    return AdminPanelPrompt(
-                                      title: 'Edit Category',
-                                      controller: controller,
-                                      callback: () async {
-                                        if (controller.text.trim().isEmpty) return;
+                                          category = category.copyWith(
+                                            categoryName: controller.text.trim(),
+                                          );
 
-                                        category = category.copyWith(
-                                          categoryName: controller.text.trim(),
-                                        );
+                                          await ref.read(adminPanelProvider.notifier).editCategory(ref, category);
 
-                                        await ref.read(adminPanelProvider.notifier).editCategory(ref, category);
-                                      },
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.edit),
-                          ),
-                          IconButton.outlined(
-                            onPressed: () async {
-                              await showDeleteCategoryDialog(context, ref, category.categoryID);
-                            },
-                            icon: const Icon(Icons.remove),
-                          ),
-                        ],
+                                          // ignore: use_build_context_synchronously
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                            ),
+                            IconButton.outlined(
+                              onPressed: () async {
+                                await showDeleteCategoryDialog(context, ref, category.categoryID);
+                              },
+                              icon: const Icon(Icons.remove),
+                            ),
+                          ],
+                        ),
                       ),
+                      const Divider(),
+                    ],
+                  );
+                } else {
+                  return ListTile(
+                    title: const Text(
+                      'A D D',
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    if (index + 1 != categories.length) const Divider(),
-                  ],
-                );
+                    onTap: () async {
+                      await _addCategory(context, ref);
+                    },
+                  );
+                }
               },
             ),
           ),
@@ -250,30 +266,34 @@ class AdminPanelTab extends ConsumerWidget {
             children: [
               TextButton(
                 onPressed: () async {
-                  TextEditingController controller = TextEditingController();
-
-                  Navigator.push(
-                    context,
-                    CustomRoute(
-                      builder: (context) {
-                        return AdminPanelPrompt(
-                          title: 'Add Category',
-                          controller: controller,
-                          callback: () async {
-                            await ref.read(adminPanelProvider.notifier).addCategory(ref, controller.text.trim());
-                            // ignore: use_build_context_synchronously
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  );
+                  await _addCategory(context, ref);
                 },
                 child: const Text('A D D'),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _addCategory(BuildContext context, WidgetRef ref) async {
+    TextEditingController controller = TextEditingController();
+
+    await Navigator.push(
+      context,
+      CustomRoute(
+        builder: (context) {
+          return AdminPanelPrompt(
+            title: 'Add Category',
+            controller: controller,
+            callback: () async {
+              await ref.read(adminPanelProvider.notifier).addCategory(ref, controller.text.trim());
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
+            },
+          );
+        },
       ),
     );
   }
@@ -352,56 +372,71 @@ class AdminPanelTab extends ConsumerWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: departments.length,
+              itemCount: departments.length + 1,
               itemBuilder: (context, index) {
-                Department department = departments[index];
+                if (index < departments.length) {
+                  Department department = departments[index];
 
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(department.departmentName),
-                      leading: Text('${(index + 1).toString()}.'),
-                      trailing: Wrap(
-                        children: [
-                          IconButton.outlined(
-                            onPressed: () {
-                              TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: department.departmentName));
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text(department.departmentName),
+                        leading: Text('${(index + 1).toString()}.'),
+                        trailing: Wrap(
+                          children: [
+                            IconButton.outlined(
+                              onPressed: () {
+                                TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: department.departmentName));
 
-                              Navigator.push(
-                                context,
-                                CustomRoute(
-                                  builder: (context) {
-                                    return AdminPanelPrompt(
-                                      title: 'Edit Department',
-                                      controller: controller,
-                                      callback: () async {
-                                        if (controller.text.trim().isEmpty) return;
+                                Navigator.push(
+                                  context,
+                                  CustomRoute(
+                                    builder: (context) {
+                                      return AdminPanelPrompt(
+                                        title: 'Edit Department',
+                                        controller: controller,
+                                        callback: () async {
+                                          if (controller.text.trim().isEmpty) return;
 
-                                        department = department.copyWith(
-                                          departmentName: controller.text.trim(),
-                                        );
+                                          department = department.copyWith(
+                                            departmentName: controller.text.trim(),
+                                          );
 
-                                        await ref.read(adminPanelProvider.notifier).editDepartment(ref, department);
-                                      },
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.edit),
-                          ),
-                          IconButton.outlined(
-                            onPressed: () async {
-                              await showDeleteDepartmentDialog(context, ref, department.departmentID);
-                            },
-                            icon: const Icon(Icons.remove),
-                          ),
-                        ],
+                                          await ref.read(adminPanelProvider.notifier).editDepartment(ref, department);
+                                        },
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                            ),
+                            IconButton.outlined(
+                              onPressed: () async {
+                                await showDeleteDepartmentDialog(context, ref, department.departmentID);
+                              },
+                              icon: const Icon(Icons.remove),
+                            ),
+                          ],
+                        ),
                       ),
+                      const Divider(),
+                    ],
+                  );
+                } else {
+                  return ListTile(
+                    title: const Text(
+                      'A D D',
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    if (index + 1 != departments.length) const Divider(),
-                  ],
-                );
+                    onTap: () async {
+                      await _addDepartment(context, ref);
+                    },
+                  );
+                }
               },
             ),
           ),
@@ -412,30 +447,34 @@ class AdminPanelTab extends ConsumerWidget {
             children: [
               TextButton(
                 onPressed: () async {
-                  TextEditingController controller = TextEditingController();
-
-                  Navigator.push(
-                    context,
-                    CustomRoute(
-                      builder: (context) {
-                        return AdminPanelPrompt(
-                          title: 'Add Department',
-                          controller: controller,
-                          callback: () async {
-                            await ref.read(adminPanelProvider.notifier).addDepartment(ref, controller.text.trim());
-                            // ignore: use_build_context_synchronously
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  );
+                  _addDepartment(context, ref);
                 },
                 child: const Text('A D D'),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _addDepartment(BuildContext context, WidgetRef ref) async {
+    TextEditingController controller = TextEditingController();
+
+    await Navigator.push(
+      context,
+      CustomRoute(
+        builder: (context) {
+          return AdminPanelPrompt(
+            title: 'Add Department',
+            controller: controller,
+            callback: () async {
+              await ref.read(adminPanelProvider.notifier).addDepartment(ref, controller.text.trim());
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
+            },
+          );
+        },
       ),
     );
   }
