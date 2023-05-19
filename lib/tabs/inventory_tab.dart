@@ -56,6 +56,19 @@ class InventoryTab extends ConsumerWidget {
             Flexible(
               flex: 7,
               child: StickyHeadersTable(
+                onColumnTitlePressed: (columnIndex) {
+                  Columns column = Columns.values[columnIndex];
+                  Sort? sort = ref.read(tableSortingProvider).$2;
+
+                  if (sort == null || sort == Sort.descending) {
+                    sort = Sort.ascending;
+                  } else {
+                    sort = Sort.descending;
+                  }
+
+                  ref.read(tableSortingProvider.notifier).state = (column, sort);
+                  ref.read(inventoryProvider.notifier).sortTable((column, sort));
+                },
                 legendCell: Center(
                   child: Checkbox(
                     value: ref.watch(checkedItemProvider).length == rows.length,
@@ -97,10 +110,30 @@ class InventoryTab extends ConsumerWidget {
                 ),
                 columnsLength: columns.length,
                 rowsLength: rows.length,
-                columnsTitleBuilder: (i) => Text(
-                  columns[i],
-                  textAlign: TextAlign.center,
-                ),
+                columnsTitleBuilder: (i) {
+                  TableSort tableSort = ref.watch(tableSortingProvider);
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            columns[i],
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: tableSort.$1 == Columns.values[i],
+                        replacement: const Icon(
+                          Icons.arrow_downward,
+                          color: Colors.transparent,
+                        ),
+                        child: (tableSort.$2 ?? Sort.ascending) == Sort.ascending ? const Icon(Icons.arrow_upward) : const Icon(Icons.arrow_downward),
+                      )
+                    ],
+                  );
+                },
                 rowsTitleBuilder: (j) {
                   Item item = rows[j];
 

@@ -34,13 +34,37 @@ String priceToString(double? price) {
   return price == null ? '' : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
 }
 
-QrImageView generateQRImage({required String assetID, double? size}) {
-  return QrImageView(
-    size: size,
-    data: assetID,
-    backgroundColor: Colors.transparent,
-    foregroundColor: Colors.white,
+Widget generateQRImage({required String assetID, double? size}) {
+  return Hero(
+    tag: assetID,
+    child: QrImageView(
+      size: size,
+      data: assetID,
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.white,
+    ),
   );
+}
+
+int compareValues(double? a, double? b, {bool descending = false}) {
+  if (a == null && b == null) return 0;
+  if (a == null) return descending ? 1 : -1;
+  if (b == null) return descending ? -1 : 1;
+  return a.compareTo(b) * (descending ? -1 : 1);
+}
+
+int compareDates(DateTime? a, DateTime? b, {bool descending = false}) {
+  if (a == null && b == null) return 0;
+  if (a == null) return descending ? 1 : -1;
+  if (b == null) return descending ? -1 : 1;
+  return a.compareTo(b) * (descending ? -1 : 1);
+}
+
+int compareStrings(String? a, String? b, {bool descending = false}) {
+  if (a == null && b == null) return 0;
+  if (a == null) return descending ? 1 : -1;
+  if (b == null) return descending ? -1 : 1;
+  return a.compareTo(b) * (descending ? -1 : 1);
 }
 
 void showErrorAndStacktrace(Object e, StackTrace? st) {

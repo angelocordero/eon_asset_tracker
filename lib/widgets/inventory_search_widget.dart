@@ -43,28 +43,32 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
 
   ElevatedButton _searchButton(WidgetRef ref) {
     return ElevatedButton(
-      onPressed: () {
-        InventorySearchFilter filter = ref.read(searchFilterProvider);
-
-        if (filter == InventorySearchFilter.assetID ||
-            filter == InventorySearchFilter.itemName ||
-            filter == InventorySearchFilter.personAccountable ||
-            filter == InventorySearchFilter.unit ||
-            filter == InventorySearchFilter.itemDescription ||
-            filter == InventorySearchFilter.remarks) {
-          ref.read(searchQueryProvider.notifier).state = widget.controller.text.trim();
-        }
-
-        ref.read(currentInventoryPage.notifier).state = 0;
-
-        if (ref.read(searchQueryProvider).trim().isEmpty) {
-          ref.read(inventoryProvider.notifier).initUnfilteredInventory();
-        } else {
-          ref.read(inventoryProvider.notifier).initFilteredInventory(ref.read(searchQueryProvider).trim(), filter);
-        }
+      onPressed: () async {
+        await _search();
       },
       child: const Text('Search'),
     );
+  }
+
+  Future<void> _search() async {
+    InventorySearchFilter filter = ref.read(searchFilterProvider);
+
+    if (filter == InventorySearchFilter.assetID ||
+        filter == InventorySearchFilter.itemName ||
+        filter == InventorySearchFilter.personAccountable ||
+        filter == InventorySearchFilter.unit ||
+        filter == InventorySearchFilter.itemDescription ||
+        filter == InventorySearchFilter.remarks) {
+      ref.read(searchQueryProvider.notifier).state = widget.controller.text.trim();
+    }
+
+    ref.read(currentInventoryPage.notifier).state = 0;
+
+    if (ref.read(searchQueryProvider).trim().isEmpty) {
+      await ref.read(inventoryProvider.notifier).initUnfilteredInventory();
+    } else {
+      await ref.read(inventoryProvider.notifier).initFilteredInventory(ref.read(searchQueryProvider).trim(), filter);
+    }
   }
 
   SizedBox _searchByDropdown(WidgetRef ref) {
@@ -198,6 +202,9 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
     return SizedBox(
       width: 200,
       child: TextField(
+        onSubmitted: (value) {
+          _search();
+        },
         controller: widget.controller,
         decoration: const InputDecoration(
           prefixIcon: Icon(

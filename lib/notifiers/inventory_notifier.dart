@@ -19,6 +19,86 @@ class InventoryNotifier extends StateNotifier<Inventory> {
 
   get isLoading => _isLoading;
 
+  void sortTable(TableSort tableSort) {
+    Columns? column = tableSort.$1;
+    Sort? sort = tableSort.$2;
+
+    switch (column) {
+      case Columns.assetID:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => a.assetID.compareTo(b.assetID));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => b.assetID.compareTo(a.assetID));
+        }
+        break;
+      case Columns.itemName:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => a.name.compareTo(b.name));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => b.name.compareTo(a.name));
+        }
+
+      case Columns.departmentName:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => a.department.departmentName.compareTo(b.department.departmentName));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => b.department.departmentName.compareTo(a.department.departmentName));
+        }
+
+      case Columns.personAccountable:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => compareStrings(a.personAccountable, b.personAccountable, descending: false));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => compareStrings(a.personAccountable, b.personAccountable, descending: true));
+        }
+
+      case Columns.category:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => a.category.categoryName.compareTo(b.category.categoryName));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => b.category.categoryName.compareTo(a.category.categoryName));
+        }
+
+      case Columns.status:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => a.status.name.compareTo(b.status.name));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => b.status.name.compareTo(a.status.name));
+        }
+
+      case Columns.unit:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => compareStrings(a.unit, b.unit, descending: false));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => compareStrings(a.unit, b.unit, descending: true));
+        }
+
+      case Columns.price:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => compareValues(a.price, b.price, descending: false));
+        } else {
+          state.items.sort((a, b) => compareValues(a.price, b.price, descending: true));
+        }
+
+      case Columns.datePurchased:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => compareDates(a.datePurchased, b.datePurchased, descending: false));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => compareDates(a.datePurchased, b.datePurchased, descending: true));
+        }
+
+      case Columns.dateReceived:
+        if (sort == Sort.ascending) {
+          state.items.sort((a, b) => a.dateReceived.compareTo(b.dateReceived));
+        } else if (sort == Sort.descending) {
+          state.items.sort((a, b) => b.dateReceived.compareTo(a.dateReceived));
+        }
+      default:
+    }
+
+    state = state.copyWith(items: state.items);
+  }
+
   Future<void> initUnfilteredInventory() async {
     _isLoading = true;
 

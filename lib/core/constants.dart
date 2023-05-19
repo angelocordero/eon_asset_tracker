@@ -23,6 +23,8 @@ enum ItemStatus {
   Defective,
 }
 
+typedef TableSort = (Columns?, Sort?);
+
 BorderRadius defaultBorderRadius = BorderRadius.circular(8);
 
 int itemsPerPage = 50;
@@ -50,4 +52,22 @@ enum InventorySearchFilter {
   status,
   department,
   category,
+}
+
+enum Columns {
+  assetID,
+  itemName,
+  departmentName,
+  personAccountable,
+  category,
+  status,
+  unit,
+  price,
+  datePurchased,
+  dateReceived,
+}
+
+enum Sort {
+  ascending,
+  descending,
 }

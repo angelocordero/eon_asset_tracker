@@ -12,6 +12,10 @@ import '../models/inventory_model.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 
+final tableSortingProvider = StateProvider<TableSort>((ref) {
+  return (null, null);
+});
+
 final userProvider = StateProvider<User?>((ref) => null);
 
 final departmentsProvider = StateProvider<List<Department>>((ref) => []);
