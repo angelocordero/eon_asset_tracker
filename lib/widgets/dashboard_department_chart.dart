@@ -9,8 +9,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<Map<String, dynamic>> departmentsData =
-        ref.watch(dashboardDataProvider).departmentsDashboardData;
+    List<Map<String, dynamic>> departmentsData = ref.watch(dashboardDataProvider).departmentsDashboardData;
     List<Department> departments = ref.watch(departmentsProvider);
 
     return Padding(
@@ -19,7 +18,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'Items per Department',
+            'I T E M S   P E R   D E P A R T M E N T',
             style: TextStyle(fontSize: 20),
           ),
           const SizedBox(
@@ -50,7 +49,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
       double elementCount = (element['count'] as int).toDouble();
 
       if (elementCount > max) {
-        max = elementCount * 1.3;
+        max = elementCount * 1.5;
       }
     }
 
@@ -96,8 +95,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
     );
   }
 
-  List<BarChartGroupData> barGroups(
-      List<Map<String, dynamic>> departmentsData) {
+  List<BarChartGroupData> barGroups(List<Map<String, dynamic>> departmentsData) {
     return departmentsData.map((entry) {
       return BarChartGroupData(
         x: entry['index'],

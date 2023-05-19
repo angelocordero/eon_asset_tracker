@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
@@ -5,16 +8,19 @@ import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/pdf/report_pdf.dart';
 import 'package:eon_asset_tracker/screens/add_item_screen.dart';
 import 'package:eon_asset_tracker/screens/edit_item_screen.dart';
+import 'package:eon_asset_tracker/widgets/admin_password_prompt.dart';
 import 'package:eon_asset_tracker/widgets/item_info_display.dart';
-import 'package:eon_asset_tracker/widgets/search_widget.dart';
+import 'package:eon_asset_tracker/widgets/inventory_search_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 
 import '../models/item_model.dart';
+import '../models/user_model.dart';
 import '../pdf/qr_code_pdf.dart';
 import '../widgets/inventory_checkbox.dart';
 
@@ -22,23 +28,23 @@ class InventoryTab extends ConsumerWidget {
   const InventoryTab({super.key});
 
   static final List<String> columns = [
-    'Asset ID',
-    'Item Name',
-    'Department',
-    'Person Accountable',
-    'Category',
-    'Status',
-    'Unit',
-    'Price',
-    'Date Purchased',
-    'Date Received',
+    'A S S E T   I D',
+    'I T E M   N A M E',
+    'D E P A R T M E N T',
+    'P E R S O N\nA C C O U N T A B L E',
+    'C A T E G O R Y',
+    'S T A T U S',
+    'U N I T',
+    'P R I C E',
+    'D A T E\nP U R C H A S E D',
+    'D A T E\nR E C E I V E D',
   ];
 
   static final _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<Item> rows = ref.watch(inventoryProvider);
+    List<Item> rows = ref.watch(inventoryProvider).items;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
@@ -91,7 +97,10 @@ class InventoryTab extends ConsumerWidget {
                 ),
                 columnsLength: columns.length,
                 rowsLength: rows.length,
-                columnsTitleBuilder: (i) => Text(columns[i]),
+                columnsTitleBuilder: (i) => Text(
+                  columns[i],
+                  textAlign: TextAlign.center,
+                ),
                 rowsTitleBuilder: (j) {
                   Item item = rows[j];
 
@@ -114,7 +123,7 @@ class InventoryTab extends ConsumerWidget {
 
                   switch (i) {
                     case 0:
-                      return tableDataTile(item.assetID, selected);
+                      return copyableTableDataTile(item.assetID, selected);
                     case 1:
                       return tableDataTile(item.name, selected);
                     case 2:
@@ -126,13 +135,13 @@ class InventoryTab extends ConsumerWidget {
                     case 5:
                       return tableDataTile(item.status.name, selected);
                     case 6:
-                      return tableDataTile(item.unit, selected);
+                      return tableDataTile(item.unit ?? '', selected);
                     case 7:
                       return tableDataTile(priceToString(item.price), selected);
                     case 8:
-                      return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!.toLocal()), selected);
+                      return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!), selected);
                     case 9:
-                      return tableDataTile(dateToString(item.dateReceived.toLocal()), selected);
+                      return tableDataTile(dateToString(item.dateReceived), selected);
 
                     default:
                       return Container();
@@ -171,6 +180,34 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
+  Widget copyableTableDataTile(String text, bool selected) {
+    return Container(
+      color: selected ? Colors.blueGrey : Colors.transparent,
+      child: ListTile(
+        trailing: Tooltip(
+          message: 'Copy Asset ID',
+          child: IconButton(
+            icon: const Icon(Icons.copy),
+            iconSize: 15,
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: text));
+              EasyLoading.showInfo('Asset ID copied to clipboard');
+            },
+          ),
+        ),
+        horizontalTitleGap: 0,
+        title: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+        selectedTileColor: Colors.blueGrey,
+        selectedColor: Colors.white,
+      ),
+    );
+  }
+
   Future<dynamic> showDeleteDialog(
     BuildContext context,
     WidgetRef ref,
@@ -189,26 +226,36 @@ class InventoryTab extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () async {
-                EasyLoading.show();
+                User? user = await ref.read(userProvider);
 
-                String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
+                if (user == null) return;
 
-                if (selectedAssetID == null) return;
+                await adminCheck(
+                  context: context,
+                  user: user,
+                  callback: () async {
+                    EasyLoading.show();
 
-                try {
-                  await DatabaseAPI.delete(conn: ref.read(sqlConnProvider), assetID: selectedAssetID);
-                  EasyLoading.dismiss();
-                } catch (e) {
-                  EasyLoading.showError(e.toString());
-                  return;
-                }
+                    String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
 
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context);
+                    if (selectedAssetID == null) return;
 
-                await ref.read(inventoryProvider.notifier).refresh();
+                    try {
+                      await DatabaseAPI.deleteItem(selectedAssetID);
+                      EasyLoading.dismiss();
+                    } catch (e) {
+                      EasyLoading.showError(e.toString());
+                      return;
+                    }
 
-                await ref.read(dashboardDataProvider.notifier).refresh();
+                    Navigator.pop(context);
+
+                    await ref.read(inventoryProvider.notifier).refresh();
+                    ref.read(currentInventoryPage.notifier).state = 0;
+
+                    await ref.read(dashboardDataProvider.notifier).refresh();
+                  },
+                );
               },
               child: const Text('Confirm'),
             ),
@@ -249,44 +296,55 @@ class InventoryTab extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        SearchWidget(controller: _searchController),
+        InventorySearchWidget(controller: _searchController),
         const Spacer(),
         Tooltip(
           message: 'Generate Report',
           child: IconButton.outlined(
             onPressed: () async {
-              int itemLength = ref.read(inventoryProvider).length;
+              EasyLoading.show();
 
-              if (itemLength == 0) return;
+              List<Item> items = [];
 
-              await showReportDialog(
-                context,
-                itemLength,
-                () async {
+              try {
+                items = await DatabaseAPI.getItemsForReport(
+                  query: ref.read(searchQueryProvider),
+                  filter: ref.read(searchFilterProvider),
+                );
 
+                if (items.isNotEmpty) {
+                  EasyLoading.dismiss();
+                } else {
+                  return Future.error('Error in generating report');
+                }
 
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return Scaffold(
-                          appBar: AppBar(
-                            title: const Text('Print QR Code'),
-                          ),
-                          body: PdfPreview(
-                            build: (format) async => await ReportPDF(
-                              inventoryItems: ref.read(inventoryProvider),
-                              departments: ref.read(departmentsProvider),
-                              categories: ref.read(categoriesProvider),
-                            ).generate(),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              );
+                await showReportDialog(
+                  context,
+                  items.length,
+                  () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return Scaffold(
+                            appBar: AppBar(
+                              title: const Text('Print Report'),
+                            ),
+                            body: PdfPreview(
+                              build: (format) async => await ReportPDF(
+                                inventoryItems: items,
+                              ).generate(),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              } catch (e, st) {
+                showErrorAndStacktrace(e, st);
+                return;
+              }
             },
             icon: const Icon(Icons.print),
           ),
@@ -301,8 +359,9 @@ class InventoryTab extends ConsumerWidget {
               }
 
               List<Item> items = ref.read(checkedItemProvider).map((entry) {
-                return ref.read(inventoryProvider).firstWhere((element) => element.assetID == entry);
+                return ref.read(inventoryProvider).items.firstWhere((element) => element.assetID == entry);
               }).toList();
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -332,9 +391,10 @@ class InventoryTab extends ConsumerWidget {
             onPressed: () {
               ref.read(checkedItemProvider.notifier).state = [];
               ref.read(inventoryProvider.notifier).refresh();
+              ref.read(currentInventoryPage.notifier).state = 0;
 
               _searchController.clear();
-              ref.read(searchQueryProvider.notifier).state = 'Asset ID';
+              ref.read(searchFilterProvider.notifier).state = InventorySearchFilter.assetID;
             },
             icon: const Icon(Icons.refresh),
           ),
@@ -354,18 +414,28 @@ class InventoryTab extends ConsumerWidget {
         Tooltip(
           message: 'Edit selected item',
           child: IconButton.outlined(
-            onPressed: () {
-              Item? item = ref.read(selectedItemProvider);
+            onPressed: () async {
+              Item? item = await ref.read(selectedItemProvider);
 
               if (item == null) return;
 
-              Navigator.push(
-                context,
-                CustomRoute(
-                  builder: (context) {
-                    return EditItemScreen(item: item);
-                  },
-                ),
+              User? user = await ref.read(userProvider);
+
+              if (user == null) return;
+
+              await adminCheck(
+                context: context,
+                user: user,
+                callback: () async {
+                  await Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        return EditItemScreen(item: item);
+                      },
+                    ),
+                  );
+                },
               );
             },
             icon: const Icon(Icons.edit),
@@ -374,14 +444,24 @@ class InventoryTab extends ConsumerWidget {
         Tooltip(
           message: 'Add new item',
           child: IconButton.outlined(
-            onPressed: () {
-              Navigator.push(
-                context,
-                CustomRoute(
-                  builder: (context) {
-                    return const AddItemScreen();
-                  },
-                ),
+            onPressed: () async {
+              User? user = await ref.read(userProvider);
+
+              if (user == null) return;
+
+              await adminCheck(
+                context: context,
+                user: user,
+                callback: () async {
+                  await Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        return const AddItemScreen();
+                      },
+                    ),
+                  );
+                },
               );
             },
             icon: const Icon(Icons.add),
@@ -389,5 +469,35 @@ class InventoryTab extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Future<void> adminCheck({required BuildContext context, required User user, required AsyncCallback callback}) async {
+    if (!user.isAdmin) {
+      Navigator.push(
+        context,
+        CustomRoute(
+          builder: (context) {
+            final TextEditingController controller = TextEditingController();
+
+            return AdminPasswordPrompt(
+              controller: controller,
+              callback: () async {
+                bool admin = await DatabaseAPI.getAdminPassword(controller.text.trim());
+
+                if (admin) {
+                  Navigator.pop(context);
+
+                  await callback();
+                } else {
+                  EasyLoading.showError('Wrong admin password');
+                }
+              },
+            );
+          },
+        ),
+      );
+    } else {
+      await callback();
+    }
   }
 }

@@ -25,7 +25,7 @@ class DashboardStatusChart extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Status',
+                'S T A T U S   B R E A K D O W N',
                 style: TextStyle(fontSize: 20),
               ),
               const SizedBox(
@@ -56,8 +56,7 @@ class DashboardStatusChart extends ConsumerWidget {
 
   List<PieChartSectionData> _data(DashboardData dashboardData) {
     return dashboardData.statusDashboardData.entries.map((entry) {
-      String percentage =
-          '${(entry.value / dashboardData.totalItems * 100).toStringAsFixed(0)}%';
+      String percentage = '${(entry.value / dashboardData.totalItems * 100).toStringAsFixed(0)}%';
 
       return PieChartSectionData(
         value: entry.value.toDouble(),

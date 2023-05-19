@@ -5,15 +5,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.controller});
 
-  static final _controller = SidebarXController(selectedIndex: 0);
+  final SidebarXController controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(dashboardDataProvider.notifier).init();
+
+    if (ref.read(userProvider)?.isAdmin ?? false) {
+      ref.read(adminPanelProvider.notifier).init();
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Eon Asset Tracker | ${ref.watch(appbarTitleProvider)}'),
+        title: Text('EON ASSET TRACKER  |  ${ref.watch(appbarTitleProvider)}'),
         actions: [
           Center(
             child: Row(
@@ -40,7 +46,7 @@ class HomeScreen extends ConsumerWidget {
       body: Row(
         children: [
           SidebarX(
-            controller: _controller,
+            controller: controller,
             theme: const SidebarXTheme(
               itemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
               selectedItemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
@@ -66,7 +72,10 @@ class HomeScreen extends ConsumerWidget {
                       ? ListTile(
                           title: const SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: Text('Log Out'),
+                            child: Text(
+                              'L O G   O U T',
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
                           leading: const Icon(Icons.logout),
                           onTap: () {
@@ -86,22 +95,31 @@ class HomeScreen extends ConsumerWidget {
             items: [
               SidebarXItem(
                 icon: Icons.home,
-                label: 'Home',
+                label: 'H O M E',
                 onTap: () {
-                  ref.read(appbarTitleProvider.notifier).state = 'Home';
+                  ref.read(appbarTitleProvider.notifier).state = 'HOME';
                 },
               ),
               SidebarXItem(
                 icon: Icons.inventory_2,
-                label: 'Inventory',
+                label: 'I N V E N T O R Y',
+                // label: 'INVENTORY',
                 onTap: () {
-                  ref.read(appbarTitleProvider.notifier).state = 'Inventory';
+                  ref.read(appbarTitleProvider.notifier).state = 'INVENTORY';
                 },
               ),
+              if (ref.watch(userProvider)?.isAdmin ?? false)
+                SidebarXItem(
+                  icon: Icons.admin_panel_settings,
+                  label: 'A D M I N',
+                  onTap: () {
+                    ref.read(appbarTitleProvider.notifier).state = 'ADMIN PANEL';
+                  },
+                ),
             ],
           ),
           Expanded(
-            child: TabSwitcher(controller: _controller),
+            child: TabSwitcher(controller: controller),
           )
         ],
       ),

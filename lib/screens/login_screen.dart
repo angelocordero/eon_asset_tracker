@@ -1,9 +1,10 @@
+import 'package:eon_asset_tracker/core/database_api.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql_client/mysql_client.dart';
+import 'package:sidebarx/sidebarx.dart';
 
 import '../models/user_model.dart';
 
@@ -26,7 +27,7 @@ class LoginScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('User Login'),
+                const Text('U S E R   L O G I N'),
                 const SizedBox(
                   height: 20,
                 ),
@@ -39,10 +40,11 @@ class LoginScreen extends ConsumerWidget {
                   height: 20,
                 ),
                 ElevatedButton(
-                    onPressed: () async {
-                      await authenticate(context, ref);
-                    },
-                    child: const Text('Login')),
+                  onPressed: () async {
+                    await authenticate(context, ref);
+                  },
+                  child: const Text('Login'),
+                ),
               ],
             ),
           ),
@@ -102,20 +104,13 @@ class LoginScreen extends ConsumerWidget {
   Future<void> authenticate(BuildContext context, WidgetRef ref) async {
     EasyLoading.show();
 
-    MySqlConnection? conn = ref.read(sqlConnProvider);
-
     String username = usernameController.text.trim();
     String passwordHash = hashPassword(passwordController.text.trim());
-
-    if (conn == null) {
-      EasyLoading.showError('connection to database failed');
-      return;
-    }
 
     User? user;
 
     try {
-      user = await authenticateUser(username, passwordHash, conn);
+      user = await DatabaseAPI.authenticateUser(ref, username, passwordHash);
     } catch (e) {
       debugPrint(e.toString());
       EasyLoading.showError(e.toString());
@@ -128,10 +123,10 @@ class LoginScreen extends ConsumerWidget {
 
     ref.read(userProvider.notifier).state = user;
 
+    ref.read(sidebarControllerProvider.notifier).state = SidebarXController(selectedIndex: 0);
+
     await EasyLoading.dismiss();
     // ignore: use_build_context_synchronously
-    Navigator.pushReplacementNamed(context, 'home');
-    ref.read(dashboardDataProvider.notifier).init();
-    ref.read(inventoryProvider.notifier).init(0);
+    await Navigator.pushReplacementNamed(context, 'home');
   }
 }

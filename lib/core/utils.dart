@@ -1,20 +1,18 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-import 'package:mysql_client/mysql_client.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
-import '../models/user_model.dart';
 
 String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
 }
 
-String generateItemID() {
+String generateRandomID() {
   String eonCustomAlphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   String randomID1 = customAlphabet(eonCustomAlphabet, 5);
@@ -22,36 +20,6 @@ String generateItemID() {
   String randomID3 = customAlphabet(eonCustomAlphabet, 5);
 
   return '$randomID1-$randomID2-$randomID3';
-}
-
-Future<User?> authenticateUser(String username, String passwordHash, MySqlConnection? conn) async {
-  if (conn == null) return null;
-
-  try {
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    IResultSet results = await conn.query('SELECT * FROM `users` WHERE `username`=? and `password_hash`=?', [username, passwordHash]);
-
-    if (results.isNotEmpty) {
-      ResultSetRow row = results.rows.first;
-
-      return row
-          .map(
-            (element) => User(
-              userID: row.typedColByName<String>('user_id')!,
-              username: row.typedColByName<String>('username')!,
-              isAdmin: row.typedColByName<int>('is_enabled')! == 1 ? true : false,
-            ),
-          )
-          .first;
-    } else {
-      return null;
-    }
-  } catch (e) {
-    debugPrint(e.toString());
-    EasyLoading.showError(e.toString());
-    return Future.error('');
-  }
 }
 
 String dateToString(DateTime dateTime) {
@@ -73,4 +41,83 @@ QrImageView generateQRImage({required String assetID, double? size}) {
     backgroundColor: Colors.transparent,
     foregroundColor: Colors.white,
   );
+}
+
+void showErrorAndStacktrace(Object e, StackTrace? st) {
+  // if (e.toString().contains('didChangeDependency')) {
+  //   EasyLoading.dismiss();
+  // } else {
+  // }
+
+  EasyLoading.showError(e.toString());
+  debugPrint(e.toString());
+  debugPrintStack(label: e.toString(), stackTrace: st);
+}
+
+String? inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
+  switch (filter) {
+    case InventorySearchFilter.assetID:
+      return 'asset_id';
+
+    case InventorySearchFilter.itemName:
+      return 'item_name';
+
+    case InventorySearchFilter.personAccountable:
+      return 'person_accountable';
+
+    case InventorySearchFilter.unit:
+      return 'unit';
+
+    case InventorySearchFilter.itemDescription:
+      return 'item_description';
+
+    case InventorySearchFilter.remarks:
+      return 'remarks';
+
+    case InventorySearchFilter.status:
+      return 'status';
+
+    case InventorySearchFilter.department:
+      return 'department_id';
+
+    case InventorySearchFilter.category:
+      return 'category_id';
+
+    default:
+      return null;
+  }
+}
+
+String? inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
+  switch (filter) {
+    case InventorySearchFilter.assetID:
+      return 'Asset ID';
+
+    case InventorySearchFilter.itemName:
+      return 'Item Name';
+
+    case InventorySearchFilter.personAccountable:
+      return 'Person Accountable';
+
+    case InventorySearchFilter.unit:
+      return 'Unit';
+
+    case InventorySearchFilter.itemDescription:
+      return 'Item Description';
+
+    case InventorySearchFilter.remarks:
+      return 'Remarks';
+
+    case InventorySearchFilter.status:
+      return 'Status';
+
+    case InventorySearchFilter.department:
+      return 'Department';
+
+    case InventorySearchFilter.category:
+      return 'Category';
+
+    default:
+      return null;
+  }
 }
