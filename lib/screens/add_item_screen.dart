@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
@@ -8,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql_client/mysql_client.dart';
 
 import '../core/database_api.dart';
 import '../models/category_model.dart';
@@ -123,34 +120,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      for (int i = 0; i < 300; i++) {
-                        Item item = Item.toDatabase(
-                          personAccountable: _personAccountableController.text.trim(),
-                          department: ref.read(departmentsProvider)[Random().nextInt(ref.read(departmentsProvider).length)],
-                          name: i.toString(),
-                          description: _itemDescriptionController.text.trim(),
-                          unit: _unitController.text.trim(),
-                          price: _isPurchased
-                              ? _priceController.text.trim().isEmpty
-                                  ? 0
-                                  : double.tryParse(_priceController.text.trim())
-                              : null,
-                          datePurchased: _isPurchased ? _datePurchased : null,
-                          dateReceived: _dateReceived,
-                          status: ItemStatus.values[Random().nextInt(ItemStatus.values.length)],
-                          category: ref.read(categoriesProvider)[Random().nextInt(ref.read(categoriesProvider).length)],
-                          remarks: _remarksController.text.trim(),
-                          categories: ref.read(categoriesProvider),
-                          departments: ref.read(departmentsProvider),
-                        );
-
-                        await DatabaseAPI.add(conn: ref.read(sqlConnProvider)!, item: item);
-                      }
-                    },
-                    child: const Text('Aasdasdsad'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
                       if (_nameController.text.trim().isEmpty) {
                         EasyLoading.showError(
                           'Required fields must not be empty',
@@ -158,10 +127,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                         return;
                       }
-
-                      MySqlConnection? conn = ref.read(sqlConnProvider);
-
-                      if (conn == null) return;
 
                       EasyLoading.show();
 
@@ -185,20 +150,21 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         departments: ref.read(departmentsProvider),
                       );
                       try {
-                        await DatabaseAPI.add(conn: ref.read(sqlConnProvider)!, item: item);
+                        await DatabaseAPI.addItem(item: item);
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);
 
                         EasyLoading.dismiss();
-                      } catch (e) {
-                        EasyLoading.showError(e.toString());
+
+                        ref.read(inventoryProvider.notifier).refresh();
+                        ref.read(currentInventoryPage.notifier).state = 0;
+
+                        ref.read(dashboardDataProvider.notifier).refresh();
+                      } catch (e, st) {
+                        showErrorAndStacktrace(e, st);
                         return;
                       }
-
-                      await ref.read(inventoryProvider.notifier).refresh();
-
-                      await ref.read(dashboardDataProvider.notifier).refresh();
                     },
                     child: const Text('Apply'),
                   ),
@@ -266,6 +232,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 45,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _nameController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
@@ -285,6 +253,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         SizedBox(
           width: 500,
           child: TextField(
+            maxLength: 250,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _itemDescriptionController,
             maxLines: 8,
             minLines: 4,
@@ -305,6 +275,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         SizedBox(
           width: 500,
           child: TextField(
+            maxLength: 250,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _remarksController,
             maxLines: 8,
             minLines: 4,
@@ -365,6 +337,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 45,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _personAccountableController,
           ),
         ),
@@ -527,6 +501,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _unitController,
           ),
         ),

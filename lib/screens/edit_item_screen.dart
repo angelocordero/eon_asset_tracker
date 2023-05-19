@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mysql_client/mysql_client.dart';
 
 import '../models/category_model.dart';
 import '../models/item_model.dart';
@@ -39,7 +38,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     _nameController = TextEditingController.fromValue(TextEditingValue(text: widget.item.name));
     _personAccountableController = TextEditingController.fromValue(TextEditingValue(text: widget.item.personAccountable ?? ''));
     _priceController = TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
-    _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit));
+    _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit ?? ''));
     _itemDescriptionController = TextEditingController.fromValue(TextEditingValue(text: widget.item.description ?? ''));
     _remarksController = TextEditingController.fromValue(TextEditingValue(text: widget.item.remarks ?? ''));
 
@@ -122,10 +121,6 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         return;
                       }
 
-                      MySqlConnection? conn = ref.read(sqlConnProvider);
-
-                      if (conn == null) return;
-
                       EasyLoading.show();
 
                       Item newItem = widget.item.copyWith(
@@ -144,20 +139,20 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                       );
 
                       try {
-                        await DatabaseAPI.update(conn: conn, item: newItem);
+                        await DatabaseAPI.updateItem(newItem);
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);
 
                         EasyLoading.dismiss();
-                      } catch (e) {
-                        EasyLoading.showError(e.toString());
+
+                        ref.read(inventoryProvider.notifier).refresh();
+                        ref.read(currentInventoryPage.notifier).state = 0;
+                        ref.read(dashboardDataProvider.notifier).refresh();
+                      } catch (e, st) {
+                        showErrorAndStacktrace(e, st);
                         return;
                       }
-
-                      await ref.read(inventoryProvider.notifier).refresh();
-
-                      await ref.read(dashboardDataProvider.notifier).refresh();
                     },
                     child: const Text('Update'),
                   ),
@@ -225,6 +220,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 45,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _nameController,
             decoration: const InputDecoration(hintText: '(required)'),
           ),
@@ -244,6 +241,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 500,
           child: TextField(
+            maxLength: 250,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _itemDescriptionController,
             maxLines: 8,
             minLines: 4,
@@ -264,6 +263,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 500,
           child: TextField(
+            maxLength: 250,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _remarksController,
             maxLines: 8,
             minLines: 4,
@@ -324,6 +325,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 45,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _personAccountableController,
           ),
         ),
@@ -486,6 +489,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 300,
           child: TextField(
+            maxLength: 30,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _unitController,
           ),
         ),

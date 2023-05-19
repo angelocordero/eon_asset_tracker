@@ -2,39 +2,31 @@
 class ItemCategory {
   String categoryID;
   String categoryName;
-  bool isEnabled;
   ItemCategory({
     required this.categoryID,
     required this.categoryName,
-    required this.isEnabled,
   });
 
   ItemCategory copyWith({
     String? categoryID,
     String? categoryName,
-    bool? isEnabled,
   }) {
     return ItemCategory(
       categoryID: categoryID ?? this.categoryID,
       categoryName: categoryName ?? this.categoryName,
-      isEnabled: isEnabled ?? this.isEnabled,
     );
   }
 
   @override
-  String toString() =>
-      'Category(categoryID: $categoryID, categorName: $categoryName, isEnabled: $isEnabled)';
+  String toString() => 'Category(categoryID: $categoryID, categorName: $categoryName)';
 
   @override
   bool operator ==(covariant ItemCategory other) {
     if (identical(this, other)) return true;
 
-    return other.categoryID == categoryID &&
-        other.categoryName == categoryName &&
-        other.isEnabled == isEnabled;
+    return other.categoryID == categoryID && other.categoryName == categoryName;
   }
 
   @override
-  int get hashCode =>
-      categoryID.hashCode ^ categoryName.hashCode ^ isEnabled.hashCode;
+  int get hashCode => categoryID.hashCode ^ categoryName.hashCode;
 }

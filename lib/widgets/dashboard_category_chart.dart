@@ -10,8 +10,7 @@ class DashboardCategoryChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<Map<String, dynamic>> categoriesData =
-        ref.watch(dashboardDataProvider).categoriesDashbordData;
+    List<Map<String, dynamic>> categoriesData = ref.watch(dashboardDataProvider).categoriesDashbordData;
 
     List<ItemCategory> categories = ref.watch(categoriesProvider);
 
@@ -21,7 +20,7 @@ class DashboardCategoryChart extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'Items per Category',
+            'I T E M S   P E R   C A T E G O R Y',
             style: TextStyle(fontSize: 20),
           ),
           const SizedBox(
@@ -52,15 +51,14 @@ class DashboardCategoryChart extends ConsumerWidget {
       double elementCount = (element['count'] as int).toDouble();
 
       if (elementCount > max) {
-        max = elementCount * 1.3;
+        max = elementCount * 1.5;
       }
     }
 
     return max.toDouble();
   }
 
-  Widget getTitles(
-      double value, TitleMeta meta, List<ItemCategory> categories) {
+  Widget getTitles(double value, TitleMeta meta, List<ItemCategory> categories) {
     const style = TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 14,

@@ -11,7 +11,7 @@ class Item {
   String? personAccountable;
   String name;
   String? description;
-  String unit;
+  String? unit;
   double? price;
   DateTime? datePurchased;
   DateTime dateReceived;
@@ -25,7 +25,7 @@ class Item {
     this.personAccountable,
     required this.name,
     this.description,
-    required this.unit,
+    this.unit,
     this.price,
     this.datePurchased,
     required this.dateReceived,
@@ -33,20 +33,6 @@ class Item {
     required this.category,
     this.remarks,
   });
-
-  // Item.toDatabase({
-  //   required this.department,
-  //   this.personAccountable,
-  //   required this.name,
-  //   this.description,
-  //   required this.unit,
-  //   this.price,
-  //   this.datePurchased,
-  //   required this.dateReceived,
-  //   required this.status,
-  //   required this.category,
-  //   this.remarks,
-  // }) : assetID = generateItemID();
 
   factory Item.toDatabase({
     required Department department,
@@ -64,7 +50,7 @@ class Item {
     required List<Department> departments,
   }) {
     return Item(
-      assetID: generateItemID(),
+      assetID: generateRandomID(),
       department: department,
       personAccountable: personAccountable,
       name: name,
@@ -81,22 +67,25 @@ class Item {
 
   factory Item.fromDatabase({
     required ResultSetRow row,
-    required List<ItemCategory> categories,
-    required List<Department> departments,
   }) {
+    Department department =
+        Department(departmentID: row.typedColByName<String>('department_id')!, departmentName: row.typedColByName<String>('department_name')!);
+    ItemCategory category =
+        ItemCategory(categoryID: row.typedColByName<String>('category_id')!, categoryName: row.typedColByName<String>('category_name')!);
+
     return Item(
-      assetID: row[0],
-      department: departments.firstWhere((element) => element.departmentID == row[1]),
-      personAccountable: row[2],
-      name: row[3],
-      description: row[4],
-      unit: row[5],
-      price: row[6],
-      datePurchased: row[7] == null ? null : (row[7] as DateTime),
-      dateReceived: (row[8] as DateTime).toLocal(),
-      status: ItemStatus.values.byName(row[9]),
-      category: categories.firstWhere((element) => element.categoryID == row[10]),
-      remarks: row[11],
+      assetID: row.typedColByName<String>('asset_id')!,
+      department: department,
+      personAccountable: row.colByName('person_accountable'),
+      name: row.typedColByName<String>('item_name')!,
+      description: row.colByName('item_description'),
+      unit: row.colByName('unit'),
+      price: row.colByName('price') == null ? null : double.tryParse((row.colByName('price')) as String),
+      dateReceived: DateTime.parse(row.colByName('date_received').toString()),
+      datePurchased: row.colByName('date_purchased') == null ? null : DateTime.tryParse((row.colByName('date_purchased') as String))!,
+      status: ItemStatus.values.byName(row.typedColByName<String>('status')!),
+      remarks: row.colByName('remarks'),
+      category: category,
     );
   }
 
