@@ -1,12 +1,16 @@
-import 'package:eon_asset_tracker/core/custom_route.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/widgets/pagination_navigator.dart';
-import 'package:eon_asset_tracker/widgets/qr_code_display.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
+import '../core/custom_route.dart';
+import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/item_model.dart';
+import 'pagination_navigator.dart';
+import 'qr_code_display.dart';
 
 class ItemInfoDisplay extends ConsumerWidget {
   const ItemInfoDisplay({super.key});

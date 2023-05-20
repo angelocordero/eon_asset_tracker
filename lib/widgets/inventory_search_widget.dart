@@ -1,9 +1,13 @@
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
 import '../core/constants.dart';
+import '../core/providers.dart';
+import '../core/utils.dart';
 
 class InventorySearchWidget extends ConsumerStatefulWidget {
   const InventorySearchWidget({super.key, required this.controller});

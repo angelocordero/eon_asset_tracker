@@ -1,9 +1,11 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/database_api.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
 
+// Project imports:
+import '../core/constants.dart';
+import '../core/database_api.dart';
+import '../core/utils.dart';
 import '../models/inventory_model.dart';
 
 class InventoryNotifier extends StateNotifier<Inventory> {

@@ -1,19 +1,23 @@
-import 'package:eon_asset_tracker/core/custom_route.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/models/category_model.dart';
-import 'package:eon_asset_tracker/models/department_model.dart';
-import 'package:eon_asset_tracker/screens/add_user_screen.dart';
-import 'package:eon_asset_tracker/screens/reset_password_screen.dart';
-import 'package:eon_asset_tracker/widgets/admin_panel_prompt.dart';
-import 'package:eon_asset_tracker/widgets/admin_panel_users_list.dart';
-import 'package:eon_asset_tracker/widgets/master_password_prompt.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
+import '../core/custom_route.dart';
 import '../core/database_api.dart';
+import '../core/providers.dart';
+import '../core/utils.dart';
+import '../models/category_model.dart';
+import '../models/department_model.dart';
 import '../models/user_model.dart';
+import '../screens/add_user_screen.dart';
 import '../screens/edit_user_screen.dart';
+import '../screens/reset_password_screen.dart';
+import '../widgets/admin_panel_prompt.dart';
+import '../widgets/admin_panel_users_list.dart';
+import '../widgets/master_password_prompt.dart';
 
 class AdminPanelTab extends ConsumerWidget {
   const AdminPanelTab({super.key});

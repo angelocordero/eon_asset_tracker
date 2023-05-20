@@ -1,6 +1,9 @@
-import 'package:eon_asset_tracker/core/utils.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+// Project imports:
+import '../core/utils.dart';
 
 class QRCodeDisplay extends StatelessWidget {
   const QRCodeDisplay({super.key, required this.assetID});

@@ -1,5 +1,7 @@
+// Flutter imports:
 import 'package:flutter/material.dart';
 
+// Project imports:
 import '../core/constants.dart';
 
 class AdminPanelSearchWidget extends StatefulWidget {

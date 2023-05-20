@@ -1,10 +1,14 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/models/dashboard_model.dart';
-import 'package:fl_chart/fl_chart.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
+import '../core/constants.dart';
+import '../core/providers.dart';
+import '../models/dashboard_model.dart';
 import 'dashboard_chart_legend.dart';
 
 class DashboardStatusChart extends ConsumerWidget {

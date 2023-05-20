@@ -1,15 +1,17 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/models/dashboard_model.dart';
-import 'package:eon_asset_tracker/models/department_model.dart';
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
 
+// Project imports:
 import '../models/category_model.dart';
+import '../models/dashboard_model.dart';
+import '../models/department_model.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/dashboard_notifier.dart';
+import 'constants.dart';
+import 'providers.dart';
+import 'utils.dart';
 
 class DatabaseAPI {
   //! ///////////////////////////////////////////////////

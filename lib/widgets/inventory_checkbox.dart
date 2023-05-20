@@ -1,6 +1,11 @@
-import 'package:eon_asset_tracker/core/providers.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Project imports:
+import '../core/providers.dart';
 
 class InventoryCheckbox extends ConsumerWidget {
   const InventoryCheckbox({

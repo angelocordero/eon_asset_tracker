@@ -1,9 +1,14 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/screens/home_screen.dart';
-import 'package:eon_asset_tracker/screens/login_screen.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sidebarx/sidebarx.dart';
+
+// Project imports:
+import 'core/constants.dart';
+import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
 
 class EonAssetTracker extends StatelessWidget {
   const EonAssetTracker({super.key});

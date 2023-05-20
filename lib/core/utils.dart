@@ -1,12 +1,18 @@
+// Dart imports:
 import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
-import 'package:eon_asset_tracker/core/constants.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
+import 'package:crypto/crypto.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+// Project imports:
+import 'constants.dart';
 
 String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();

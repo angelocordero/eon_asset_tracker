@@ -1,10 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-import 'package:eon_asset_tracker/core/utils.dart';
+// Flutter imports:
 import 'package:flutter/services.dart';
+
+// Package imports:
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+// Project imports:
+import '../core/utils.dart';
 import '../models/item_model.dart';
 
 class ReportPDF {

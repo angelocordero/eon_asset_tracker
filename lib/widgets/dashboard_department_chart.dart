@@ -1,8 +1,13 @@
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/models/department_model.dart';
-import 'package:fl_chart/fl_chart.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Project imports:
+import '../core/providers.dart';
+import '../models/department_model.dart';
 
 class DashboardDepartmentChart extends ConsumerWidget {
   const DashboardDepartmentChart({super.key});

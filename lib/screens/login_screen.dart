@@ -1,11 +1,15 @@
-import 'package:eon_asset_tracker/core/database_api.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+// Project imports:
+import '../core/database_api.dart';
+import '../core/providers.dart';
+import '../core/utils.dart';
 import '../models/user_model.dart';
 
 class LoginScreen extends ConsumerWidget {

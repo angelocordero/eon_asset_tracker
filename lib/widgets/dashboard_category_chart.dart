@@ -1,8 +1,12 @@
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:fl_chart/fl_chart.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
+import '../core/providers.dart';
 import '../models/category_model.dart';
 
 class DashboardCategoryChart extends ConsumerWidget {

@@ -1,7 +1,9 @@
-import 'package:eon_asset_tracker/models/dashboard_model.dart';
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
 import '../core/database_api.dart';
+import '../models/dashboard_model.dart';
 
 class DashboardNotifier extends StateNotifier<DashboardData> {
   DashboardNotifier({

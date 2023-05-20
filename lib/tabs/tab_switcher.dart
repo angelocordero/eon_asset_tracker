@@ -1,10 +1,14 @@
-import 'package:eon_asset_tracker/tabs/admin_panel_tab.dart';
-import 'package:eon_asset_tracker/tabs/inventory_tab.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+// Project imports:
+import 'admin_panel_tab.dart';
 import 'dashboard_tab.dart';
+import 'inventory_tab.dart';
 
 class TabSwitcher extends ConsumerWidget {
   const TabSwitcher({super.key, required this.controller});

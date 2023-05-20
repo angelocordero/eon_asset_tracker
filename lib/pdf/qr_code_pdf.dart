@@ -1,8 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
+// Flutter imports:
 import 'package:flutter/foundation.dart';
+
+// Package imports:
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+// Project imports:
 import '../models/category_model.dart';
 import '../models/department_model.dart';
 import '../models/item_model.dart';

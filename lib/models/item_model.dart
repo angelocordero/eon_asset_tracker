@@ -1,7 +1,9 @@
-import 'package:eon_asset_tracker/core/utils.dart';
+// Package imports:
 import 'package:mysql_client/mysql_client.dart';
 
+// Project imports:
 import '../core/constants.dart';
+import '../core/utils.dart';
 import 'category_model.dart';
 import 'department_model.dart';
 

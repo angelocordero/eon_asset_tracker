@@ -1,7 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:eon_asset_tracker/core/utils.dart';
+
+// Package imports:
 import 'package:mysql_client/mysql_client.dart';
 
+// Project imports:
+import '../core/utils.dart';
 import 'department_model.dart';
 
 class User {

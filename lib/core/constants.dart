@@ -1,6 +1,9 @@
 // ignore_for_file: constant_identifier_names
 
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:mysql_client/mysql_client.dart';
 
 Future<MySQLConnection> createSqlConn() async {

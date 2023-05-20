@@ -1,16 +1,18 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/models/dashboard_model.dart';
-import 'package:eon_asset_tracker/models/department_model.dart';
-import 'package:eon_asset_tracker/notifiers/admin_panel_notifier.dart';
-import 'package:eon_asset_tracker/notifiers/dashboard_notifier.dart';
-import 'package:eon_asset_tracker/notifiers/inventory_notifier.dart';
+// Package imports:
 import 'package:riverpod/riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+// Project imports:
 import '../models/category_model.dart';
+import '../models/dashboard_model.dart';
+import '../models/department_model.dart';
 import '../models/inventory_model.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
+import '../notifiers/admin_panel_notifier.dart';
+import '../notifiers/dashboard_notifier.dart';
+import '../notifiers/inventory_notifier.dart';
+import 'constants.dart';
 
 final tableSortingProvider = StateProvider<TableSort>((ref) {
   return (null, null);

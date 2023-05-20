@@ -1,10 +1,14 @@
-import 'package:eon_asset_tracker/widgets/dashboard_category_chart.dart';
-import 'package:eon_asset_tracker/widgets/dashboard_status_chart.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
 import '../core/providers.dart';
+import '../widgets/dashboard_category_chart.dart';
 import '../widgets/dashboard_department_chart.dart';
+import '../widgets/dashboard_status_chart.dart';
 
 class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});

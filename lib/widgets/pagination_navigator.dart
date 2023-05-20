@@ -1,10 +1,14 @@
-import 'package:eon_asset_tracker/core/providers.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
 import '../core/constants.dart';
 import '../core/custom_numeric_formatter.dart';
+import '../core/providers.dart';
 
 class PaginationNavigator extends ConsumerWidget {
   const PaginationNavigator({super.key});

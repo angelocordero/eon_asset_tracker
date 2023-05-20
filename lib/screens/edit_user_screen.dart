@@ -1,16 +1,20 @@
-import 'package:eon_asset_tracker/core/custom_route.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/models/user_model.dart';
-import 'package:eon_asset_tracker/widgets/master_password_prompt.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
 import '../core/constants.dart';
+import '../core/custom_route.dart';
 import '../core/database_api.dart';
+import '../core/providers.dart';
+import '../core/utils.dart';
 import '../models/department_model.dart';
+import '../models/user_model.dart';
+import '../widgets/master_password_prompt.dart';
 
 class EditUserScreen extends ConsumerStatefulWidget {
   const EditUserScreen({super.key});

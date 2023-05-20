@@ -1,14 +1,18 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/models/department_model.dart';
+// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Project imports:
+import '../core/constants.dart';
 import '../core/database_api.dart';
+import '../core/providers.dart';
+import '../core/utils.dart';
 import '../models/category_model.dart';
+import '../models/department_model.dart';
 import '../models/item_model.dart';
 
 class AddItemScreen extends ConsumerStatefulWidget {

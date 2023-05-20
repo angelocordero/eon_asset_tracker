@@ -1,28 +1,32 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/custom_route.dart';
-import 'package:eon_asset_tracker/core/database_api.dart';
-import 'package:eon_asset_tracker/core/providers.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/pdf/report_pdf.dart';
-import 'package:eon_asset_tracker/screens/add_item_screen.dart';
-import 'package:eon_asset_tracker/screens/edit_item_screen.dart';
-import 'package:eon_asset_tracker/widgets/admin_password_prompt.dart';
-import 'package:eon_asset_tracker/widgets/item_info_display.dart';
-import 'package:eon_asset_tracker/widgets/inventory_search_widget.dart';
+// Flutter imports:
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 
+// Project imports:
+import '../core/constants.dart';
+import '../core/custom_route.dart';
+import '../core/database_api.dart';
+import '../core/providers.dart';
+import '../core/utils.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 import '../pdf/qr_code_pdf.dart';
+import '../pdf/report_pdf.dart';
+import '../screens/add_item_screen.dart';
+import '../screens/edit_item_screen.dart';
+import '../widgets/admin_password_prompt.dart';
 import '../widgets/inventory_checkbox.dart';
+import '../widgets/inventory_search_widget.dart';
+import '../widgets/item_info_display.dart';
 
 class InventoryTab extends ConsumerWidget {
   const InventoryTab({super.key});
