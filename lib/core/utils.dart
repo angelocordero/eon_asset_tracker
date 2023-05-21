@@ -41,14 +41,11 @@ String priceToString(double? price) {
 }
 
 Widget generateQRImage({required String assetID, double? size}) {
-  return Hero(
-    tag: assetID,
-    child: QrImageView(
-      size: size,
-      data: assetID,
-      backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
-    ),
+  return QrImageView(
+    size: size,
+    data: assetID,
+    backgroundColor: Colors.transparent,
+    foregroundColor: Colors.white,
   );
 }
 

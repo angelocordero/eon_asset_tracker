@@ -1,16 +1,16 @@
 // Flutter imports:
+import 'package:eon_asset_tracker/core/custom_route.dart';
+import 'package:eon_asset_tracker/widgets/qr_code_display.dart';
 import 'package:flutter/material.dart';
 
 // Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Project imports:
-import '../core/custom_route.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/item_model.dart';
 import 'pagination_navigator.dart';
-import 'qr_code_display.dart';
 
 class ItemInfoDisplay extends ConsumerWidget {
   const ItemInfoDisplay({super.key});
@@ -27,7 +27,7 @@ class ItemInfoDisplay extends ConsumerWidget {
     _remarksController.text = selectedItem?.remarks ?? '';
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -72,46 +72,59 @@ class ItemInfoDisplay extends ConsumerWidget {
             width: 40,
           ),
           Flexible(
-            flex: 4,
-            child: selectedItem == null
-                ? Container()
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const Text('QR Code'),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                CustomRoute(
-                                  builder: (context) {
-                                    return QRCodeDisplay(assetID: selectedItem.assetID);
-                                  },
-                                ),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.zoom_in,
-                            ),
-                            label: const Text('Enlarge QR Code'),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      generateQRImage(assetID: selectedItem.assetID),
-                    ],
-                  ),
+            flex: 2,
+            child: selectedItem == null ? Container() : qrCodeImage(context, selectedItem.assetID),
           ),
           const VerticalDivider(
             width: 40,
           ),
           const Flexible(
-            flex: 5,
+            flex: 7,
             child: PaginationNavigator(),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget qrCodeImage(BuildContext context, String assetID) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          CustomRoute(
+            builder: (context) {
+              return QRCodeDisplay(assetID: assetID);
+            },
+          ),
+        );
+      },
+      child: Stack(
+        children: [
+          Card(
+            color: Colors.blue,
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: Hero(
+                tag: assetID,
+                child: generateQRImage(assetID: assetID),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 5,
+            left: 5,
+            height: 30,
+            width: 30,
+            child: Container(
+              color: Colors.blue,
+              child: const Icon(
+                Icons.search,
+                color: Colors.white,
+              ),
+            ),
+          )
         ],
       ),
     );
