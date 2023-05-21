@@ -279,6 +279,7 @@ class DatabaseAPI {
     required String query,
     required InventorySearchFilter filter,
     required page,
+    required int itemsPerPage,
   }) async {
     MySQLConnection? conn;
 
@@ -300,6 +301,7 @@ class DatabaseAPI {
           conn: conn,
           page: page,
           filter: filter,
+          itemsPerPage: itemsPerPage
         );
       } else {
         results = await _searchQuery(
@@ -307,6 +309,7 @@ class DatabaseAPI {
           page: page,
           filter: filter,
           query: query,
+          itemsPerPage: itemsPerPage
         );
       }
 
@@ -440,6 +443,7 @@ class DatabaseAPI {
   static Future<IResultSet> _nullSearchQuery({
     required MySQLConnection conn,
     required int page,
+    required int itemsPerPage,
     required InventorySearchFilter filter,
   }) async {
     int offset = (itemsPerPage * page);
@@ -466,6 +470,7 @@ class DatabaseAPI {
   static Future<IResultSet> _searchQuery({
     required MySQLConnection conn,
     required int page,
+    required int itemsPerPage,
     required InventorySearchFilter filter,
     required String query,
   }) async {
@@ -513,9 +518,10 @@ class DatabaseAPI {
     }
   }
 
-  static Future<List<Item>> getInventoryUnfiltered(
-    int page,
-  ) async {
+  static Future<List<Item>> getInventoryUnfiltered({
+    required int page,
+    required int itemsPerPage,
+  }) async {
     MySQLConnection? conn;
 
     try {
@@ -637,7 +643,8 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results =
+          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 

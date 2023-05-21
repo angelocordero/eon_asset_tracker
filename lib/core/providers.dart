@@ -24,6 +24,8 @@ final departmentsProvider = StateProvider<List<Department>>((ref) => []);
 
 final categoriesProvider = StateProvider<List<ItemCategory>>((ref) => []);
 
+final itemsPerPageProvider = StateProvider<int>((ref) => 50);
+
 final selectedItemProvider = StateProvider<Item?>((ref) {
   List<Item> items = ref.watch(inventoryProvider).items;
 
@@ -44,7 +46,11 @@ final searchFilterProvider = StateProvider<InventorySearchFilter>((ref) {
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
-final checkedItemProvider = StateProvider<List<String>>((ref) => []);
+final checkedItemProvider = StateProvider<List<String>>((ref) {
+  ref.watch(inventoryProvider);
+
+  return [];
+});
 
 final currentInventoryPage = StateProvider<int>((ref) => 0);
 
@@ -55,7 +61,7 @@ final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, Dashboard
 });
 
 final inventoryProvider = StateNotifierProvider<InventoryNotifier, Inventory>((ref) {
-  return InventoryNotifier();
+  return InventoryNotifier(ref.watch(itemsPerPageProvider));
 });
 
 final adminPanelProvider = StateNotifierProvider<AdminPanelNotifier, Map<String, List<dynamic>>>((ref) {

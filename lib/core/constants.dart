@@ -30,7 +30,6 @@ typedef TableSort = (Columns?, Sort?);
 
 BorderRadius defaultBorderRadius = BorderRadius.circular(8);
 
-int itemsPerPage = 50;
 
 const List<Color> sampleColors = [
   Color(0xffdd7878),

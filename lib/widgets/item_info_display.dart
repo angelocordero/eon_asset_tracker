@@ -115,13 +115,15 @@ class ItemInfoDisplay extends ConsumerWidget {
           Positioned(
             top: 5,
             left: 5,
-            height: 30,
-            width: 30,
+            height: 40,
+            width: 40,
             child: Container(
               color: Colors.blue,
-              child: const Icon(
-                Icons.search,
-                color: Colors.white,
+              child: const Center(
+                child: Icon(
+                  Icons.search,
+                  color: Colors.white,
+                ),
               ),
             ),
           )

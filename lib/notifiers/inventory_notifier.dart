@@ -9,11 +9,13 @@ import '../core/utils.dart';
 import '../models/inventory_model.dart';
 
 class InventoryNotifier extends StateNotifier<Inventory> {
-  InventoryNotifier() : super(Inventory.empty()) {
+  InventoryNotifier(this.itemsPerPage) : super(Inventory.empty()) {
     refresh();
   }
 
   bool _isLoading = true;
+
+  int itemsPerPage;
 
   set loading(bool state) {
     _isLoading = state;
@@ -110,7 +112,7 @@ class InventoryNotifier extends StateNotifier<Inventory> {
       conn = await createSqlConn();
       await conn.connect();
 
-      state = state.copyWith(items: await DatabaseAPI.getInventoryUnfiltered(0), count: await DatabaseAPI.getTotalInventoryCount(conn));
+      state = state.copyWith(items: await DatabaseAPI.getInventoryUnfiltered(page: 0, itemsPerPage: itemsPerPage), count: await DatabaseAPI.getTotalInventoryCount(conn));
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     } finally {
@@ -123,7 +125,7 @@ class InventoryNotifier extends StateNotifier<Inventory> {
     _isLoading = true;
 
     state = state.copyWith(
-      items: await DatabaseAPI.searchInventory(query: query, filter: filter, page: 0),
+      items: await DatabaseAPI.searchInventory(query: query, filter: filter, page: 0, itemsPerPage: itemsPerPage),
       count: await DatabaseAPI.getSearchResultTotalCount(query: query, filter: filter),
     );
 
@@ -153,7 +155,7 @@ class InventoryNotifier extends StateNotifier<Inventory> {
   Future<void> _getUnfilteredFromPage(int page) async {
     _isLoading = true;
 
-    state = state.copyWith(items: await DatabaseAPI.getInventoryUnfiltered(page));
+    state = state.copyWith(items: await DatabaseAPI.getInventoryUnfiltered(page: page, itemsPerPage: itemsPerPage));
 
     _isLoading = false;
   }
@@ -168,6 +170,6 @@ class InventoryNotifier extends StateNotifier<Inventory> {
       return;
     }
 
-    state = state.copyWith(items: await DatabaseAPI.searchInventory(query: query, filter: filter, page: page));
+    state = state.copyWith(items: await DatabaseAPI.searchInventory(query: query, filter: filter, page: page, itemsPerPage: itemsPerPage));
   }
 }

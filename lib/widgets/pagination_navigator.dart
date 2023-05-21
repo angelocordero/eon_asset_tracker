@@ -17,13 +17,11 @@ class PaginationNavigator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //  int inventoryItemCount = ref.watch(inventoryProvider).count;
+    int inventoryItemCount = ref.watch(inventoryProvider).count;
 
-    // int pages = (inventoryItemCount / itemsPerPage).ceil();
+    int pages = (inventoryItemCount / ref.watch(itemsPerPageProvider)).ceil();
 
     int currentPage = ref.watch(currentInventoryPage);
-
-    int pages = 100;
 
     int buttonCount = pages > 10 ? 11 : pages;
 
@@ -190,7 +188,7 @@ class PaginationNavigator extends ConsumerWidget {
                           borderRadius: defaultBorderRadius,
                         ),
                       ),
-                      value: 50,
+                      value: ref.watch(itemsPerPageProvider),
                       items: const [
                         DropdownMenuItem<int>(
                           value: 50,
@@ -205,7 +203,11 @@ class PaginationNavigator extends ConsumerWidget {
                           child: Text('200'),
                         ),
                       ],
-                      onChanged: (int? value) {},
+                      onChanged: (int? value) {
+                        if (value == null) return;
+
+                        ref.read(itemsPerPageProvider.notifier).state = value;
+                      },
                     ),
                   ),
                   const Spacer(),
