@@ -44,7 +44,7 @@ final searchFilterProvider = StateProvider<InventorySearchFilter>((ref) {
   return InventorySearchFilter.assetID;
 });
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
+final searchQueryProvider = StateProvider<dynamic>((ref) => '');
 
 final checkedItemProvider = StateProvider<List<String>>((ref) {
   ref.watch(inventoryProvider);

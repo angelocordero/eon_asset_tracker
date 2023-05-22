@@ -345,7 +345,7 @@ class InventoryTab extends ConsumerWidget {
 
               try {
                 items = await DatabaseAPI.getItemsForReport(
-                  query: ref.read(searchQueryProvider),
+                  query: ref.read(searchQueryProvider) as String,
                   filter: ref.read(searchFilterProvider),
                 );
 

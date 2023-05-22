@@ -112,7 +112,10 @@ class InventoryNotifier extends StateNotifier<Inventory> {
       conn = await createSqlConn();
       await conn.connect();
 
-      state = state.copyWith(items: await DatabaseAPI.getInventoryUnfiltered(page: 0, itemsPerPage: itemsPerPage), count: await DatabaseAPI.getTotalInventoryCount(conn));
+      state = state.copyWith(
+        items: await DatabaseAPI.getInventoryUnfiltered(page: 0, itemsPerPage: itemsPerPage),
+        count: await DatabaseAPI.getTotalInventoryCount(conn),
+      );
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     } finally {

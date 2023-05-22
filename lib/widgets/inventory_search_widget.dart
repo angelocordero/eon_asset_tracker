@@ -1,5 +1,9 @@
 // Flutter imports:
+import 'package:eon_asset_tracker/models/category_model.dart';
+import 'package:eon_asset_tracker/models/department_model.dart';
+import 'package:eon_asset_tracker/widgets/search_daterange_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,6 +72,10 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
 
     ref.read(currentInventoryPage.notifier).state = 0;
 
+    if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+      EasyLoading.showInfo('Sir wala pa ni natapos');
+    }
+
     if (ref.read(searchQueryProvider).trim().isEmpty) {
       await ref.read(inventoryProvider.notifier).initUnfilteredInventory();
     } else {
@@ -135,11 +143,19 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
                 },
               );
             } else if (filter == InventorySearchFilter.department) {
+              List<Department> departments = [
+                ...ref.read(departmentsProvider),
+                Department(
+                  departmentID: 'null',
+                  departmentName: 'No Category',
+                ),
+              ];
+
+              ref.read(searchQueryProvider.notifier).state = departments.first.departmentID;
               setState(
                 () {
-                  ref.read(searchQueryProvider.notifier).state = ref.read(departmentsProvider).first.departmentID;
                   _searchField = _queryDropdownField(
-                    ref.read(departmentsProvider).map(
+                    departments.map(
                       (e) {
                         return DropdownMenuItem(
                           onTap: () {
@@ -154,45 +170,40 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
                 },
               );
             } else if (filter == InventorySearchFilter.category) {
-              List<String> categoryIDs = ref.read(categoriesProvider).map((e) => e.categoryID).toList();
+              List<ItemCategory> categories = [
+                ...ref.read(categoriesProvider),
+                ItemCategory(
+                  categoryID: 'null',
+                  categoryName: 'No Category',
+                ),
+              ];
 
-              if (categoryIDs.isNotEmpty) {
-                ref.read(searchQueryProvider.notifier).state = categoryIDs.first;
-                setState(
-                  () {
-                    _searchField = _queryDropdownField(
-                      ref.read(categoriesProvider).map(
-                        (e) {
-                          return DropdownMenuItem(
-                            onTap: () {
-                              ref.read(searchQueryProvider.notifier).state = e.categoryID;
-                            },
-                            value: e.categoryID,
-                            child: Text(e.categoryName),
-                          );
-                        },
-                      ).toList(),
-                    );
-                  },
-                );
-              } else {
-                ref.read(searchQueryProvider.notifier).state = 'No Category';
-                setState(
-                  () {
-                    _searchField = _queryDropdownField(
-                      [
-                        DropdownMenuItem(
+              ref.read(searchQueryProvider.notifier).state = categories.first.categoryID!;
+              setState(
+                () {
+                  _searchField = _queryDropdownField(
+                    categories.map(
+                      (e) {
+                        return DropdownMenuItem(
                           onTap: () {
-                            ref.read(searchQueryProvider.notifier).state = 'No Category';
+                            ref.read(searchQueryProvider.notifier).state = e.categoryID!;
                           },
-                          value: 'No Category',
-                          child: const Text('No Category'),
-                        )
-                      ],
-                    );
-                  },
-                );
-              }
+                          value: e.categoryID,
+                          child: Text(e.categoryName),
+                        );
+                      },
+                    ).toList(),
+                  );
+                },
+              );
+            } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+              setState(
+                () {
+                  _searchField = SearchDaterangePicker(
+                    callback: (DateTimeRange range) {},
+                  );
+                },
+              );
             }
 
             ref.read(searchFilterProvider.notifier).state = filter;

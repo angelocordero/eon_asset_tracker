@@ -95,6 +95,8 @@ class AdminPanelTab extends ConsumerWidget {
                     : () async {
                         User? user = ref.read(adminPanelSelectedUserProvider);
 
+                        //TODO! get master password if target user is admin
+
                         try {
                           if (user == null) return;
 
@@ -236,7 +238,7 @@ class AdminPanelTab extends ConsumerWidget {
                             ),
                             IconButton.outlined(
                               onPressed: () async {
-                                await showDeleteCategoryDialog(context, ref, category.categoryID);
+                                await showDeleteCategoryDialog(context, ref, category.categoryID!);
                               },
                               icon: const Icon(Icons.remove),
                             ),

@@ -110,6 +110,12 @@ String? inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
     case InventorySearchFilter.category:
       return 'category_id';
 
+    case InventorySearchFilter.datePurchased:
+      return 'date_purchased';
+
+    case InventorySearchFilter.dateReceived:
+      return 'date_received';
+
     default:
       return null;
   }
@@ -143,6 +149,12 @@ String? inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
 
     case InventorySearchFilter.category:
       return 'Category';
+
+    case InventorySearchFilter.datePurchased:
+      return 'Date Purchased';
+
+    case InventorySearchFilter.dateReceived:
+      return 'Date Received';
 
     default:
       return null;

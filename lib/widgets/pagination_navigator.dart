@@ -191,6 +191,10 @@ class PaginationNavigator extends ConsumerWidget {
                       value: ref.watch(itemsPerPageProvider),
                       items: const [
                         DropdownMenuItem<int>(
+                          value: 10,
+                          child: Text('10'),
+                        ),
+                        DropdownMenuItem<int>(
                           value: 50,
                           child: Text('50'),
                         ),
@@ -261,9 +265,11 @@ class PaginationNavigator extends ConsumerWidget {
   }
 
   Future<void> _goToPage(WidgetRef ref, int buttonNum) async {
-    await ref
-        .read(inventoryProvider.notifier)
-        .getInventoryFromPage(page: buttonNum - 1, query: ref.read(searchQueryProvider), filter: ref.read(searchFilterProvider));
+    await ref.read(inventoryProvider.notifier).getInventoryFromPage(
+          page: buttonNum - 1,
+          query: ref.read(searchQueryProvider) as String,
+          filter: ref.read(searchFilterProvider),
+        );
     ref.read(currentInventoryPage.notifier).state = buttonNum - 1;
     ref.read(checkedItemProvider.notifier).state = [];
   }

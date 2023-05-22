@@ -36,7 +36,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -55,7 +57,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -75,7 +79,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -97,7 +103,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -194,7 +202,9 @@ class DatabaseAPI {
     } catch (e) {
       return Future.error(e.toString());
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -241,7 +251,9 @@ class DatabaseAPI {
       showErrorAndStacktrace(e, st);
       return Future.value([]);
     } finally {
-      conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -296,21 +308,10 @@ class DatabaseAPI {
 
       IResultSet results;
 
-      if (query == 'No Category' && filter == InventorySearchFilter.category) {
-        results = await _nullSearchQuery(
-          conn: conn,
-          page: page,
-          filter: filter,
-          itemsPerPage: itemsPerPage
-        );
+      if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
+        results = await _nullSearchQuery(conn: conn, page: page, filter: filter, itemsPerPage: itemsPerPage);
       } else {
-        results = await _searchQuery(
-          conn: conn,
-          page: page,
-          filter: filter,
-          query: query,
-          itemsPerPage: itemsPerPage
-        );
+        results = await _searchQuery(conn: conn, page: page, filter: filter, query: query, itemsPerPage: itemsPerPage);
       }
 
       return results.rows
@@ -325,7 +326,9 @@ class DatabaseAPI {
 
       return [];
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -369,7 +372,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -420,7 +425,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -497,18 +504,28 @@ class DatabaseAPI {
 
   static Future<IResultSet> _nullSearchQueryResultTotal({
     required MySQLConnection conn,
-    required InventorySearchFilter filter,
+    required String columnString,
   }) async {
-    String? columnString = inventoryFilterEnumToDatabaseString(filter);
-
-    if (columnString == null) return Future.error('Invalid filter');
-
     try {
       return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
     } catch (e, st) {
       return Future.error(e, st);
     }
   }
+
+  //  static Future<IResultSet> _dateRangeSearchTotal({
+  //   required MySQLConnection conn,
+  //   required String columnString,
+  // }) async {
+
+  //   try {
+  //     // return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
+
+  //     return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE date_column >= '2023-01-01' AND $columnString <= '2023-12-31' AND `is_enabled` = 1 ORDER BY $columnString ASC');
+  //   } catch (e, st) {
+  //     return Future.error(e, st);
+  //   }
+  // }
 
   static Future<IResultSet> _searchQueryResultTotal({required MySQLConnection conn, required String searchBy, required String query}) async {
     try {
@@ -550,7 +567,9 @@ class DatabaseAPI {
       showErrorAndStacktrace(e, st);
       return Future.value([]);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -573,7 +592,9 @@ class DatabaseAPI {
       showErrorAndStacktrace(e, st);
       return DashboardData.empty();
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -591,12 +612,14 @@ class DatabaseAPI {
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
   static Future<int> getSearchResultTotalCount({
-    required String query,
+    required dynamic query,
     required InventorySearchFilter filter,
   }) async {
     MySQLConnection? conn;
@@ -614,8 +637,8 @@ class DatabaseAPI {
 
       IResultSet results;
 
-      if (query == 'No Category' && filter == InventorySearchFilter.category) {
-        results = await _nullSearchQueryResultTotal(conn: conn, filter: filter);
+      if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
+        results = await _nullSearchQueryResultTotal(conn: conn, columnString: columnString);
       } else {
         results = await _searchQueryResultTotal(
           conn: conn,
@@ -631,7 +654,9 @@ class DatabaseAPI {
 
       return 0;
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -643,8 +668,7 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results =
-          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 
@@ -727,7 +751,9 @@ class DatabaseAPI {
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -746,7 +772,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -765,7 +793,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -784,7 +814,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -802,7 +834,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -821,7 +855,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -839,7 +875,9 @@ class DatabaseAPI {
     } catch (e, st) {
       return Future.error(e, st);
     } finally {
-      await conn?.close();
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
