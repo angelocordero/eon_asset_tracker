@@ -124,7 +124,7 @@ class InventoryNotifier extends StateNotifier<Inventory> {
     }
   }
 
-  Future<void> initFilteredInventory(String query, InventorySearchFilter filter) async {
+  Future<void> initFilteredInventory(dynamic query, InventorySearchFilter filter) async {
     _isLoading = true;
 
     state = state.copyWith(
@@ -173,6 +173,13 @@ class InventoryNotifier extends StateNotifier<Inventory> {
       return;
     }
 
-    state = state.copyWith(items: await DatabaseAPI.searchInventory(query: query, filter: filter, page: page, itemsPerPage: itemsPerPage));
+    state = state.copyWith(
+      items: await DatabaseAPI.searchInventory(
+        query: query,
+        filter: filter,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      ),
+    );
   }
 }

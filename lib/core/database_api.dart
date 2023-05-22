@@ -1,4 +1,5 @@
 // Package imports:
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
 
@@ -288,7 +289,7 @@ class DatabaseAPI {
   }
 
   static Future<List<Item>> searchInventory({
-    required String query,
+    required dynamic query,
     required InventorySearchFilter filter,
     required page,
     required int itemsPerPage,
@@ -310,6 +311,8 @@ class DatabaseAPI {
 
       if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
         results = await _nullSearchQuery(conn: conn, page: page, filter: filter, itemsPerPage: itemsPerPage);
+      } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+        results = await _dateRangeSearch(conn: conn, columnString: columnString, range: query, itemsPerPage: itemsPerPage, page: page);
       } else {
         results = await _searchQuery(conn: conn, page: page, filter: filter, query: query, itemsPerPage: itemsPerPage);
       }
@@ -362,8 +365,8 @@ class DatabaseAPI {
         'itemDescription': item.description,
         'unit': item.unit,
         'price': item.price,
-        'datePurchased': datePurchased == null ? null : '${datePurchased.year}-${datePurchased.month}-${datePurchased.day}',
-        'dateReceived': '${dateReceived.year}-${dateReceived.month}-${dateReceived.day}',
+        'datePurchased': datePurchased == null ? null : dateTimeToSQLString(datePurchased),
+        'dateReceived': dateTimeToSQLString(dateReceived),
         'status': item.status.name,
         'categoryID': item.category.categoryID,
         'remarks': item.remarks,
@@ -415,8 +418,8 @@ class DatabaseAPI {
         'itemDescription': item.description,
         'unit': item.unit,
         'price': item.price,
-        'datePurchased': datePurchased == null ? null : '${datePurchased.year}-${datePurchased.month}-${datePurchased.day}',
-        'dateReceived': '${dateReceived.year}-${dateReceived.month}-${dateReceived.day}',
+        'datePurchased': datePurchased == null ? null : dateTimeToSQLString(datePurchased),
+        'dateReceived': dateTimeToSQLString(dateReceived),
         'status': item.status.name,
         'categoryID': item.category.categoryID,
         'remarks': item.remarks,
@@ -513,19 +516,54 @@ class DatabaseAPI {
     }
   }
 
-  //  static Future<IResultSet> _dateRangeSearchTotal({
-  //   required MySQLConnection conn,
-  //   required String columnString,
-  // }) async {
+  static Future<IResultSet> _dateRangeSearchTotal({
+    required MySQLConnection conn,
+    required String columnString,
+    required DateTimeRange range,
+  }) async {
+    try {
+      return await conn.execute(
+          'SELECT COUNT(*) as count FROM `assets` WHERE $columnString BETWEEN ${dateTimeToSQLString(range.start)} AND ${dateTimeToSQLString(range.end)} AND `is_enabled` = 1 ORDER BY $columnString ASC');
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
 
-  //   try {
-  //     // return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
+  static Future<IResultSet> _dateRangeSearch({
+    required MySQLConnection conn,
+    required String columnString,
+    required DateTimeRange range,
+    required int itemsPerPage,
+    required int page,
+  }) async {
+    int offset = (itemsPerPage * page);
 
-  //     return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE date_column >= '2023-01-01' AND $columnString <= '2023-12-31' AND `is_enabled` = 1 ORDER BY $columnString ASC');
-  //   } catch (e, st) {
-  //     return Future.error(e, st);
-  //   }
-  // }
+    print('''
+              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
+              JOIN `categories` AS c ON a.category_id = c.category_id
+              JOIN `departments` AS d ON a.department_id = d.department_id
+              WHERE a.is_enabled = 1
+              AND c.is_enabled = 1
+              AND d.is_enabled = 1
+              AND $columnString BETWEEN ${dateTimeToSQLString(range.start)} AND ${dateTimeToSQLString(range.end)}
+              ORDER BY $columnString DESC, `item_name` ASC
+              LIMIT $itemsPerPage OFFSET $offset''');
+
+    try {
+      return await conn.execute('''
+              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
+              JOIN `categories` AS c ON a.category_id = c.category_id
+              JOIN `departments` AS d ON a.department_id = d.department_id
+              WHERE a.is_enabled = 1
+              AND c.is_enabled = 1
+              AND d.is_enabled = 1
+              AND `$columnString` BETWEEN '${dateTimeToSQLString(range.start)}' AND '${dateTimeToSQLString(range.end)}'
+              ORDER BY $columnString DESC, `item_name` ASC
+              LIMIT $itemsPerPage OFFSET $offset''');
+    } catch (e, st) {
+      return Future.error(e, st);
+    }
+  }
 
   static Future<IResultSet> _searchQueryResultTotal({required MySQLConnection conn, required String searchBy, required String query}) async {
     try {
@@ -639,6 +677,8 @@ class DatabaseAPI {
 
       if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
         results = await _nullSearchQueryResultTotal(conn: conn, columnString: columnString);
+      } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+        results = await _dateRangeSearchTotal(conn: conn, columnString: columnString, range: query);
       } else {
         results = await _searchQueryResultTotal(
           conn: conn,
@@ -668,7 +708,8 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results =
+          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 

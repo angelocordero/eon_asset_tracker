@@ -1,4 +1,5 @@
 // Flutter imports:
+import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:flutter/material.dart';
 
 // Package imports:
@@ -111,6 +112,7 @@ class HomeScreen extends ConsumerWidget {
                 // label: 'INVENTORY',
                 onTap: () {
                   ref.read(appbarTitleProvider.notifier).state = 'INVENTORY';
+                  ref.read(searchFilterProvider.notifier).state = InventorySearchFilter.assetID;
                 },
               ),
               if (ref.watch(userProvider)?.isAdmin ?? false)

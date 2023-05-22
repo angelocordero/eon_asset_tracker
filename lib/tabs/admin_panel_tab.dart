@@ -94,13 +94,38 @@ class AdminPanelTab extends ConsumerWidget {
                     ? null
                     : () async {
                         User? user = ref.read(adminPanelSelectedUserProvider);
+                        if (user == null) return;
 
                         //TODO! get master password if target user is admin
 
                         try {
-                          if (user == null) return;
+                          if (user.isAdmin) {
+                            TextEditingController controller = TextEditingController();
 
-                          await ref.read(adminPanelProvider.notifier).delete(ref, user);
+                            Navigator.push(
+                              context,
+                              CustomRoute(
+                                builder: (context) {
+                                  return MasterPasswordPrompt(
+                                    controller: controller,
+                                    callback: () async {
+                                      bool admin = await DatabaseAPI.getMasterPassword(controller.text.trim());
+
+                                      if (admin) {
+                                        await ref.read(adminPanelProvider.notifier).delete(ref, user);
+                                        // ignore: use_build_context_synchronously
+                                        Navigator.pop(context);
+                                      } else {
+                                        showErrorAndStacktrace('Wrong master password', null);
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          } else {
+                            await ref.read(adminPanelProvider.notifier).delete(ref, user);
+                          }
                         } catch (e, st) {
                           showErrorAndStacktrace(e, st);
                         }

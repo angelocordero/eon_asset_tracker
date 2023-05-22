@@ -40,6 +40,10 @@ String priceToString(double? price) {
   return price == null ? '' : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
 }
 
+String dateTimeToSQLString(DateTime dateTime) {
+  return DateFormat('yyyy-MM-dd').format(dateTime);
+}
+
 Widget generateQRImage({required String assetID, double? size}) {
   return QrImageView(
     size: size,

@@ -3,7 +3,6 @@ import 'package:eon_asset_tracker/models/category_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:eon_asset_tracker/widgets/search_daterange_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +23,8 @@ class InventorySearchWidget extends ConsumerStatefulWidget {
 
 class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
   Widget _searchField = Container();
+
+  DateTimeRange range = DateTimeRange(start: DateTime.now().toUtc(), end: DateTime.now().toUtc());
 
   @override
   void initState() {
@@ -68,15 +69,20 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
         filter == InventorySearchFilter.itemDescription ||
         filter == InventorySearchFilter.remarks) {
       ref.read(searchQueryProvider.notifier).state = widget.controller.text.trim();
+    } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+      ref.read(searchQueryProvider.notifier).state = range;
     }
 
     ref.read(currentInventoryPage.notifier).state = 0;
 
-    if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
-      EasyLoading.showInfo('Sir wala pa ni natapos');
-    }
+    // if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+    //   EasyLoading.showInfo('Sir wala pa ni natapos');
+    // }
 
-    if (ref.read(searchQueryProvider).trim().isEmpty) {
+    dynamic query = ref.read(searchQueryProvider);
+    if (query is DateTimeRange) {
+      await ref.read(inventoryProvider.notifier).initFilteredInventory(query, filter);
+    } else if (query.trim().isEmpty) {
       await ref.read(inventoryProvider.notifier).initUnfilteredInventory();
     } else {
       await ref.read(inventoryProvider.notifier).initFilteredInventory(ref.read(searchQueryProvider).trim(), filter);
@@ -200,7 +206,9 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
               setState(
                 () {
                   _searchField = SearchDaterangePicker(
-                    callback: (DateTimeRange range) {},
+                    callback: (DateTimeRange newRange) {
+                      range = newRange;
+                    },
                   );
                 },
               );
