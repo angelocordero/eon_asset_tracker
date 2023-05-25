@@ -538,17 +538,6 @@ class DatabaseAPI {
   }) async {
     int offset = (itemsPerPage * page);
 
-    print('''
-              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
-              JOIN `categories` AS c ON a.category_id = c.category_id
-              JOIN `departments` AS d ON a.department_id = d.department_id
-              WHERE a.is_enabled = 1
-              AND c.is_enabled = 1
-              AND d.is_enabled = 1
-              AND $columnString BETWEEN ${dateTimeToSQLString(range.start)} AND ${dateTimeToSQLString(range.end)}
-              ORDER BY $columnString DESC, `item_name` ASC
-              LIMIT $itemsPerPage OFFSET $offset''');
-
     try {
       return await conn.execute('''
               SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
@@ -708,8 +697,7 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results =
-          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 

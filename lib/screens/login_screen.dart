@@ -1,4 +1,9 @@
 // Flutter imports:
+
+import 'package:eon_asset_tracker/core/constants.dart';
+import 'package:eon_asset_tracker/core/custom_route.dart';
+import 'package:eon_asset_tracker/models/connection_setttings_model.dart';
+import 'package:eon_asset_tracker/screens/connection_settings_screen.dart';
 import 'package:flutter/material.dart';
 
 // Package imports:
@@ -24,6 +29,50 @@ class LoginScreen extends ConsumerWidget {
     passwordController.clear();
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.settings),
+        onPressed: () async {
+          ConnectionSettings connectionSettings;
+
+          try {
+            connectionSettings = ConnectionSettings(
+              databaseName: settingsBox.get('databaseName'),
+              ip: settingsBox.get('ip'),
+              port: settingsBox.get('port'),
+              username: settingsBox.get('username'),
+              password: settingsBox.get('password'),
+            );
+          } catch (e) {
+            connectionSettings = ConnectionSettings.empty();
+          }
+
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+            context,
+            CustomRoute(
+              builder: (context) {
+                return ConnectionSettingsScreen(
+                  localIPController: TextEditingController.fromValue(
+                    TextEditingValue(text: connectionSettings.ip),
+                  ),
+                  portController: TextEditingController.fromValue(
+                    TextEditingValue(text: connectionSettings.port.toString()),
+                  ),
+                  userController: TextEditingController.fromValue(
+                    TextEditingValue(text: connectionSettings.username),
+                  ),
+                  passwordController: TextEditingController.fromValue(
+                    TextEditingValue(text: connectionSettings.password),
+                  ),
+                  dbNameController: TextEditingController.fromValue(
+                    TextEditingValue(text: connectionSettings.databaseName),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
       body: Center(
         child: Card(
           child: Padding(
@@ -114,14 +163,22 @@ class LoginScreen extends ConsumerWidget {
     User? user;
 
     try {
+      globalConnectionSettings = ConnectionSettings(
+        databaseName: settingsBox.get('databaseName'),
+        ip: settingsBox.get('ip'),
+        port: settingsBox.get('port'),
+        username: settingsBox.get('username'),
+        password: settingsBox.get('password'),
+      );
+
       user = await DatabaseAPI.authenticateUser(ref, username, passwordHash);
-    } catch (e) {
-      debugPrint(e.toString());
-      EasyLoading.showError(e.toString());
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+      return;
     }
 
     if (user == null) {
-      EasyLoading.showError('user does not exist');
+      showErrorAndStacktrace('user does not exist', null);
       return;
     }
 

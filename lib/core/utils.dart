@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
+import 'package:mysql_client/mysql_client.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -16,6 +17,21 @@ import 'constants.dart';
 
 String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
+}
+
+Future<MySQLConnection> createSqlConn() async {
+  try {
+    return await MySQLConnection.createConnection(
+      host: globalConnectionSettings.ip,
+      port: globalConnectionSettings.port,
+      userName: globalConnectionSettings.username,
+      password: globalConnectionSettings.password,
+      databaseName: globalConnectionSettings.databaseName,
+      secure: true,
+    );
+  } catch (e, st) {
+    return Future.error(e, st);
+  }
 }
 
 String generateRandomID() {

@@ -96,8 +96,6 @@ class AdminPanelTab extends ConsumerWidget {
                         User? user = ref.read(adminPanelSelectedUserProvider);
                         if (user == null) return;
 
-                        //TODO! get master password if target user is admin
-
                         try {
                           if (user.isAdmin) {
                             TextEditingController controller = TextEditingController();
