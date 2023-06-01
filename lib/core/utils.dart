@@ -29,6 +29,9 @@ Future<MySQLConnection> createSqlConn() async {
       password: globalConnectionSettings.password,
       databaseName: globalConnectionSettings.databaseName,
       secure: Platform.isWindows ? true : false,
+    ).timeout(
+      const Duration(seconds: 3),
+      onTimeout: () async => await Future.error(const SocketException('Can\'t connect to database')),
     );
   } catch (e, st) {
     return await Future.error(e, st);

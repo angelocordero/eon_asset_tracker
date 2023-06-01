@@ -1,5 +1,5 @@
 // Package imports:
-import 'package:eon_asset_tracker/models/user_exception.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -196,7 +196,7 @@ class DatabaseAPI {
 
       await Future.delayed(const Duration(milliseconds: 200));
 
-      await conn.connect(timeoutMs: 3000);
+      await conn.connect();
 
       IResultSet results = await conn.execute('''
       SELECT u.*, d.department_name FROM `users` AS u
@@ -207,7 +207,7 @@ class DatabaseAPI {
         'hash': passwordHash,
       });
 
-      if (results.rows.isEmpty) return await Future.error(UserException());
+      if (results.rows.isEmpty) return await Future.error('No User Found');
 
       ResultSetRow row = results.rows.first;
 
@@ -215,10 +215,8 @@ class DatabaseAPI {
       ref.read(categoriesProvider.notifier).state = await getCategories(conn);
 
       return User.fromDatabase(row);
-    } on UserException catch (_) {
-      return await Future.error(UserException());
     } catch (e) {
-      return  Future.error(e.toString());
+      return await Future.error(e.toString());
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();

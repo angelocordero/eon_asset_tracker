@@ -3,7 +3,6 @@
 import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/custom_route.dart';
 import 'package:eon_asset_tracker/models/connection_setttings_model.dart';
-import 'package:eon_asset_tracker/models/user_exception.dart';
 import 'package:eon_asset_tracker/screens/connection_settings_screen.dart';
 import 'package:flutter/material.dart';
 
