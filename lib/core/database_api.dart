@@ -1,4 +1,5 @@
 // Package imports:
+import 'package:eon_asset_tracker/models/user_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -35,7 +36,7 @@ class DatabaseAPI {
         'userID': user.userID,
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -56,7 +57,7 @@ class DatabaseAPI {
         'userID': user.userID,
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -78,7 +79,7 @@ class DatabaseAPI {
         'userID': user.userID,
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -102,7 +103,7 @@ class DatabaseAPI {
         'passwordHash': hashPassword(password),
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -127,6 +128,10 @@ class DatabaseAPI {
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
       return [];
+    } finally {
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
   }
 
@@ -151,7 +156,12 @@ class DatabaseAPI {
       if (list.contains(hashPassword(password))) return true;
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
+    } finally {
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
+
     return false;
   }
 
@@ -169,7 +179,12 @@ class DatabaseAPI {
       if (list.contains(hashPassword(password))) return true;
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
+    } finally {
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
     }
+
     return false;
   }
 
@@ -181,7 +196,7 @@ class DatabaseAPI {
 
       await Future.delayed(const Duration(milliseconds: 200));
 
-      await conn.connect();
+      await conn.connect(timeoutMs: 3000);
 
       IResultSet results = await conn.execute('''
       SELECT u.*, d.department_name FROM `users` AS u
@@ -192,7 +207,7 @@ class DatabaseAPI {
         'hash': passwordHash,
       });
 
-      if (results.rows.isEmpty) return Future.error('No user found');
+      if (results.rows.isEmpty) return await Future.error(UserException());
 
       ResultSetRow row = results.rows.first;
 
@@ -200,8 +215,10 @@ class DatabaseAPI {
       ref.read(categoriesProvider.notifier).state = await getCategories(conn);
 
       return User.fromDatabase(row);
+    } on UserException catch (_) {
+      return await Future.error(UserException());
     } catch (e) {
-      return Future.error(e.toString());
+      return  Future.error(e.toString());
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -276,7 +293,7 @@ class DatabaseAPI {
   }) async {
     String? columnString = inventoryFilterEnumToDatabaseString(filter);
 
-    if (columnString == null) return Future.error('Invalid filter');
+    if (columnString == null) return await Future.error('Invalid filter');
 
     return await conn.execute('''
               SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
@@ -302,7 +319,7 @@ class DatabaseAPI {
       conn = await createSqlConn();
 
       if (columnString == null) {
-        return Future.error('No column found');
+        return await Future.error('No column found');
       }
 
       await conn.connect();
@@ -373,7 +390,7 @@ class DatabaseAPI {
         'assetID': item.assetID,
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -426,7 +443,7 @@ class DatabaseAPI {
         'assetID': item.assetID,
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -446,7 +463,7 @@ class DatabaseAPI {
 
       return buffer;
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -460,7 +477,7 @@ class DatabaseAPI {
 
     String? columnString = inventoryFilterEnumToDatabaseString(filter);
 
-    if (columnString == null) return Future.error('Invalid search filter');
+    if (columnString == null) return await Future.error('Invalid search filter');
 
     try {
       return await conn.execute('''
@@ -473,7 +490,7 @@ class DatabaseAPI {
               ORDER BY `timestamp` DESC, `item_name` ASC
               LIMIT $itemsPerPage OFFSET $offset''');
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -488,7 +505,7 @@ class DatabaseAPI {
 
     String? columnString = inventoryFilterEnumToDatabaseString(filter);
 
-    if (columnString == null) return Future.error('Invalid filter');
+    if (columnString == null) return await Future.error('Invalid filter');
 
     try {
       return await conn.execute('''
@@ -501,7 +518,7 @@ class DatabaseAPI {
               ORDER BY `timestamp` DESC, `item_name` ASC
               LIMIT $itemsPerPage OFFSET $offset''');
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -512,7 +529,7 @@ class DatabaseAPI {
     try {
       return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -525,7 +542,7 @@ class DatabaseAPI {
       return await conn.execute(
           'SELECT COUNT(*) as count FROM `assets` WHERE $columnString BETWEEN ${dateTimeToSQLString(range.start)} AND ${dateTimeToSQLString(range.end)} AND `is_enabled` = 1 ORDER BY $columnString ASC');
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -550,7 +567,7 @@ class DatabaseAPI {
               ORDER BY $columnString DESC, `item_name` ASC
               LIMIT $itemsPerPage OFFSET $offset''');
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -558,7 +575,7 @@ class DatabaseAPI {
     try {
       return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1');
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -657,7 +674,7 @@ class DatabaseAPI {
       conn = await createSqlConn();
 
       if (columnString == null) {
-        return Future.error('No column found');
+        return await Future.error('No column found');
       }
 
       await conn.connect();
@@ -697,7 +714,8 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results =
+          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 
@@ -725,7 +743,7 @@ class DatabaseAPI {
 
       return buffer;
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -761,7 +779,7 @@ class DatabaseAPI {
 
       return buffer;
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -799,7 +817,7 @@ class DatabaseAPI {
         'departmentID': generateRandomID(),
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -820,7 +838,7 @@ class DatabaseAPI {
         'categoryID': generateRandomID(),
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -841,7 +859,7 @@ class DatabaseAPI {
         'departmentID': department.departmentID,
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -861,7 +879,7 @@ class DatabaseAPI {
         {'departmentID': departmentID},
       );
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -882,7 +900,7 @@ class DatabaseAPI {
         'categoryID': category.categoryID,
       });
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -902,7 +920,7 @@ class DatabaseAPI {
         {'categoryID': categoryID},
       );
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     } finally {
       if (conn != null && conn.connected) {
         await conn.close();
@@ -921,7 +939,7 @@ class DatabaseAPI {
         );
       }).toList();
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -936,7 +954,7 @@ class DatabaseAPI {
         );
       }).toList();
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 }
