@@ -56,7 +56,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     _department = _departments.first;
     _itemStatus = ItemStatus.Unknown;
-    _category = _categories.first;
+    _category = _categories.firstWhere((element) => element.categoryName == 'TOOLS AND EQUIPMENT');
 
     super.initState();
   }

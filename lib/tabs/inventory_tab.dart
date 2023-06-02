@@ -432,6 +432,7 @@ class InventoryTab extends ConsumerWidget {
 
               _searchController.clear();
               ref.read(searchFilterProvider.notifier).state = InventorySearchFilter.assetID;
+              ref.read(searchQueryProvider.notifier).state = '';
             },
             icon: const Icon(Icons.refresh),
           ),

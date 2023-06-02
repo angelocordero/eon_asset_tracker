@@ -211,6 +211,7 @@ class PaginationNavigator extends ConsumerWidget {
                         if (value == null) return;
 
                         ref.read(itemsPerPageProvider.notifier).state = value;
+                        ref.read(currentInventoryPage.notifier).state = 0;
                       },
                     ),
                   ),
