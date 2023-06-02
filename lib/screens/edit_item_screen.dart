@@ -1,5 +1,6 @@
 // Flutter imports:
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 // Package imports:
@@ -41,7 +42,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   void initState() {
     _nameController = TextEditingController.fromValue(TextEditingValue(text: widget.item.name));
     _personAccountableController = TextEditingController.fromValue(TextEditingValue(text: widget.item.personAccountable ?? ''));
-    _priceController = TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
+    _priceController =
+        TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
     _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit ?? ''));
     _itemDescriptionController = TextEditingController.fromValue(TextEditingValue(text: widget.item.description ?? ''));
     _remarksController = TextEditingController.fromValue(TextEditingValue(text: widget.item.remarks ?? ''));
@@ -79,10 +81,10 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          itemNameField(),
-                          departmentField(),
-                          personAccountableField(),
-                          categoryField(),
+                          _itemNameField(),
+                          _categoryField(),
+                          _departmentField(),
+                          _personAccountableField(),
                         ],
                       ),
                     ),
@@ -91,10 +93,10 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          unitField(),
-                          priceField(),
-                          datePurchasedField(),
-                          dateReceivedField(),
+                          _unitField(),
+                          _priceField(),
+                          _datePurchasedField(),
+                          _dateReceivedField(),
                         ],
                       ),
                     ),
@@ -103,9 +105,9 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          itemDescField(),
-                          statusField(),
-                          remarksField(),
+                          _itemDescField(),
+                          _statusField(),
+                          _remarksField(),
                         ],
                       ),
                     )
@@ -213,7 +215,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column itemNameField() {
+  Column _itemNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -234,7 +236,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column itemDescField() {
+  Column _itemDescField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -256,7 +258,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column remarksField() {
+  Column _remarksField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -278,7 +280,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column departmentField() {
+  Column _departmentField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -318,7 +320,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column personAccountableField() {
+  Column _personAccountableField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -338,7 +340,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column priceField() {
+  Column _priceField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -374,7 +376,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column datePurchasedField() {
+  Column _datePurchasedField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -422,7 +424,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column dateReceivedField() {
+  Column _dateReceivedField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -446,7 +448,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column statusField() {
+  Column _statusField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -468,7 +470,9 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 ),
               ),
               value: widget.item.status,
-              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
+              items: ItemStatus.values
+                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
+                  .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -482,7 +486,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column unitField() {
+  Column _unitField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -502,7 +506,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
-  Column categoryField() {
+  Column _categoryField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -512,34 +516,84 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         ),
         SizedBox(
           width: 300,
-          child: ButtonTheme(
-            alignedDropdown: true,
-            child: DropdownButtonFormField<ItemCategory>(
-              isDense: true,
-              focusColor: Colors.transparent,
-              borderRadius: defaultBorderRadius,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: defaultBorderRadius,
-                ),
-              ),
-              value: widget.item.category,
-              items: ref
-                  .watch(categoriesProvider)
-                  .map<DropdownMenuItem<ItemCategory>>(
-                    (value) => DropdownMenuItem<ItemCategory>(
-                      value: value,
-                      child: Text(value.categoryName),
+          child: Autocomplete<ItemCategory>(
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+              focusNode.addListener(() {
+                if (!focusNode.hasFocus) {
+                  // checks if the current text in the controller is a category name
+                  // if true, returns that category,
+                  // if false, returns last category that was matched
+                  ItemCategory? buffer = ref
+                      .read(categoriesProvider)
+                      .singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => widget.item.category);
+
+                  textEditingController.text = buffer.categoryName;
+                }
+              });
+
+              return TextFormField(
+                maxLength: 45,
+                controller: textEditingController,
+                focusNode: focusNode,
+                onFieldSubmitted: (String value) {
+                  onFieldSubmitted();
+                },
+              );
+            },
+            initialValue: TextEditingValue(text: widget.item.category.categoryName),
+            optionsBuilder: (TextEditingValue option) {
+              return ref.watch(categoriesProvider).where((element) => element.categoryName.toLowerCase().contains(option.text.toLowerCase().trim()));
+            },
+            displayStringForOption: (option) => option.categoryName,
+            onSelected: (option) {
+              setState(() {
+                widget.item.category = option;
+              });
+            },
+            optionsViewBuilder: (context, onSelected, options) {
+              /// sets the max number of displayed options in dropdown
+              int maxOptionsInView = options.length >= 5 ? 5 : options.length;
+
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(4.0)),
+                  ),
+                  child: SizedBox(
+                    width: 300,
+                    height: 50 * maxOptionsInView.toDouble(),
+                    child: ListView.builder(
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        ItemCategory category = options.elementAt(index);
+
+                        return InkWell(
+                          onTap: () {
+                            onSelected(category);
+                          },
+                          child: Builder(
+                            builder: (BuildContext context) {
+                              final bool highlight = AutocompleteHighlightedOption.of(context) == index;
+                              if (highlight) {
+                                SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+                                  Scrollable.ensureVisible(context, alignment: 0.5);
+                                });
+                              }
+                              return Container(
+                                color: highlight ? Theme.of(context).focusColor : null,
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(category.categoryName),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
-                  )
-                  .toList(),
-              onChanged: (ItemCategory? category) {
-                if (category == null) return;
-                setState(() {
-                  widget.item.category = category;
-                });
-              },
-            ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],

@@ -1,11 +1,11 @@
 // Flutter imports:
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 // Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 // Project imports:
 import '../core/constants.dart';
@@ -44,11 +44,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   final TextEditingController _itemDescriptionController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
   final TextEditingController _countController = TextEditingController(text: '1');
-  final TextEditingController _categoryController = TextEditingController();
-
-  final FocusNode _focusNode = FocusNode();
-
-  String _firstMatch = '';
 
   bool _isPurchased = false;
 
@@ -63,23 +58,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     _department = _departments.first;
     _itemStatus = ItemStatus.Unknown;
     _category = _categories.first;
-
-    _categoryController.text = _category.categoryName;
-    _firstMatch = _category.categoryName;
-    _categoryController.selection = TextSelection.fromPosition(TextPosition(offset: _categoryController.text.length));
-
-    _focusNode.addListener(
-      () {
-        setState(() {
-          if (!_focusNode.hasFocus) {
-            _categoryController.text = _firstMatch;
-          }
-          if (_focusNode.hasPrimaryFocus) {
-            _categoryController.selection = TextSelection(baseOffset: 0, extentOffset: _categoryController.text.length);
-          }
-        });
-      },
-    );
 
     super.initState();
   }
@@ -110,10 +88,10 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          itemNameField(),
-                          departmentField(),
-                          categoryField(),
-                          personAccountableField(),
+                          _itemNameField(),
+                          _categoryField(),
+                          _departmentField(),
+                          _personAccountableField(),
                         ],
                       ),
                     ),
@@ -122,10 +100,10 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          unitField(),
-                          priceField(),
-                          datePurchasedField(),
-                          dateReceivedField(),
+                          _unitField(),
+                          _priceField(),
+                          _datePurchasedField(),
+                          _dateReceivedField(),
                         ],
                       ),
                     ),
@@ -134,10 +112,10 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          itemDescField(),
-                          statusField(),
-                          remarksField(),
-                          countField(),
+                          _itemDescField(),
+                          _statusField(),
+                          _remarksField(),
+                          _countField(),
                         ],
                       ),
                     )
@@ -255,7 +233,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column itemNameField() {
+  Column _itemNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -276,7 +254,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column itemDescField() {
+  Column _itemDescField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -298,7 +276,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column remarksField() {
+  Column _remarksField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -320,7 +298,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column departmentField() {
+  Column _departmentField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -360,7 +338,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column personAccountableField() {
+  Column _personAccountableField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -380,7 +358,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column countField() {
+  Column _countField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -393,9 +371,23 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             const SizedBox(
               width: 20,
             ),
-            const Tooltip(
-              message: 'Number of copies of items. Items will be displayed seperately.',
-              child: Icon(Icons.info),
+            Tooltip(
+              // textAlign: TextAlign.center,
+              message: 'Number of copies of items. Items will be displayed\nseperately and with a different Asset ID.',
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white38,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Center(
+                  child: Text(
+                    '?',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -413,7 +405,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column priceField() {
+  Column _priceField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -449,7 +441,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column datePurchasedField() {
+  Column _datePurchasedField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -497,7 +489,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column dateReceivedField() {
+  Column _dateReceivedField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -521,7 +513,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column statusField() {
+  Column _statusField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -543,7 +535,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _itemStatus,
-              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
+              items: ItemStatus.values
+                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
+                  .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -557,7 +551,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column unitField() {
+  Column _unitField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -577,7 +571,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column categoryFieldOld() {
+  Column _categoryField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -587,73 +581,78 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         ),
         SizedBox(
           width: 300,
-          child: ButtonTheme(
-            alignedDropdown: true,
-            child: DropdownButtonFormField<ItemCategory>(
-              isDense: true,
-              focusColor: Colors.transparent,
-              borderRadius: defaultBorderRadius,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: defaultBorderRadius,
-                ),
-              ),
-              value: _category,
-              items: _categories.map<DropdownMenuItem<ItemCategory>>((value) => DropdownMenuItem<ItemCategory>(value: value, child: Text(value.categoryName))).toList(),
-              onChanged: (ItemCategory? category) {
-                if (category == null) return;
-                setState(() {
-                  _category = category;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+          child: Autocomplete<ItemCategory>(
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+              focusNode.addListener(() {
+                if (!focusNode.hasFocus) {
+                  // checks if the current text in the controller is a category name
+                  // if true, returns that category,
+                  // if false, returns last category that was matched
+                  ItemCategory? buffer =
+                      _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
 
-  Column categoryField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Category'),
-        const SizedBox(
-          height: 20,
-        ),
-        SizedBox(
-          width: 300,
-          child: TypeAheadField<ItemCategory>(
-            textFieldConfiguration: TextFieldConfiguration(
-              maxLength: 45,
-              controller: _categoryController,
-            ),
-            animationStart: 1,
-            animationDuration: const Duration(seconds: 1),
-            hideOnEmpty: true,
-            hideOnError: true,
-            suggestionsCallback: (pattern) {
-              _firstMatch = _categories.firstWhere((element) => element.categoryName.toLowerCase().trim().contains(pattern.toLowerCase().trim())).categoryName;
-
-              return _categories.where(
-                (element) => element.categoryName.toLowerCase().trim().startsWith(
-                      pattern.toLowerCase().trim(),
-                    ),
-              );
-            },
-            itemBuilder: (context, category) {
-              return ListTile(
-                title: Text(category.categoryName),
-                visualDensity: VisualDensity.compact,
-                dense: true,
-              );
-            },
-            onSuggestionSelected: (suggestion) {
-              _category = suggestion;
-
-              setState(() {
-                _categoryController.text = suggestion.categoryName;
+                  textEditingController.text = buffer.categoryName;
+                }
               });
+
+              return TextFormField(
+                maxLength: 45,
+                controller: textEditingController,
+                focusNode: focusNode,
+                onFieldSubmitted: (String value) {
+                  onFieldSubmitted();
+                },
+              );
+            },
+            initialValue: TextEditingValue(text: _category.categoryName),
+            optionsBuilder: (TextEditingValue option) {
+              return _categories.where((element) => element.categoryName.toLowerCase().contains(option.text.toLowerCase().trim()));
+            },
+            displayStringForOption: (option) => option.categoryName,
+            onSelected: (option) => _category = option,
+            optionsViewBuilder: (context, onSelected, options) {
+              /// sets the max number of displayed options in dropdown
+              int maxOptionsInView = options.length >= 5 ? 5 : options.length;
+
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(4.0)),
+                  ),
+                  child: SizedBox(
+                    width: 300, // <-- Right here !
+                    height: 50 * maxOptionsInView.toDouble(),
+                    child: ListView.builder(
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        ItemCategory category = options.elementAt(index);
+
+                        return InkWell(
+                          onTap: () {
+                            onSelected(category);
+                          },
+                          child: Builder(
+                            builder: (BuildContext context) {
+                              final bool highlight = AutocompleteHighlightedOption.of(context) == index;
+                              if (highlight) {
+                                SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+                                  Scrollable.ensureVisible(context, alignment: 0.5);
+                                });
+                              }
+                              return Container(
+                                color: highlight ? Theme.of(context).focusColor : null,
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(category.categoryName),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
             },
           ),
         ),

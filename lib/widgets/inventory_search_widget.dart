@@ -3,6 +3,7 @@ import 'package:eon_asset_tracker/models/category_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
 import 'package:eon_asset_tracker/widgets/search_daterange_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 // Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,10 +75,6 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
     }
 
     ref.read(currentInventoryPage.notifier).state = 0;
-
-    // if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
-    //   EasyLoading.showInfo('Sir wala pa ni natapos');
-    // }
 
     dynamic query = ref.read(searchQueryProvider);
     if (query is DateTimeRange) {
@@ -153,7 +150,7 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
                 ...ref.read(departmentsProvider),
                 Department(
                   departmentID: 'null',
-                  departmentName: 'No Category',
+                  departmentName: 'No Department',
                 ),
               ];
 
@@ -185,21 +182,10 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
               ];
 
               ref.read(searchQueryProvider.notifier).state = categories.first.categoryID!;
+
               setState(
                 () {
-                  _searchField = _queryDropdownField(
-                    categories.map(
-                      (e) {
-                        return DropdownMenuItem(
-                          onTap: () {
-                            ref.read(searchQueryProvider.notifier).state = e.categoryID!;
-                          },
-                          value: e.categoryID,
-                          child: Text(e.categoryName),
-                        );
-                      },
-                    ).toList(),
-                  );
+                  _searchField = _categoryField(categories);
                 },
               );
             } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
@@ -217,6 +203,95 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
             ref.read(searchFilterProvider.notifier).state = filter;
           },
         ),
+      ),
+    );
+  }
+
+  Widget _categoryField(List<ItemCategory> categories) {
+    return SizedBox(
+      width: 300,
+      child: Autocomplete<ItemCategory>(
+        fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+          focusNode.addListener(
+            () {
+              if (!focusNode.hasFocus) {
+                // checks if the current text in the controller is a category name
+                // if true, returns that category,
+                // if false, returns last category that was matched
+                ItemCategory? buffer = categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(),
+                    orElse: () => categories.firstWhere((element) => element.categoryID == ref.read(searchQueryProvider).toString()));
+
+                textEditingController.text = buffer.categoryName;
+              }
+            },
+          );
+
+          return TextFormField(
+            decoration: const InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.all(14),
+            ),
+            controller: textEditingController,
+            focusNode: focusNode,
+            onFieldSubmitted: (String value) {
+              onFieldSubmitted();
+            },
+          );
+        },
+        initialValue: TextEditingValue(text: categories.first.categoryName),
+        optionsBuilder: (TextEditingValue option) {
+          return ref.watch(categoriesProvider).where((element) => element.categoryName.toLowerCase().contains(option.text.toLowerCase().trim()));
+        },
+        displayStringForOption: (option) => option.categoryName,
+        onSelected: (option) {
+          setState(() {
+            ref.read(searchQueryProvider.notifier).state = option.categoryID;
+          });
+        },
+        optionsViewBuilder: (context, onSelected, options) {
+          /// sets the max number of displayed options in dropdown
+          int maxOptionsInView = options.length >= 5 ? 5 : options.length;
+
+          return Align(
+            alignment: Alignment.topLeft,
+            child: Material(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(4.0)),
+              ),
+              child: SizedBox(
+                width: 300,
+                height: 50 * maxOptionsInView.toDouble(),
+                child: ListView.builder(
+                  itemCount: options.length,
+                  itemBuilder: (context, index) {
+                    ItemCategory category = options.elementAt(index);
+
+                    return InkWell(
+                      onTap: () {
+                        onSelected(category);
+                      },
+                      child: Builder(
+                        builder: (BuildContext context) {
+                          final bool highlight = AutocompleteHighlightedOption.of(context) == index;
+                          if (highlight) {
+                            SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+                              Scrollable.ensureVisible(context, alignment: 0.5);
+                            });
+                          }
+                          return Container(
+                            color: highlight ? Theme.of(context).focusColor : null,
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(category.categoryName),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
