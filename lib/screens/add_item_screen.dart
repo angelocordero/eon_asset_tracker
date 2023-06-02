@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 // Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 // Project imports:
 import '../core/constants.dart';
@@ -43,6 +44,11 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   final TextEditingController _itemDescriptionController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
   final TextEditingController _countController = TextEditingController(text: '1');
+  final TextEditingController _categoryController = TextEditingController();
+
+  final FocusNode _focusNode = FocusNode();
+
+  String _firstMatch = '';
 
   bool _isPurchased = false;
 
@@ -56,7 +62,24 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     _department = _departments.first;
     _itemStatus = ItemStatus.Unknown;
-    _category = _categories.firstWhere((element) => element.categoryName == 'TOOLS AND EQUIPMENT');
+    _category = _categories.first;
+
+    _categoryController.text = _category.categoryName;
+    _firstMatch = _category.categoryName;
+    _categoryController.selection = TextSelection.fromPosition(TextPosition(offset: _categoryController.text.length));
+
+    _focusNode.addListener(
+      () {
+        setState(() {
+          if (!_focusNode.hasFocus) {
+            _categoryController.text = _firstMatch;
+          }
+          if (_focusNode.hasPrimaryFocus) {
+            _categoryController.selection = TextSelection(baseOffset: 0, extentOffset: _categoryController.text.length);
+          }
+        });
+      },
+    );
 
     super.initState();
   }
@@ -89,8 +112,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         children: [
                           itemNameField(),
                           departmentField(),
-                          personAccountableField(),
                           categoryField(),
+                          personAccountableField(),
                         ],
                       ),
                     ),
@@ -554,7 +577,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  Column categoryField() {
+  Column categoryFieldOld() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -584,6 +607,54 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 });
               },
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column categoryField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Category'),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          width: 300,
+          child: TypeAheadField<ItemCategory>(
+            textFieldConfiguration: TextFieldConfiguration(
+              maxLength: 45,
+              controller: _categoryController,
+            ),
+            animationStart: 1,
+            animationDuration: const Duration(seconds: 1),
+            hideOnEmpty: true,
+            hideOnError: true,
+            suggestionsCallback: (pattern) {
+              _firstMatch = _categories.firstWhere((element) => element.categoryName.toLowerCase().trim().contains(pattern.toLowerCase().trim())).categoryName;
+
+              return _categories.where(
+                (element) => element.categoryName.toLowerCase().trim().startsWith(
+                      pattern.toLowerCase().trim(),
+                    ),
+              );
+            },
+            itemBuilder: (context, category) {
+              return ListTile(
+                title: Text(category.categoryName),
+                visualDensity: VisualDensity.compact,
+                dense: true,
+              );
+            },
+            onSuggestionSelected: (suggestion) {
+              _category = suggestion;
+
+              setState(() {
+                _categoryController.text = suggestion.categoryName;
+              });
+            },
           ),
         ),
       ],
