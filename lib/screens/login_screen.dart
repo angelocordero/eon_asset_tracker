@@ -173,13 +173,7 @@ class LoginScreen extends ConsumerWidget {
 
       user = await DatabaseAPI.authenticateUser(ref, username, passwordHash);
     } catch (e, st) {
-      showErrorAndStacktrace(e, st);
-      return;
-    }
-
-    if (user == null) {
-      showErrorAndStacktrace('user does not exist', null);
-      return;
+      return showErrorAndStacktrace(e, st);
     }
 
     ref.read(userProvider.notifier).state = user;

@@ -1,5 +1,6 @@
 // Dart imports:
 import 'dart:convert';
+import 'dart:io';
 
 // Flutter imports:
 import 'package:flutter/material.dart';
@@ -27,10 +28,13 @@ Future<MySQLConnection> createSqlConn() async {
       userName: globalConnectionSettings.username,
       password: globalConnectionSettings.password,
       databaseName: globalConnectionSettings.databaseName,
-      secure: true,
+      secure: Platform.isWindows ? true : false,
+    ).timeout(
+      const Duration(seconds: 3),
+      onTimeout: () async => await Future.error(const SocketException('Can\'t connect to database')),
     );
   } catch (e, st) {
-    return Future.error(e, st);
+    return await Future.error(e, st);
   }
 }
 

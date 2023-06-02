@@ -352,7 +352,7 @@ class InventoryTab extends ConsumerWidget {
                 if (items.isNotEmpty) {
                   EasyLoading.dismiss();
                 } else {
-                  return Future.error('Error in generating report');
+                  return await Future.error('Error in generating report');
                 }
 
                 await showReportDialog(

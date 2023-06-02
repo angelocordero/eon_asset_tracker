@@ -120,7 +120,7 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
 
       EasyLoading.dismiss();
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -133,7 +133,7 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
 
       EasyLoading.dismiss();
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -146,7 +146,7 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
 
       EasyLoading.dismiss();
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 
@@ -159,7 +159,7 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
 
       EasyLoading.dismiss();
     } catch (e, st) {
-      return Future.error(e, st);
+      return await Future.error(e, st);
     }
   }
 }
