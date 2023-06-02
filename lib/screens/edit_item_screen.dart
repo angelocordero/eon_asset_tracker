@@ -25,8 +25,8 @@ class EditItemScreen extends ConsumerStatefulWidget {
 }
 
 class _EditItemScreenState extends ConsumerState<EditItemScreen> {
-  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 5));
-  final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 5));
+  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 10));
+  final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 10));
 
   late TextEditingController _nameController;
   late TextEditingController _personAccountableController;

@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Project imports:
 import '../core/providers.dart';
-import '../widgets/dashboard_category_chart.dart';
 import '../widgets/dashboard_department_chart.dart';
 import '../widgets/dashboard_status_chart.dart';
 
@@ -91,9 +90,7 @@ class DashboardTab extends ConsumerWidget {
                   ),
                   Flexible(
                     flex: 7,
-                    child: Card(
-                      child: DashboardCategoryChart(),
-                    ),
+                    child: Card(),
                   ),
                 ],
               ),

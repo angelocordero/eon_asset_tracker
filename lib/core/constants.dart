@@ -11,6 +11,7 @@ import 'package:hive/hive.dart';
 enum ItemStatus {
   Good,
   Defective,
+  Unknown,
 }
 
 typedef TableSort = (Columns?, Sort?);

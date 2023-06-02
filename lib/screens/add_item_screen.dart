@@ -29,8 +29,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late DateTime _datePurchased;
   late DateTime _dateReceived;
 
-  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 5));
-  final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 5));
+  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 10));
+  final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 10));
 
   late ItemStatus _itemStatus;
   late Department _department;
@@ -42,6 +42,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   final TextEditingController _unitController = TextEditingController();
   final TextEditingController _itemDescriptionController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
+  final TextEditingController _countController = TextEditingController(text: '1');
 
   bool _isPurchased = false;
 
@@ -54,7 +55,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     _categories = ref.read(categoriesProvider);
 
     _department = _departments.first;
-    _itemStatus = ItemStatus.Good;
+    _itemStatus = ItemStatus.Unknown;
     _category = _categories.first;
 
     super.initState();
@@ -113,6 +114,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                           itemDescField(),
                           statusField(),
                           remarksField(),
+                          countField(),
                         ],
                       ),
                     )
@@ -134,27 +136,32 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                       EasyLoading.show();
 
-                      Item item = Item.toDatabase(
-                        personAccountable: _personAccountableController.text.trim(),
-                        department: _department,
-                        name: _nameController.text.trim(),
-                        description: _itemDescriptionController.text.trim(),
-                        unit: _unitController.text.trim(),
-                        price: _isPurchased
-                            ? _priceController.text.trim().isEmpty
-                                ? 0
-                                : double.tryParse(_priceController.text.trim())
-                            : null,
-                        datePurchased: _isPurchased ? _datePurchased : null,
-                        dateReceived: _dateReceived,
-                        status: _itemStatus,
-                        category: _category,
-                        remarks: _remarksController.text.trim(),
-                        categories: ref.read(categoriesProvider),
-                        departments: ref.read(departmentsProvider),
-                      );
+                      int count = int.tryParse(_countController.text.trim()) ?? 1;
+
                       try {
-                        await DatabaseAPI.addItem(item: item);
+                        for (int i = 0; i < count; i++) {
+                          Item item = Item.toDatabase(
+                            personAccountable: _personAccountableController.text.trim(),
+                            department: _department,
+                            name: _nameController.text.trim(),
+                            description: _itemDescriptionController.text.trim(),
+                            unit: _unitController.text.trim(),
+                            price: _isPurchased
+                                ? _priceController.text.trim().isEmpty
+                                    ? 0
+                                    : double.tryParse(_priceController.text.trim())
+                                : null,
+                            datePurchased: _isPurchased ? _datePurchased : null,
+                            dateReceived: _dateReceived,
+                            status: _itemStatus,
+                            category: _category,
+                            remarks: _remarksController.text.trim(),
+                            categories: ref.read(categoriesProvider),
+                            departments: ref.read(departmentsProvider),
+                          );
+
+                          await DatabaseAPI.addItem(item: item);
+                        }
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);
@@ -344,6 +351,39 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             maxLength: 45,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
             controller: _personAccountableController,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column countField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Count',
+              style: TextStyle(color: _isPurchased ? Colors.white : Colors.grey),
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            const Tooltip(
+              message: 'Number of copies of items. Items will be displayed seperately.',
+              child: Icon(Icons.info),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          width: 100,
+          child: TextField(
+            controller: _countController,
+            inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9]"), allow: true)],
           ),
         ),
       ],

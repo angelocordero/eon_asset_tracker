@@ -248,6 +248,7 @@ class AdminPanelTab extends ConsumerWidget {
                                           );
 
                                           await ref.read(adminPanelProvider.notifier).editCategory(ref, category);
+                                          await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
                                           // ignore: use_build_context_synchronously
                                           Navigator.pop(context);
@@ -345,10 +346,11 @@ class AdminPanelTab extends ConsumerWidget {
               icon: const Icon(Icons.close),
             ),
             IconButton.outlined(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context);
 
-                ref.read(adminPanelProvider.notifier).deleteDepartment(ref, departmentID);
+                await ref.read(adminPanelProvider.notifier).deleteDepartment(ref, departmentID);
+                await DatabaseAPI.refreshDepartmentsAndCategories(ref);
               },
               icon: const Icon(Icons.check),
             ),
@@ -376,10 +378,11 @@ class AdminPanelTab extends ConsumerWidget {
               icon: const Icon(Icons.close),
             ),
             IconButton.outlined(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context);
 
-                ref.read(adminPanelProvider.notifier).deleteCategory(ref, categoryID);
+                await ref.read(adminPanelProvider.notifier).deleteCategory(ref, categoryID);
+                await DatabaseAPI.refreshDepartmentsAndCategories(ref);
               },
               icon: const Icon(Icons.check),
             ),
@@ -432,6 +435,7 @@ class AdminPanelTab extends ConsumerWidget {
                                           );
 
                                           await ref.read(adminPanelProvider.notifier).editDepartment(ref, department);
+                                          await DatabaseAPI.refreshDepartmentsAndCategories(ref);
                                         },
                                       );
                                     },
