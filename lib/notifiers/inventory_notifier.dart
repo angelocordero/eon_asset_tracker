@@ -135,8 +135,8 @@ class InventoryNotifier extends StateNotifier<Inventory> {
     _isLoading = false;
   }
 
-  Future<void> getInventoryFromPage({required int page, String? query, InventorySearchFilter? filter}) async {
-    if (query == null || filter == null || query.isEmpty) {
+  Future<void> getInventoryFromPage({required int page, dynamic query, InventorySearchFilter? filter}) async {
+    if (query == null || filter == null || query == '') {
       await _getUnfilteredFromPage(page);
     } else {
       await _searchFromPage(
@@ -164,11 +164,11 @@ class InventoryNotifier extends StateNotifier<Inventory> {
   }
 
   Future<void> _searchFromPage({
-    required String query,
+    required dynamic query,
     required InventorySearchFilter filter,
     required int page,
   }) async {
-    if (query.isEmpty) {
+    if (query == '') {
       refresh();
       return;
     }

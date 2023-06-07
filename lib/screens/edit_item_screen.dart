@@ -42,8 +42,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   void initState() {
     _nameController = TextEditingController.fromValue(TextEditingValue(text: widget.item.name));
     _personAccountableController = TextEditingController.fromValue(TextEditingValue(text: widget.item.personAccountable ?? ''));
-    _priceController =
-        TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
+    _priceController = TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
     _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit ?? ''));
     _itemDescriptionController = TextEditingController.fromValue(TextEditingValue(text: widget.item.description ?? ''));
     _remarksController = TextEditingController.fromValue(TextEditingValue(text: widget.item.remarks ?? ''));
@@ -470,9 +469,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 ),
               ),
               value: widget.item.status,
-              items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
-                  .toList(),
+              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -506,6 +503,13 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
     );
   }
 
+  slide() {
+    return Slider(
+      value: 0,
+      onChanged: (value) {},
+    );
+  }
+
   Column _categoryField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,9 +527,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   // checks if the current text in the controller is a category name
                   // if true, returns that category,
                   // if false, returns last category that was matched
-                  ItemCategory? buffer = ref
-                      .read(categoriesProvider)
-                      .singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => widget.item.category);
+                  ItemCategory? buffer = ref.read(categoriesProvider).singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => widget.item.category);
 
                   textEditingController.text = buffer.categoryName;
                 }

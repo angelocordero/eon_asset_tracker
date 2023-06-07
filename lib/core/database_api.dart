@@ -537,8 +537,8 @@ class DatabaseAPI {
     required DateTimeRange range,
   }) async {
     try {
-      return await conn.execute(
-          'SELECT COUNT(*) as count FROM `assets` WHERE $columnString BETWEEN ${dateTimeToSQLString(range.start)} AND ${dateTimeToSQLString(range.end)} AND `is_enabled` = 1 ORDER BY $columnString ASC');
+      return await conn
+          .execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` BETWEEN \'${dateTimeToSQLString(range.start)}\' AND \'${dateTimeToSQLString(range.end)}\' AND `is_enabled` = 1');
     } catch (e, st) {
       return await Future.error(e, st);
     }
@@ -712,8 +712,7 @@ class DatabaseAPI {
     try {
       List<Map<String, dynamic>> buffer = [];
 
-      IResultSet results =
-          await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
+      IResultSet results = await conn.execute('SELECT `department_id`, COUNT(*) as count FROM `assets` WHERE `is_enabled` = 1 GROUP BY `department_id`');
 
       List<ResultSetRow> rows = results.rows.toList();
 
