@@ -62,20 +62,46 @@ class DashboardStatusChart extends ConsumerWidget {
     return dashboardData.statusDashboardData.entries.map((entry) {
       String percentage = '${(entry.value / dashboardData.totalItems * 100).toStringAsFixed(0)}%';
 
+      Color color;
+
+      switch (entry.key) {
+        case 'Good':
+          color = sampleColors[9];
+          break;
+        case 'Defective':
+          color = sampleColors[4];
+          break;
+        default:
+          color = sampleColors[8];
+      }
+
       return PieChartSectionData(
         value: entry.value.toDouble(),
         title: percentage,
-        color: entry.key == 'Good' ? sampleColors[9] : sampleColors[4],
+        color: color,
       );
     }).toList();
   }
 
   List<Widget> _legend(Map<String, int> statusData) {
     return statusData.entries.map((entry) {
+      Color color;
+
+      switch (entry.key) {
+        case 'Good':
+          color = sampleColors[9];
+          break;
+        case 'Defective':
+          color = sampleColors[4];
+          break;
+        default:
+          color = sampleColors[8];
+      }
+
       return Padding(
         padding: const EdgeInsets.all(20.0),
         child: DashboardChartLegend(
-          color: entry.key == 'Good' ? sampleColors[9] : sampleColors[4],
+          color: color,
           text: '${entry.key} - ${entry.value.toString()}',
           size: 20,
         ),

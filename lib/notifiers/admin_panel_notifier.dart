@@ -42,26 +42,20 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
   }
 
   Future<void> editDepartment(WidgetRef ref, Department department) async {
-    EasyLoading.show();
     try {
       await DatabaseAPI.editDepartment(department);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
-
-      EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
   Future<void> deleteDepartment(WidgetRef ref, String departmentID) async {
-    EasyLoading.show();
     try {
       await DatabaseAPI.deleteDepartment(departmentID);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
-
-      EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
@@ -81,26 +75,20 @@ class AdminPanelNotifier extends StateNotifier<Map<String, List<dynamic>>> {
   }
 
   Future<void> editCategory(WidgetRef ref, ItemCategory category) async {
-    EasyLoading.show();
     try {
       await DatabaseAPI.editCategory(category);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
-
-      EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }
   }
 
   Future<void> deleteCategory(WidgetRef ref, String categoryID) async {
-    EasyLoading.show();
     try {
       await DatabaseAPI.deleteCategory(categoryID);
 
       await DatabaseAPI.refreshDepartmentsAndCategories(ref);
-
-      EasyLoading.dismiss();
     } catch (e, st) {
       showErrorAndStacktrace(e, st);
     }

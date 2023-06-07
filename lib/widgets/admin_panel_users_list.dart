@@ -8,13 +8,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers.dart';
 import '../models/user_model.dart';
 
+final usersProvider = Provider<List<User>>((ref) {
+  return List<User>.from((ref.watch(adminPanelProvider)['users'])?.toList() ?? []);
+});
+
 class AdminPanelUsersList extends ConsumerWidget {
   const AdminPanelUsersList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<User> users = ref.watch(adminPanelProvider.select((value) => List<User>.from(value['users']!)));
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -33,7 +35,8 @@ class AdminPanelUsersList extends ConsumerWidget {
                   label: Text('S T A T U S'),
                 ),
               ],
-              rows: users
+              rows: ref
+                  .watch(usersProvider)
                   .map(
                     (e) => DataRow(
                       selected: ref.watch(adminPanelSelectedUserProvider) == e,

@@ -61,6 +61,9 @@ final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, Dashboard
 });
 
 final inventoryProvider = StateNotifierProvider<InventoryNotifier, Inventory>((ref) {
+  ref.watch(categoriesProvider);
+  ref.watch(departmentsProvider);
+
   return InventoryNotifier(ref.watch(itemsPerPageProvider));
 });
 

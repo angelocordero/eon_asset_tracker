@@ -1,5 +1,8 @@
 // Flutter imports:
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,34 +31,95 @@ class AdminPanelTab extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       child: Visibility(
         visible: false,
-        replacement: Column(
+        replacement: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // const AdminPanelSearchWidget(),
-            // const Divider(
-            //   height: 40,
-            // ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _usersList(context, ref),
-                  const VerticalDivider(
-                    width: 40,
-                  ),
-                  _departmentsList(context, ref),
-                  const VerticalDivider(
-                    width: 40,
-                  ),
-                  _categoriesList(context, ref),
-                ],
-              ),
+            _usersList(context, ref),
+            const VerticalDivider(
+              width: 40,
             ),
+            _departmentsList(context, ref),
+            const VerticalDivider(
+              width: 40,
+            ),
+            _categoriesList(context, ref),
           ],
         ),
         child: const CircularProgressIndicator(),
       ),
+    );
+  }
+
+  Future<dynamic> showDeleteDepartmentDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String departmentID,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm delete?'),
+          actions: [
+            IconButton.outlined(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.close),
+            ),
+            IconButton.outlined(
+              onPressed: () async {
+                EasyLoading.show();
+
+                await ref.read(adminPanelProvider.notifier).deleteDepartment(ref, departmentID);
+                await DatabaseAPI.refreshDepartmentsAndCategories(ref);
+
+                Navigator.pop(context);
+
+                EasyLoading.dismiss();
+              },
+              icon: const Icon(Icons.check),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<dynamic> showDeleteCategoryDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String categoryID,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm delete?'),
+          actions: [
+            IconButton.outlined(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.close),
+            ),
+            IconButton.outlined(
+              onPressed: () async {
+                EasyLoading.show();
+
+                await ref.read(adminPanelProvider.notifier).deleteCategory(ref, categoryID);
+                await DatabaseAPI.refreshDepartmentsAndCategories(ref);
+
+                Navigator.pop(context);
+
+                EasyLoading.dismiss();
+              },
+              icon: const Icon(Icons.check),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -111,7 +175,6 @@ class AdminPanelTab extends ConsumerWidget {
 
                                       if (admin) {
                                         await ref.read(adminPanelProvider.notifier).delete(ref, user);
-                                        // ignore: use_build_context_synchronously
                                         Navigator.pop(context);
                                       } else {
                                         showErrorAndStacktrace('Wrong master password', null);
@@ -172,7 +235,6 @@ class AdminPanelTab extends ConsumerWidget {
                                 bool admin = await DatabaseAPI.getMasterPassword(masterPasswordController.text.trim());
 
                                 if (admin) {
-                                  // ignore: use_build_context_synchronously
                                   await Navigator.push(
                                     context,
                                     CustomRoute(
@@ -241,6 +303,7 @@ class AdminPanelTab extends ConsumerWidget {
                                         title: 'Edit Category',
                                         controller: controller,
                                         callback: () async {
+                                          EasyLoading.show();
                                           if (controller.text.trim().isEmpty) return;
 
                                           category = category.copyWith(
@@ -250,8 +313,9 @@ class AdminPanelTab extends ConsumerWidget {
                                           await ref.read(adminPanelProvider.notifier).editCategory(ref, category);
                                           await DatabaseAPI.refreshDepartmentsAndCategories(ref);
 
-                                          // ignore: use_build_context_synchronously
                                           Navigator.pop(context);
+
+                                          EasyLoading.dismiss();
                                         },
                                       );
                                     },
@@ -319,76 +383,11 @@ class AdminPanelTab extends ConsumerWidget {
             controller: controller,
             callback: () async {
               await ref.read(adminPanelProvider.notifier).addCategory(ref, controller.text.trim());
-              // ignore: use_build_context_synchronously
               Navigator.pop(context);
             },
           );
         },
       ),
-    );
-  }
-
-  Future<dynamic> showDeleteDepartmentDialog(
-    BuildContext context,
-    WidgetRef ref,
-    String departmentID,
-  ) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm delete?'),
-          actions: [
-            IconButton.outlined(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.close),
-            ),
-            IconButton.outlined(
-              onPressed: () async {
-                Navigator.pop(context);
-
-                await ref.read(adminPanelProvider.notifier).deleteDepartment(ref, departmentID);
-                await DatabaseAPI.refreshDepartmentsAndCategories(ref);
-              },
-              icon: const Icon(Icons.check),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<dynamic> showDeleteCategoryDialog(
-    BuildContext context,
-    WidgetRef ref,
-    String categoryID,
-  ) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm delete?'),
-          actions: [
-            IconButton.outlined(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.close),
-            ),
-            IconButton.outlined(
-              onPressed: () async {
-                Navigator.pop(context);
-
-                await ref.read(adminPanelProvider.notifier).deleteCategory(ref, categoryID);
-                await DatabaseAPI.refreshDepartmentsAndCategories(ref);
-              },
-              icon: const Icon(Icons.check),
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -430,12 +429,16 @@ class AdminPanelTab extends ConsumerWidget {
                                         callback: () async {
                                           if (controller.text.trim().isEmpty) return;
 
+                                          EasyLoading.show();
+
                                           department = department.copyWith(
                                             departmentName: controller.text.trim(),
                                           );
 
                                           await ref.read(adminPanelProvider.notifier).editDepartment(ref, department);
                                           await DatabaseAPI.refreshDepartmentsAndCategories(ref);
+
+                                          EasyLoading.dismiss();
                                         },
                                       );
                                     },
@@ -503,7 +506,6 @@ class AdminPanelTab extends ConsumerWidget {
             controller: controller,
             callback: () async {
               await ref.read(adminPanelProvider.notifier).addDepartment(ref, controller.text.trim());
-              // ignore: use_build_context_synchronously
               Navigator.pop(context);
             },
           );
