@@ -1,117 +1,98 @@
-// Flutter imports:
+import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:flutter/material.dart';
-
-// Package imports:
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Project imports:
-import '../core/providers.dart';
-import '../models/category_model.dart';
+import '../core/constants.dart';
+import '../models/dashboard_model.dart';
+
+final sortedCategoryProvider = Provider<CategoriesDashboardData>((ref) {
+  CategoriesDashboardData categories = ref.watch(dashboardDataProvider).categoriesDashbordData;
+
+  categories.sort((a, b) {
+    int aCount = a['count'];
+    int bCount = b['count'];
+
+    return bCount.compareTo(aCount);
+  });
+
+  return categories;
+});
+
+final maxXProvider = Provider<double>((ref) {
+  CategoriesDashboardData categories = ref.watch(dashboardDataProvider).categoriesDashbordData;
+
+  List<int> counts = categories.map((e) => e['count'] as int).toList();
+
+  return counts.reduce((value, element) => value > element ? value : element).toDouble() * 1.1;
+});
 
 class DashboardCategoryChart extends ConsumerWidget {
   const DashboardCategoryChart({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<Map<String, dynamic>> categoriesData = ref.watch(dashboardDataProvider).categoriesDashbordData;
+    CategoriesDashboardData categories = ref.watch(sortedCategoryProvider);
+    double max = ref.watch(maxXProvider);
 
-    List<ItemCategory> categories = ref.watch(categoriesProvider);
-
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'I T E M S   P E R   C A T E G O R Y',
-            style: TextStyle(fontSize: 20),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          AspectRatio(
-            aspectRatio: 3.5,
-            child: BarChart(
-              BarChartData(
-                maxY: maxY(categoriesData),
-                titlesData: titlesData(categories),
-                borderData: FlBorderData(show: true),
-                barGroups: barGroups(categoriesData),
-                gridData: FlGridData(show: true),
-                alignment: BarChartAlignment.spaceAround,
-              ),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'I T E M S   P E R   C A T E G O R Y',
+              style: TextStyle(fontSize: 20),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  double maxY(List<Map<String, dynamic>> categoriesData) {
-    double max = 0;
-
-    for (var element in categoriesData) {
-      double elementCount = (element['count'] as int).toDouble();
-
-      if (elementCount > max) {
-        max = elementCount * 1.5;
-      }
-    }
-
-    return max.toDouble();
-  }
-
-  Widget getTitles(double value, TitleMeta meta, List<ItemCategory> categories) {
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-    );
-
-    String categoryName = categories[value.toInt()].categoryName;
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 4,
-      child: Text(categoryName, style: style),
-    );
-  }
-
-  FlTitlesData titlesData(List<ItemCategory> categories) {
-    return FlTitlesData(
-      show: true,
-      bottomTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 30,
-          getTitlesWidget: (double value, TitleMeta meta) {
-            return getTitles(value, meta, categories);
-          },
+            const SizedBox(
+              height: 20,
+            ),
+            ...categories.map((category) {
+              return Card(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        category['categoryName'],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Text(
+                          category['count'].toString(),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 15,
+                      child: SliderTheme(
+                        data: SliderThemeData(
+                          trackHeight: 15,
+                          thumbShape: SliderComponentShape.noOverlay,
+                          disabledActiveTrackColor: sampleColors[2],
+                          disabledInactiveTrackColor: Colors.transparent,
+                        ),
+                        child: Slider(
+                          value: (category['count'] as int).toDouble(),
+                          max: max,
+                          onChanged: null,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ],
         ),
       ),
-      leftTitles: AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
-      ),
-      topTitles: AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
-      ),
-      rightTitles: AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
-      ),
     );
-  }
-
-  List<BarChartGroupData> barGroups(List<Map<String, dynamic>> categoriesData) {
-    return categoriesData.map((entry) {
-      return BarChartGroupData(
-        x: entry['index'],
-        barRods: [
-          BarChartRodData(
-            toY: (entry['count'] as int).toDouble(),
-          )
-        ],
-        showingTooltipIndicators: [0],
-      );
-    }).toList();
   }
 }

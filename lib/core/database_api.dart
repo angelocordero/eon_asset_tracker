@@ -761,13 +761,13 @@ class DatabaseAPI {
           });
 
           buffer.add({
-            'departmentName': categories[i].categoryName,
+            'categoryName': categories[i].categoryName,
             'count': row.typedColByName<int>('count'),
             'index': i,
           });
         } else {
           buffer.add({
-            'departmentName': categories[i].categoryName,
+            'categoryName': categories[i].categoryName,
             'count': 0,
             'index': i,
           });
