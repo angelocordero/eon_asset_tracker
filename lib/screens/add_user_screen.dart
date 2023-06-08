@@ -56,8 +56,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Add User',
-                style: TextStyle(fontSize: 50),
+                'A D D   U S E R',
+                style: TextStyle(fontSize: 30),
               ),
               const SizedBox(
                 height: 30,

@@ -60,7 +60,8 @@ class DashboardStatusChart extends ConsumerWidget {
 
   List<PieChartSectionData> _data(DashboardData dashboardData) {
     return dashboardData.statusDashboardData.entries.map((entry) {
-      String percentage = '${(entry.value / dashboardData.totalItems * 100).toStringAsFixed(0)}%';
+      double percent = (entry.value / dashboardData.totalItems) * 100;
+      String percentage = '${percent.toStringAsFixed(0)} %';
 
       Color color;
 
@@ -72,12 +73,17 @@ class DashboardStatusChart extends ConsumerWidget {
           color = sampleColors[4];
           break;
         default:
-          color = sampleColors[8];
+          color = sampleColors[10];
       }
 
       return PieChartSectionData(
+        badgeWidget: Text(
+          '$percentage\n${entry.value} items',
+          textAlign: TextAlign.center,
+        ),
+        badgePositionPercentageOffset: 2,
         value: entry.value.toDouble(),
-        title: percentage,
+        title: '',
         color: color,
       );
     }).toList();
@@ -95,14 +101,14 @@ class DashboardStatusChart extends ConsumerWidget {
           color = sampleColors[4];
           break;
         default:
-          color = sampleColors[8];
+          color = sampleColors[10];
       }
 
       return Padding(
         padding: const EdgeInsets.all(20.0),
         child: DashboardChartLegend(
           color: color,
-          text: '${entry.key} - ${entry.value.toString()}',
+          text: entry.key,
           size: 20,
         ),
       );

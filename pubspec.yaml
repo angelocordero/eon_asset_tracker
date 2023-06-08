@@ -48,3 +48,8 @@ flutter:
 
   assets:
     - fonts/
+
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono-Regular.ttf

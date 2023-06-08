@@ -20,15 +20,15 @@ class ReportPDF {
 
   Future<Uint8List> generate() async {
     final pw.Document pdf = pw.Document();
-    var data = await rootBundle.load("fonts/Roboto-Regular.ttf");
-    pw.Font fallbackFont = pw.Font.ttf(data);
+    pw.Font font = pw.Font.ttf(await rootBundle.load("fonts/Roboto-Regular.ttf"));
 
     pdf.addPage(
       pw.MultiPage(
+        maxPages: 100,
         theme: pw.ThemeData(
           textAlign: pw.TextAlign.center,
           defaultTextStyle: pw.TextStyle(
-            font: fallbackFont,
+            font: font,
             fontSize: 6,
           ),
         ),

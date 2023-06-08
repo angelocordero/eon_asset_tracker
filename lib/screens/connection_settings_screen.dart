@@ -37,14 +37,15 @@ class ConnectionSettingsScreen extends ConsumerWidget {
                 const Align(
                   alignment: Alignment.center,
                   child: Text(
-                    'Enter connection settings',
+                    'C O N N E C T I O N \nS E T T I N G S',
                     style: TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(
                   height: 30,
                 ),
-                const Text('Connection IP'),
+                const Text('IP'),
                 const SizedBox(
                   height: 10,
                 ),

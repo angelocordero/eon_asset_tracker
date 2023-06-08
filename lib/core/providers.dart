@@ -36,8 +36,8 @@ final selectedItemProvider = StateProvider<Item?>((ref) {
   return null;
 });
 
-final appbarTitleProvider = StateProvider<String>((ref) {
-  return 'Home';
+final appbarTitleProvider = StateProvider.autoDispose<String>((ref) {
+  return 'HOME';
 });
 
 final searchFilterProvider = StateProvider<InventorySearchFilter>((ref) {

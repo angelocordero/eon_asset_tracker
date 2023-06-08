@@ -300,7 +300,7 @@ class AdminPanelTab extends ConsumerWidget {
                                   CustomRoute(
                                     builder: (context) {
                                       return AdminPanelPrompt(
-                                        title: 'Edit Category',
+                                        title: 'E D I T   C A T E G O R Y',
                                         controller: controller,
                                         callback: () async {
                                           EasyLoading.show();
@@ -379,7 +379,7 @@ class AdminPanelTab extends ConsumerWidget {
       CustomRoute(
         builder: (context) {
           return AdminPanelPrompt(
-            title: 'Add Category',
+            title: 'A D D   C A T E G O R Y',
             controller: controller,
             callback: () async {
               await ref.read(adminPanelProvider.notifier).addCategory(ref, controller.text.trim());
@@ -424,7 +424,7 @@ class AdminPanelTab extends ConsumerWidget {
                                   CustomRoute(
                                     builder: (context) {
                                       return AdminPanelPrompt(
-                                        title: 'Edit Department',
+                                        title: 'E D I T   D E P A R T M E N T',
                                         controller: controller,
                                         callback: () async {
                                           if (controller.text.trim().isEmpty) return;
@@ -502,7 +502,7 @@ class AdminPanelTab extends ConsumerWidget {
       CustomRoute(
         builder: (context) {
           return AdminPanelPrompt(
-            title: 'Add Department',
+            title: 'A D D   D E P A R T M E N T',
             controller: controller,
             callback: () async {
               await ref.read(adminPanelProvider.notifier).addDepartment(ref, controller.text.trim());

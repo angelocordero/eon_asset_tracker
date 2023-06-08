@@ -66,7 +66,7 @@ class DashboardTab extends ConsumerWidget {
                     ),
                   ),
                   const Flexible(
-                    flex: 3,
+                    flex: 6,
                     child: Card(
                       child: DashboardStatusChart(),
                     ),

@@ -64,8 +64,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
           child: Column(
             children: [
               const Text(
-                'Edit Item',
-                style: TextStyle(fontSize: 50),
+                'E D I T   I T E M',
+                style: TextStyle(fontSize: 30),
               ),
               const SizedBox(
                 height: 30,
@@ -117,6 +117,23 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
+                    onPressed: () {
+                      if (_nameController.text.isNotEmpty ||
+                          _personAccountableController.text.isNotEmpty ||
+                          _unitController.text.isNotEmpty ||
+                          _itemDescriptionController.text.isNotEmpty ||
+                          _remarksController.text.isNotEmpty) {
+                        showCancelDialog(context);
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(
+                    width: 100,
+                  ),
+                  ElevatedButton(
                     onPressed: () async {
                       if (_nameController.text.trim().isEmpty) {
                         EasyLoading.showError(
@@ -160,23 +177,6 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                       }
                     },
                     child: const Text('Update'),
-                  ),
-                  const SizedBox(
-                    width: 100,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_nameController.text.isNotEmpty ||
-                          _personAccountableController.text.isNotEmpty ||
-                          _unitController.text.isNotEmpty ||
-                          _itemDescriptionController.text.isNotEmpty ||
-                          _remarksController.text.isNotEmpty) {
-                        showCancelDialog(context);
-                      } else {
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text('Cancel'),
                   ),
                 ],
               )

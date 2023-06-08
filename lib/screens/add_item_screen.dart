@@ -72,8 +72,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           child: Column(
             children: [
               const Text(
-                'Add Item',
-                style: TextStyle(fontSize: 50),
+                'A D D   I T E M',
+                style: TextStyle(fontSize: 30),
               ),
               const SizedBox(
                 height: 30,
@@ -125,6 +125,23 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_nameController.text.isNotEmpty ||
+                          _personAccountableController.text.isNotEmpty ||
+                          _unitController.text.isNotEmpty ||
+                          _itemDescriptionController.text.isNotEmpty ||
+                          _remarksController.text.isNotEmpty) {
+                        showCancelDialog(context);
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(
+                    width: 100,
+                  ),
                   ElevatedButton(
                     onPressed: () async {
                       if (_nameController.text.trim().isEmpty) {
@@ -179,23 +196,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                       }
                     },
                     child: const Text('Apply'),
-                  ),
-                  const SizedBox(
-                    width: 100,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_nameController.text.isNotEmpty ||
-                          _personAccountableController.text.isNotEmpty ||
-                          _unitController.text.isNotEmpty ||
-                          _itemDescriptionController.text.isNotEmpty ||
-                          _remarksController.text.isNotEmpty) {
-                        showCancelDialog(context);
-                      } else {
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text('Cancel'),
                   ),
                 ],
               )
@@ -535,9 +535,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _itemStatus,
-              items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
-                  .toList(),
+              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -588,8 +586,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   // checks if the current text in the controller is a category name
                   // if true, returns that category,
                   // if false, returns last category that was matched
-                  ItemCategory? buffer =
-                      _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
+                  ItemCategory? buffer = _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
 
                   textEditingController.text = buffer.categoryName;
                 }

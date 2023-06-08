@@ -1,7 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 // Flutter imports:
-import 'package:flutter/foundation.dart';
+
+import 'package:flutter/services.dart';
 
 // Package imports:
 import 'package:pdf/pdf.dart';
@@ -22,8 +23,10 @@ class QRCodePDF {
     required this.categories,
   });
 
-  Future<Uint8List> generate() {
+  Future<Uint8List> generate() async {
     final pw.Document pdf = pw.Document();
+
+    pw.Font monoFont = pw.Font.ttf(await rootBundle.load("fonts/RobotoMono-Regular.ttf"));
 
     pdf.addPage(
       pw.MultiPage(
@@ -31,7 +34,7 @@ class QRCodePDF {
         pageFormat: PdfPageFormat.letter.portrait,
         build: (context) {
           return [
-            stickerGrid(),
+            stickerGrid(monoFont),
           ];
         },
       ),
@@ -40,13 +43,16 @@ class QRCodePDF {
     return pdf.save();
   }
 
-  pw.Widget stickerGrid() {
+  pw.Widget stickerGrid(
+    pw.Font monoFont,
+  ) {
     return pw.GridView(
       childAspectRatio: 0.30,
       crossAxisCount: 2,
       children: items.map((Item item) {
         return qrCodeSticker(
           item,
+          monoFont,
         );
       }).toList(),
     );
@@ -54,6 +60,7 @@ class QRCodePDF {
 
   pw.Widget qrCodeSticker(
     Item item,
+    pw.Font monoFont,
   ) {
     String assetID = item.assetID;
     String departmentName = item.department.departmentName;
@@ -89,12 +96,12 @@ class QRCodePDF {
                   pw.Text(
                     assetID,
                     overflow: pw.TextOverflow.clip,
-                    style: const pw.TextStyle(fontSize: 7),
+                    style: pw.TextStyle(fontSize: 7, font: monoFont),
                   ),
                 ],
               ),
             ),
-            pw.SizedBox(width: 0),
+            pw.SizedBox(width: 12),
             pw.Flexible(
               flex: 7,
               child: pw.Column(

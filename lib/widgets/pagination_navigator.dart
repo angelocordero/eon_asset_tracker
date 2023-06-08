@@ -29,13 +29,8 @@ class PaginationNavigator extends ConsumerWidget {
       buttonCount,
       (index) {
         int buttonNum = currentPage - 4 + index;
-        if (pages > 10 && currentPage >= 4 && currentPage <= pages - 5) {
-          if (buttonNum == pages + 1) {
-            return const Text(
-              '...',
-              style: TextStyle(fontSize: 30, color: Colors.transparent),
-            );
-          } else if (index == 0 || index == 10) {
+        if (pages > 10 && currentPage >= 5 && currentPage <= pages - 6) {
+          if (index == 0 || index == 10) {
             return const Text(
               '...',
               style: TextStyle(fontSize: 30),

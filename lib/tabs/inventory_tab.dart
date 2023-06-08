@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 // Flutter imports:
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -221,23 +222,26 @@ class InventoryTab extends ConsumerWidget {
     return Container(
       color: selected ? Colors.blueGrey : Colors.transparent,
       child: ListTile(
-        trailing: Tooltip(
-          message: 'Copy Asset ID',
-          child: IconButton(
-            icon: const Icon(Icons.copy),
-            iconSize: 15,
+        horizontalTitleGap: 0,
+        title: Tooltip(
+          message: 'Copy Asset ID to clipboard',
+          child: TextButton(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: text));
               EasyLoading.showInfo('Asset ID copied to clipboard');
             },
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontFamily: 'RobotoMono',
+                color: Colors.white,
+              ),
+            ),
           ),
-        ),
-        horizontalTitleGap: 0,
-        title: Text(
-          text,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
         ),
         selectedTileColor: Colors.blueGrey,
         selectedColor: Colors.white,
@@ -408,7 +412,7 @@ class InventoryTab extends ConsumerWidget {
                         title: const Text('Print QR Code'),
                       ),
                       body: PdfPreview(
-                        build: (format) => QRCodePDF(
+                        build: (format) async => await QRCodePDF(
                           items: items,
                           departments: ref.read(departmentsProvider),
                           categories: ref.read(categoriesProvider),

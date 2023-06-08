@@ -74,6 +74,7 @@ class DashboardCategoryChart extends ConsumerWidget {
                       flex: 15,
                       child: SliderTheme(
                         data: SliderThemeData(
+                          trackShape: const RectangularSliderTrackShape(),
                           trackHeight: 15,
                           thumbShape: SliderComponentShape.noOverlay,
                           disabledActiveTrackColor: sampleColors[2],

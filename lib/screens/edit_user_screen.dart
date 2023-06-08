@@ -63,8 +63,8 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Edit User',
-                style: TextStyle(fontSize: 50),
+                'E D I T   U S E R',
+                style: TextStyle(fontSize: 30),
               ),
               const SizedBox(
                 height: 30,
