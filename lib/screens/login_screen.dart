@@ -1,27 +1,25 @@
-// Flutter imports:
-
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/custom_route.dart';
-import 'package:eon_asset_tracker/models/connection_setttings_model.dart';
-import 'package:eon_asset_tracker/screens/connection_settings_screen.dart';
 import 'package:flutter/material.dart';
 
-// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
-// Project imports:
+import '../core/constants.dart';
+import '../core/custom_route.dart';
 import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
+import '../models/connection_setttings_model.dart';
 import '../models/user_model.dart';
+import 'connection_settings_screen.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
-  static final TextEditingController usernameController = TextEditingController();
-  static final TextEditingController passwordController = TextEditingController();
+  static final TextEditingController usernameController =
+      TextEditingController();
+  static final TextEditingController passwordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -145,7 +143,8 @@ class LoginScreen extends ConsumerWidget {
             onSubmitted: (value) async {
               await authenticate(context, ref);
             },
-            decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
+            decoration: const InputDecoration(
+                isDense: true, contentPadding: EdgeInsets.all(8)),
             obscureText: true,
             controller: passwordController,
           ),
@@ -178,7 +177,8 @@ class LoginScreen extends ConsumerWidget {
 
     ref.read(userProvider.notifier).state = user;
 
-    ref.read(sidebarControllerProvider.notifier).state = SidebarXController(selectedIndex: 0);
+    ref.read(sidebarControllerProvider.notifier).state =
+        SidebarXController(selectedIndex: 0);
 
     await EasyLoading.dismiss();
     // ignore: use_build_context_synchronously

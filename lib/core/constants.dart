@@ -1,12 +1,10 @@
 // ignore_for_file: constant_identifier_names
 
-// Flutter imports:
-
-import 'package:eon_asset_tracker/models/connection_setttings_model.dart';
 import 'package:flutter/material.dart';
+
 import 'package:hive/hive.dart';
 
-// Package imports:
+import '../models/connection_setttings_model.dart';
 
 enum ItemStatus {
   Good,
@@ -14,13 +12,46 @@ enum ItemStatus {
   Unknown,
 }
 
-typedef TableSort = (Columns?, Sort?);
+typedef TableSort = ({TableColumn? tableColumn, SortOrder? sortOrder});
 
 ConnectionSettings globalConnectionSettings = ConnectionSettings.empty();
 
 Box settingsBox = Hive.box('settings');
 
-List<int> secureKey = [213, 66, 81, 33, 169, 64, 141, 228, 109, 89, 3, 51, 152, 108, 8, 222, 78, 170, 6, 45, 238, 169, 200, 5, 24, 55, 95, 15, 177, 250, 141, 152];
+List<int> secureKey = [
+  213,
+  66,
+  81,
+  33,
+  169,
+  64,
+  141,
+  228,
+  109,
+  89,
+  3,
+  51,
+  152,
+  108,
+  8,
+  222,
+  78,
+  170,
+  6,
+  45,
+  238,
+  169,
+  200,
+  5,
+  24,
+  55,
+  95,
+  15,
+  177,
+  250,
+  141,
+  152
+];
 
 BorderRadius defaultBorderRadius = BorderRadius.circular(8);
 
@@ -52,7 +83,7 @@ enum InventorySearchFilter {
   dateReceived,
 }
 
-enum Columns {
+enum TableColumn {
   assetID,
   itemName,
   departmentName,
@@ -65,7 +96,7 @@ enum Columns {
   dateReceived,
 }
 
-enum Sort {
+enum SortOrder {
   ascending,
   descending,
 }

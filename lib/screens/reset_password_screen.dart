@@ -1,15 +1,13 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Project imports:
 import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/user_model.dart';
+import '../notifiers/admin_panel_users_notifier.dart';
 
 class ResetPasswordScreen extends ConsumerWidget {
   const ResetPasswordScreen({
@@ -109,7 +107,8 @@ class ResetPasswordScreen extends ConsumerWidget {
           onPressed: () {
             Navigator.pop(context);
 
-            if (ref.read(userProvider)!.isAdmin && ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
+            if (ref.read(userProvider)!.isAdmin &&
+                ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
               Navigator.pop(context);
             }
           },
@@ -147,12 +146,15 @@ class ResetPasswordScreen extends ConsumerWidget {
 
       if (user == null) return;
 
-      ref.read(adminPanelProvider.notifier).resetPassword(ref, user, passwordController.text.trim());
+      ref
+          .read(adminPanelUsersNotifierProvider.notifier)
+          .resetPassword(user, passwordController.text.trim());
 
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
 
-      if (ref.read(userProvider)!.isAdmin && ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
+      if (ref.read(userProvider)!.isAdmin &&
+          ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
         Navigator.pop(context);
       }
     } catch (e, st) {

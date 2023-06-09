@@ -1,12 +1,9 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Project imports:
 import '../core/constants.dart';
 import '../core/custom_route.dart';
 import '../core/database_api.dart';
@@ -14,6 +11,8 @@ import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/department_model.dart';
 import '../models/user_model.dart';
+import '../notifiers/admin_panel_users_notifier.dart';
+import '../notifiers/departments_notifier.dart';
 import '../widgets/master_password_prompt.dart';
 
 class EditUserScreen extends ConsumerStatefulWidget {
@@ -39,13 +38,14 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
   void initState() {
     User user = ref.read(adminPanelSelectedUserProvider)!;
 
-    departments = ref.read(departmentsProvider);
+    departments = ref.read(departmentsNotifierProvider).requireValue;
 
     department = user.department ?? departments.first;
 
     status = user.isAdmin ? 'Admin' : 'User';
 
-    _userNameController = TextEditingController.fromValue(TextEditingValue(text: user.username));
+    _userNameController =
+        TextEditingController.fromValue(TextEditingValue(text: user.username));
 
     super.initState();
   }
@@ -136,14 +136,18 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                       callback: () async {
                         try {
                           //get masterpassword
-                          bool admin = await DatabaseAPI.getMasterPassword(controller.text.trim());
+                          bool admin = await DatabaseAPI.getMasterPassword(
+                              controller.text.trim());
 
                           if (admin) {
-                            await ref.read(adminPanelProvider.notifier).editUser(ref, user);
+                            await ref
+                                .read(adminPanelUsersNotifierProvider.notifier)
+                                .editUser(user);
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                           } else {
-                            showErrorAndStacktrace('Password is not an admin password', null);
+                            showErrorAndStacktrace(
+                                'Password is not an admin password', null);
                           }
                         } catch (e, st) {
                           showErrorAndStacktrace(e, st);
@@ -155,7 +159,9 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
               );
             } else {
               try {
-                await ref.read(adminPanelProvider.notifier).editUser(ref, user);
+                await ref
+                    .read(adminPanelUsersNotifierProvider.notifier)
+                    .editUser(user);
               } catch (e, st) {
                 showErrorAndStacktrace(e, st);
               }
@@ -192,7 +198,11 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                 ),
               ),
               value: department,
-              items: departments.map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName))).toList(),
+              items: departments
+                  .map<DropdownMenuItem<Department>>((value) =>
+                      DropdownMenuItem<Department>(
+                          value: value, child: Text(value.departmentName)))
+                  .toList(),
               onChanged: (Department? newDepartment) {
                 if (newDepartment == null) return;
                 setState(() {
@@ -250,8 +260,13 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                 ),
               ),
               value: status,
-              items: statusList.map<DropdownMenuItem<String>>((value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
-              onChanged: ref.watch(adminPanelSelectedUserProvider) == ref.watch(userProvider)
+              items: statusList
+                  .map<DropdownMenuItem<String>>((value) =>
+                      DropdownMenuItem<String>(
+                          value: value, child: Text(value)))
+                  .toList(),
+              onChanged: ref.watch(adminPanelSelectedUserProvider) ==
+                      ref.watch(userProvider)
                   ? null
                   : (String? newStatus) {
                       if (newStatus == null) return;

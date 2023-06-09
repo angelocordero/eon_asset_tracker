@@ -1,10 +1,7 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
 
-// Package imports:
 import 'package:sidebarx/sidebarx.dart';
 
-// Project imports:
 import 'admin_panel_tab.dart';
 import 'dashboard_tab.dart';
 import 'inventory_tab.dart';

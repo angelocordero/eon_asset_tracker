@@ -1,12 +1,9 @@
-// Flutter imports:
-import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:flutter/material.dart';
 
-// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
-// Project imports:
+import '../core/constants.dart';
 import '../core/providers.dart';
 import '../tabs/tab_switcher.dart';
 
@@ -17,12 +14,6 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(dashboardDataProvider.notifier).init();
-
-    if (ref.read(userProvider)?.isAdmin ?? false) {
-      ref.read(adminPanelProvider.notifier).init();
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('ASSET TRACKER  |  ${ref.watch(appbarTitleProvider)}'),
@@ -55,7 +46,8 @@ class HomeScreen extends ConsumerWidget {
             controller: controller,
             theme: const SidebarXTheme(
               itemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
-              selectedItemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
+              selectedItemPadding:
+                  EdgeInsets.only(top: 20, left: 10, right: 10),
               itemTextPadding: EdgeInsets.only(left: 20),
               selectedItemTextPadding: EdgeInsets.only(left: 20),
               textStyle: TextStyle(color: Colors.grey),
@@ -112,7 +104,8 @@ class HomeScreen extends ConsumerWidget {
                 // label: 'INVENTORY',
                 onTap: () {
                   ref.read(appbarTitleProvider.notifier).state = 'INVENTORY';
-                  ref.read(searchFilterProvider.notifier).state = InventorySearchFilter.assetID;
+                  ref.read(searchFilterProvider.notifier).state =
+                      InventorySearchFilter.assetID;
                 },
               ),
               if (ref.watch(userProvider)?.isAdmin ?? false)
@@ -120,7 +113,8 @@ class HomeScreen extends ConsumerWidget {
                   icon: Icons.admin_panel_settings,
                   label: 'A D M I N',
                   onTap: () {
-                    ref.read(appbarTitleProvider.notifier).state = 'ADMIN PANEL';
+                    ref.read(appbarTitleProvider.notifier).state =
+                        'ADMIN PANEL';
                   },
                 ),
             ],

@@ -18,7 +18,8 @@ class ItemCategory {
   }
 
   @override
-  String toString() => 'Category(categoryID: $categoryID, categorName: $categoryName)';
+  String toString() =>
+      'Category(categoryID: $categoryID, categorName: $categoryName)';
 
   @override
   bool operator ==(covariant ItemCategory other) {

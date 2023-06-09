@@ -1,9 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-// Flutter imports:
 import 'package:flutter/foundation.dart';
 
-// Project imports:
+import '../core/constants.dart';
+import '../core/utils.dart';
 import 'item_model.dart';
 
 class Inventory {
@@ -26,6 +26,97 @@ class Inventory {
 
   factory Inventory.empty() {
     return Inventory(items: [], count: 0);
+  }
+
+  Inventory sort(TableSort tableSort) {
+    switch (tableSort.tableColumn) {
+      case TableColumn.assetID:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => a.assetID.compareTo(b.assetID));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => b.assetID.compareTo(a.assetID));
+        }
+        break;
+      case TableColumn.itemName:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => a.name.compareTo(b.name));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => b.name.compareTo(a.name));
+        }
+
+      case TableColumn.departmentName:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => a.department.departmentName
+              .compareTo(b.department.departmentName));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => b.department.departmentName
+              .compareTo(a.department.departmentName));
+        }
+
+      case TableColumn.personAccountable:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => compareStrings(
+              a.personAccountable, b.personAccountable,
+              descending: false));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => compareStrings(
+              a.personAccountable, b.personAccountable,
+              descending: true));
+        }
+
+      case TableColumn.category:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) =>
+              a.category.categoryName.compareTo(b.category.categoryName));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) =>
+              b.category.categoryName.compareTo(a.category.categoryName));
+        }
+
+      case TableColumn.status:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => a.status.name.compareTo(b.status.name));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => b.status.name.compareTo(a.status.name));
+        }
+
+      case TableColumn.unit:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort(
+              (a, b) => compareStrings(a.unit, b.unit, descending: false));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items
+              .sort((a, b) => compareStrings(a.unit, b.unit, descending: true));
+        }
+
+      case TableColumn.price:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort(
+              (a, b) => compareValues(a.price, b.price, descending: false));
+        } else {
+          items.sort(
+              (a, b) => compareValues(a.price, b.price, descending: true));
+        }
+
+      case TableColumn.datePurchased:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => compareDates(a.datePurchased, b.datePurchased,
+              descending: false));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) =>
+              compareDates(a.datePurchased, b.datePurchased, descending: true));
+        }
+
+      case TableColumn.dateReceived:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => a.dateReceived.compareTo(b.dateReceived));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => b.dateReceived.compareTo(a.dateReceived));
+        }
+      default:
+    }
+
+    return Inventory(items: items, count: count);
   }
 
   @override

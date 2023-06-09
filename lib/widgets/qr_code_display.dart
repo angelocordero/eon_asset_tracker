@@ -1,8 +1,6 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// Project imports:
 import '../core/utils.dart';
 
 class QRCodeDisplay extends StatelessWidget {

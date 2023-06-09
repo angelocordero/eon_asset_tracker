@@ -1,14 +1,10 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
 
-// Package imports:
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Project imports:
 import '../core/constants.dart';
-import '../core/providers.dart';
-import '../models/dashboard_model.dart';
+import '../notifiers/dashboard_notifiers.dart';
 import 'dashboard_chart_legend.dart';
 
 class DashboardStatusChart extends ConsumerWidget {
@@ -16,51 +12,67 @@ class DashboardStatusChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    DashboardData dashboardData = ref.watch(dashboardDataProvider);
-
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'S T A T U S   B R E A K D O W N',
-                style: TextStyle(fontSize: 20),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              ..._legend(dashboardData.statusDashboardData),
-            ],
-          ),
-          Expanded(
-            child: AspectRatio(
-              aspectRatio: 1.5,
-              child: PieChart(
-                PieChartData(
-                  borderData: FlBorderData(
-                    show: false,
+    return ref.watch(dashboardStatusProvider).when(
+          data: (statusData) {
+            return Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'S T A T U S   B R E A K D O W N',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      ..._legend(),
+                    ],
                   ),
-                  sectionsSpace: 10,
-                  sections: _data(dashboardData),
-                  centerSpaceRadius: double.infinity,
-                ),
+                  Expanded(
+                    child: AspectRatio(
+                      aspectRatio: 1.5,
+                      child: PieChart(
+                        PieChartData(
+                          borderData: FlBorderData(
+                            show: false,
+                          ),
+                          sectionsSpace: 10,
+                          sections: _data(statusData),
+                          centerSpaceRadius: double.infinity,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            );
+          },
+          error: (e, st) => Center(
+            child: Text(
+              e.toString(),
             ),
           ),
-        ],
-      ),
-    );
+          loading: () => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
   }
 
-  List<PieChartSectionData> _data(DashboardData dashboardData) {
-    return dashboardData.statusDashboardData.entries.map((entry) {
-      double percent = (entry.value / dashboardData.totalItems) * 100;
+  List<PieChartSectionData> _data(Map<String, int> statusData) {
+    int totalItems = 0;
+
+    for (int element in statusData.values) {
+      totalItems += element;
+    }
+
+    return statusData.entries.map((entry) {
+      double percent = (entry.value / totalItems) * 100;
       String percentage = '${percent.toStringAsFixed(0)} %';
 
       Color color;
@@ -89,15 +101,15 @@ class DashboardStatusChart extends ConsumerWidget {
     }).toList();
   }
 
-  List<Widget> _legend(Map<String, int> statusData) {
-    return statusData.entries.map((entry) {
+  List<Widget> _legend() {
+    return ItemStatus.values.map((entry) {
       Color color;
 
-      switch (entry.key) {
-        case 'Good':
+      switch (entry) {
+        case ItemStatus.Good:
           color = sampleColors[9];
           break;
-        case 'Defective':
+        case ItemStatus.Defective:
           color = sampleColors[4];
           break;
         default:
@@ -108,7 +120,7 @@ class DashboardStatusChart extends ConsumerWidget {
         padding: const EdgeInsets.all(20.0),
         child: DashboardChartLegend(
           color: color,
-          text: entry.key,
+          text: entry.name,
           size: 20,
         ),
       );

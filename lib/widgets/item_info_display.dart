@@ -1,23 +1,22 @@
-// Flutter imports:
-import 'package:eon_asset_tracker/core/custom_route.dart';
-import 'package:eon_asset_tracker/widgets/qr_code_display.dart';
 import 'package:flutter/material.dart';
 
-// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Project imports:
+import '../core/custom_route.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/item_model.dart';
 import 'pagination_navigator.dart';
+import 'qr_code_display.dart';
 
 class ItemInfoDisplay extends ConsumerWidget {
   const ItemInfoDisplay({super.key});
 
-  static final TextEditingController _descriptionController = TextEditingController();
+  static final TextEditingController _descriptionController =
+      TextEditingController();
 
-  static final TextEditingController _remarksController = TextEditingController();
+  static final TextEditingController _remarksController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,8 +38,10 @@ class ItemInfoDisplay extends ConsumerWidget {
               maxLines: 10,
               minLines: 10,
               decoration: const InputDecoration(
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white)),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white)),
                 labelText: '  I T E M   D E S C R I P T I O N  ',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 labelStyle: TextStyle(color: Colors.white),
@@ -60,8 +61,10 @@ class ItemInfoDisplay extends ConsumerWidget {
               maxLines: 10,
               minLines: 10,
               decoration: const InputDecoration(
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white)),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white)),
                 labelText: '  R E M A R K S  ',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 labelStyle: TextStyle(color: Colors.white),
@@ -75,7 +78,9 @@ class ItemInfoDisplay extends ConsumerWidget {
           ),
           Flexible(
             flex: 2,
-            child: selectedItem == null ? Container() : qrCodeImage(context, selectedItem.assetID),
+            child: selectedItem == null
+                ? Container()
+                : qrCodeImage(context, selectedItem.assetID),
           ),
           const VerticalDivider(
             width: 40,

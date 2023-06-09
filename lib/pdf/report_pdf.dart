@@ -1,13 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-// Flutter imports:
 import 'package:flutter/services.dart';
 
-// Package imports:
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-// Project imports:
 import '../core/utils.dart';
 import '../models/item_model.dart';
 
@@ -20,7 +17,8 @@ class ReportPDF {
 
   Future<Uint8List> generate() async {
     final pw.Document pdf = pw.Document();
-    pw.Font font = pw.Font.ttf(await rootBundle.load("fonts/Roboto-Regular.ttf"));
+    pw.Font font =
+        pw.Font.ttf(await rootBundle.load("fonts/Roboto-Regular.ttf"));
 
     pdf.addPage(
       pw.MultiPage(

@@ -1,9 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-// Package imports:
 import 'package:mysql_client/mysql_client.dart';
 
-// Project imports:
 import '../core/utils.dart';
 import 'department_model.dart';
 
@@ -61,13 +59,16 @@ class User {
   }
 
   @override
-  String toString() => 'User(userID: $userID, username: $username, isAdmin: $isAdmin, department: $department)';
+  String toString() =>
+      'User(userID: $userID, username: $username, isAdmin: $isAdmin, department: $department)';
 
   @override
   bool operator ==(covariant User other) {
     if (identical(this, other)) return true;
 
-    return other.userID == userID && other.username == username && other.isAdmin == isAdmin;
+    return other.userID == userID &&
+        other.username == username &&
+        other.isAdmin == isAdmin;
   }
 
   @override

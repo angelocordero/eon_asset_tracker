@@ -1,9 +1,9 @@
-// Flutter imports:
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AdminPasswordPrompt extends StatelessWidget {
-  const AdminPasswordPrompt({super.key, required this.controller, required this.callback});
+  const AdminPasswordPrompt(
+      {super.key, required this.controller, required this.callback});
 
   final TextEditingController controller;
 

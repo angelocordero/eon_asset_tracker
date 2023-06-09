@@ -1,17 +1,17 @@
-// Flutter imports:
-import 'package:eon_asset_tracker/models/category_model.dart';
-import 'package:eon_asset_tracker/models/department_model.dart';
-import 'package:eon_asset_tracker/widgets/search_daterange_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-// Package imports:
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Project imports:
 import '../core/constants.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
+import '../models/category_model.dart';
+import '../models/department_model.dart';
+import '../notifiers/categories_notifier.dart';
+import '../notifiers/departments_notifier.dart';
+import '../notifiers/inventory_notifier.dart';
+import 'search_daterange_picker.dart';
 
 class InventorySearchWidget extends ConsumerStatefulWidget {
   const InventorySearchWidget({super.key, required this.controller});
@@ -19,13 +19,15 @@ class InventorySearchWidget extends ConsumerStatefulWidget {
   final TextEditingController controller;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _InventorySearchWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _InventorySearchWidgetState();
 }
 
 class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
   Widget _searchField = Container();
 
-  DateTimeRange range = DateTimeRange(start: DateTime.now().toUtc(), end: DateTime.now().toUtc());
+  DateTimeRange range =
+      DateTimeRange(start: DateTime.now().toUtc(), end: DateTime.now().toUtc());
 
   @override
   void initState() {
@@ -69,8 +71,10 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
         filter == InventorySearchFilter.unit ||
         filter == InventorySearchFilter.itemDescription ||
         filter == InventorySearchFilter.remarks) {
-      ref.read(searchQueryProvider.notifier).state = widget.controller.text.trim();
-    } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+      ref.read(searchQueryProvider.notifier).state =
+          widget.controller.text.trim();
+    } else if (filter == InventorySearchFilter.datePurchased ||
+        filter == InventorySearchFilter.dateReceived) {
       ref.read(searchQueryProvider.notifier).state = range;
     }
 
@@ -78,11 +82,15 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
 
     dynamic query = ref.read(searchQueryProvider);
     if (query is DateTimeRange) {
-      await ref.read(inventoryProvider.notifier).initFilteredInventory(query, filter);
+      await ref
+          .read(inventoryNotifierProvider.notifier)
+          .initFilteredInventory();
     } else if (query.trim().isEmpty) {
-      await ref.read(inventoryProvider.notifier).initUnfilteredInventory();
+      ref.invalidate(inventoryNotifierProvider);
     } else {
-      await ref.read(inventoryProvider.notifier).initFilteredInventory(ref.read(searchQueryProvider).trim(), filter);
+      await ref
+          .read(inventoryNotifierProvider.notifier)
+          .initFilteredInventory();
     }
   }
 
@@ -129,13 +137,15 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
             } else if (filter == InventorySearchFilter.status) {
               setState(
                 () {
-                  ref.read(searchQueryProvider.notifier).state = ItemStatus.values.first.name;
+                  ref.read(searchQueryProvider.notifier).state =
+                      ItemStatus.values.first.name;
                   _searchField = _queryDropdownField(
                     ItemStatus.values.map(
                       (e) {
                         return DropdownMenuItem(
                           onTap: () {
-                            ref.read(searchQueryProvider.notifier).state = e.name;
+                            ref.read(searchQueryProvider.notifier).state =
+                                e.name;
                           },
                           value: e.name,
                           child: Text(e.name),
@@ -146,49 +156,58 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
                 },
               );
             } else if (filter == InventorySearchFilter.department) {
-              List<Department> departments = [
-                ...ref.read(departmentsProvider),
-                Department(
-                  departmentID: 'null',
-                  departmentName: 'No Department',
-                ),
-              ];
-
-              ref.read(searchQueryProvider.notifier).state = departments.first.departmentID;
-              setState(
-                () {
-                  _searchField = _queryDropdownField(
-                    departments.map(
-                      (e) {
-                        return DropdownMenuItem(
-                          onTap: () {
-                            ref.read(searchQueryProvider.notifier).state = e.departmentID;
-                          },
-                          value: e.departmentID,
-                          child: Text(e.departmentName),
-                        );
-                      },
-                    ).toList(),
+              ref.watch(departmentsNotifierProvider).when(
+                    data: (List<Department> departments) {
+                      ref.read(searchQueryProvider.notifier).state =
+                          departments.first.departmentID;
+                      setState(
+                        () {
+                          _searchField = _queryDropdownField(
+                            departments.map(
+                              (e) {
+                                return DropdownMenuItem(
+                                  onTap: () {
+                                    ref
+                                        .read(searchQueryProvider.notifier)
+                                        .state = e.departmentID;
+                                  },
+                                  value: e.departmentID,
+                                  child: Text(e.departmentName),
+                                );
+                              },
+                            ).toList(),
+                          );
+                        },
+                      );
+                    },
+                    error: (e, st) => Center(
+                      child: Text(e.toString()),
+                    ),
+                    loading: () => const Center(
+                      child: Text('Loading...'),
+                    ),
                   );
-                },
-              );
             } else if (filter == InventorySearchFilter.category) {
-              List<ItemCategory> categories = [
-                ...ref.read(categoriesProvider),
-                ItemCategory(
-                  categoryID: 'null',
-                  categoryName: 'No Category',
-                ),
-              ];
+              ref.watch(categoriesNotifierProvider).when(
+                    data: (List<ItemCategory> categories) {
+                      ref.read(searchQueryProvider.notifier).state =
+                          categories.first.categoryID!;
 
-              ref.read(searchQueryProvider.notifier).state = categories.first.categoryID!;
-
-              setState(
-                () {
-                  _searchField = _categoryField(categories);
-                },
-              );
-            } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+                      setState(
+                        () {
+                          _searchField = _categoryField(categories);
+                        },
+                      );
+                    },
+                    error: (e, st) => Center(
+                      child: Text(e.toString()),
+                    ),
+                    loading: () => const Center(
+                      child: Text('Loading...'),
+                    ),
+                  );
+            } else if (filter == InventorySearchFilter.datePurchased ||
+                filter == InventorySearchFilter.dateReceived) {
               setState(
                 () {
                   _searchField = SearchDaterangePicker(
@@ -211,15 +230,21 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
     return SizedBox(
       width: 300,
       child: Autocomplete<ItemCategory>(
-        fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+        fieldViewBuilder:
+            (context, textEditingController, focusNode, onFieldSubmitted) {
           focusNode.addListener(
             () {
               if (!focusNode.hasFocus) {
                 // checks if the current text in the controller is a category name
                 // if true, returns that category,
                 // if false, returns last category that was matched
-                ItemCategory? buffer = categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(),
-                    orElse: () => categories.firstWhere((element) => element.categoryID == ref.read(searchQueryProvider).toString()));
+                ItemCategory? buffer = categories.singleWhere(
+                    (element) =>
+                        element.categoryName ==
+                        textEditingController.text.trim(),
+                    orElse: () => categories.firstWhere((element) =>
+                        element.categoryID ==
+                        ref.read(searchQueryProvider).toString()));
 
                 textEditingController.text = buffer.categoryName;
               }
@@ -240,7 +265,17 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
         },
         initialValue: TextEditingValue(text: categories.first.categoryName),
         optionsBuilder: (TextEditingValue option) {
-          return ref.watch(categoriesProvider).where((element) => element.categoryName.toLowerCase().contains(option.text.toLowerCase().trim()));
+          return ref.watch(categoriesNotifierProvider).when(
+                data: (List<ItemCategory> categories) {
+                  return categories.where(
+                    (element) => element.categoryName.toLowerCase().contains(
+                          option.text.toLowerCase().trim(),
+                        ),
+                  );
+                },
+                error: (e, st) => [],
+                loading: () => [],
+              );
         },
         displayStringForOption: (option) => option.categoryName,
         onSelected: (option) {
@@ -256,7 +291,8 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
             alignment: Alignment.topLeft,
             child: Material(
               shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(4.0)),
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(4.0)),
               ),
               child: SizedBox(
                 width: 300,
@@ -272,14 +308,18 @@ class _InventorySearchWidgetState extends ConsumerState<InventorySearchWidget> {
                       },
                       child: Builder(
                         builder: (BuildContext context) {
-                          final bool highlight = AutocompleteHighlightedOption.of(context) == index;
+                          final bool highlight =
+                              AutocompleteHighlightedOption.of(context) ==
+                                  index;
                           if (highlight) {
-                            SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+                            SchedulerBinding.instance
+                                .addPostFrameCallback((Duration timeStamp) {
                               Scrollable.ensureVisible(context, alignment: 0.5);
                             });
                           }
                           return Container(
-                            color: highlight ? Theme.of(context).focusColor : null,
+                            color:
+                                highlight ? Theme.of(context).focusColor : null,
                             padding: const EdgeInsets.all(16.0),
                             child: Text(category.categoryName),
                           );

@@ -1,69 +1,65 @@
-// Flutter imports:
-import 'package:eon_asset_tracker/models/dashboard_model.dart';
 import 'package:flutter/material.dart';
 
-// Package imports:
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../notifiers/dashboard_notifiers.dart';
+
 // Project imports:
-import '../core/providers.dart';
-
-final sortedDepartmentsProvider = Provider<DepartmentsDashboardData>((ref) {
-  DepartmentsDashboardData departments = ref.watch(dashboardDataProvider).departmentsDashboardData;
-
-  departments.sort((a, b) {
-    int aCount = a['count'];
-    int bCount = b['count'];
-
-    return bCount.compareTo(aCount);
-  });
-
-  return departments;
-});
 
 class DashboardDepartmentChart extends ConsumerWidget {
   const DashboardDepartmentChart({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    DepartmentsDashboardData departments = ref.watch(sortedDepartmentsProvider);
-
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'I T E M S   P E R   D E P A R T M E N T',
-            style: TextStyle(fontSize: 20),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          AspectRatio(
-            aspectRatio: 3.5,
-            child: BarChart(
-              BarChartData(
-                maxY: maxY(departments),
-                titlesData: titlesData(List<String>.from(departments.map((e) => e['departmentName']))),
-                borderData: FlBorderData(show: true),
-                barGroups: barGroups(departments),
-                gridData: FlGridData(show: true),
-                alignment: BarChartAlignment.spaceAround,
+    return ref.watch(dashboardDepartmentsProvider).when(
+          data: (departments) {
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'I T E M S   P E R   D E P A R T M E N T',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  AspectRatio(
+                    aspectRatio: 3.5,
+                    child: BarChart(
+                      BarChartData(
+                        maxY: maxY(departments),
+                        titlesData: titlesData(departments.keys.toList()),
+                        borderData: FlBorderData(show: true),
+                        barGroups: barGroups(departments),
+                        gridData: FlGridData(show: true),
+                        alignment: BarChartAlignment.spaceAround,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            );
+          },
+          error: (e, st) => Center(
+            child: Text(
+              e.toString(),
             ),
           ),
-        ],
-      ),
-    );
+          loading: () => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
   }
 
-  double maxY(DepartmentsDashboardData departmentsData) {
-    List<int> counts = departmentsData.map((e) => e['count'] as int).toList();
-
-    return counts.reduce((value, element) => value > element ? value : element).toDouble() * 1.25;
+  double maxY(Map<String, int> departmentsData) {
+    return departmentsData.values
+            .reduce((value, element) => value > element ? value : element)
+            .toDouble() *
+        1.25;
   }
 
   Widget getTitles(double value, TitleMeta meta, List<String> departmentNames) {
@@ -105,17 +101,23 @@ class DashboardDepartmentChart extends ConsumerWidget {
     );
   }
 
-  List<BarChartGroupData> barGroups(List<Map<String, dynamic>> departmentsData) {
-    return departmentsData.map((entry) {
-      return BarChartGroupData(
-        x: entry['index'],
+  List<BarChartGroupData> barGroups(Map<String, dynamic> departments) {
+    int index = 0;
+
+    return departments.entries.map((entry) {
+      BarChartGroupData buffer = BarChartGroupData(
+        x: index,
         barRods: [
           BarChartRodData(
-            toY: (entry['count'] as int).toDouble(),
-          )
+            toY: (entry.value as int).toDouble(),
+          ),
         ],
         showingTooltipIndicators: [0],
       );
+
+      index++;
+
+      return buffer;
     }).toList();
   }
 }

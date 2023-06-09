@@ -1,10 +1,13 @@
-// Flutter imports:
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AdminPanelPrompt extends StatelessWidget {
-  const AdminPanelPrompt({super.key, required this.controller, required this.callback, required this.title});
+  const AdminPanelPrompt(
+      {super.key,
+      required this.controller,
+      required this.callback,
+      required this.title});
 
   final TextEditingController controller;
 
@@ -34,7 +37,8 @@ class AdminPanelPrompt extends StatelessWidget {
                   maxLength: 30,
                   maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   controller: controller,
-                  decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
+                  decoration: const InputDecoration(
+                      isDense: true, contentPadding: EdgeInsets.all(8)),
                 ),
               ),
               const SizedBox(

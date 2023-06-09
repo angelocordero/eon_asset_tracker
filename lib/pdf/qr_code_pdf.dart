@@ -1,14 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-// Flutter imports:
-
 import 'package:flutter/services.dart';
 
-// Package imports:
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-// Project imports:
 import '../models/category_model.dart';
 import '../models/department_model.dart';
 import '../models/item_model.dart';
@@ -26,7 +22,8 @@ class QRCodePDF {
   Future<Uint8List> generate() async {
     final pw.Document pdf = pw.Document();
 
-    pw.Font monoFont = pw.Font.ttf(await rootBundle.load("fonts/RobotoMono-Regular.ttf"));
+    pw.Font monoFont =
+        pw.Font.ttf(await rootBundle.load("fonts/RobotoMono-Regular.ttf"));
 
     pdf.addPage(
       pw.MultiPage(

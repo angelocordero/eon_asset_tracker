@@ -1,17 +1,15 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Project imports:
 import '../core/constants.dart';
-import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/department_model.dart';
 import '../models/user_model.dart';
+import '../notifiers/admin_panel_users_notifier.dart';
+import '../notifiers/departments_notifier.dart';
 
 class AddUserScreen extends ConsumerStatefulWidget {
   const AddUserScreen({super.key});
@@ -23,7 +21,8 @@ class AddUserScreen extends ConsumerStatefulWidget {
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   static final List<String> statusList = [
     'Admin',
@@ -36,7 +35,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
   @override
   void initState() {
-    departments = ref.read(departmentsProvider);
+    departments = ref.read(departmentsNotifierProvider).requireValue;
 
     department = departments.first;
 
@@ -116,10 +115,12 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
             }
 
             try {
-              User user = User.toDatabase(username: _userNameController.text.trim(), department: department, status: status);
+              User user = User.toDatabase(
+                  username: _userNameController.text.trim(),
+                  department: department,
+                  status: status);
 
-              await ref.read(adminPanelProvider.notifier).addUser(
-                    ref,
+              await ref.read(adminPanelUsersNotifierProvider.notifier).addUser(
                     user,
                     _passwordController.text.trim(),
                     _confirmPasswordController.text.trim(),
@@ -159,7 +160,11 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 ),
               ),
               value: departments.first,
-              items: departments.map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName))).toList(),
+              items: departments
+                  .map<DropdownMenuItem<Department>>((value) =>
+                      DropdownMenuItem<Department>(
+                          value: value, child: Text(value.departmentName)))
+                  .toList(),
               onChanged: (Department? newDepartment) {
                 if (newDepartment == null) return;
                 setState(() {
@@ -261,7 +266,11 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 ),
               ),
               value: 'User',
-              items: statusList.map<DropdownMenuItem<String>>((value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
+              items: statusList
+                  .map<DropdownMenuItem<String>>((value) =>
+                      DropdownMenuItem<String>(
+                          value: value, child: Text(value)))
+                  .toList(),
               onChanged: (String? newStatus) {
                 if (newStatus == null) return;
                 setState(() {

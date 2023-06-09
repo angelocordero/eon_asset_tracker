@@ -1,9 +1,10 @@
-import 'package:eon_asset_tracker/models/connection_setttings_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/constants.dart';
+import '../models/connection_setttings_model.dart';
 
 class ConnectionSettingsScreen extends ConsumerWidget {
   const ConnectionSettingsScreen({
@@ -69,7 +70,9 @@ class ConnectionSettingsScreen extends ConsumerWidget {
                   height: 10,
                 ),
                 TextField(
-                  inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)],
+                  inputFormatters: [
+                    FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)
+                  ],
                   controller: portController,
                   decoration: const InputDecoration(
                     isDense: true,
@@ -146,7 +149,8 @@ class ConnectionSettingsScreen extends ConsumerWidget {
                   alignment: Alignment.center,
                   child: ElevatedButton(
                     onPressed: () async {
-                      ConnectionSettings connectionSettings = ConnectionSettings(
+                      ConnectionSettings connectionSettings =
+                          ConnectionSettings(
                         databaseName: dbNameController.text.trim(),
                         username: userController.text.trim(),
                         password: passwordController.text.trim(),

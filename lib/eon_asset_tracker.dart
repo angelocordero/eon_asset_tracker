@@ -1,11 +1,8 @@
-// Flutter imports:
 import 'package:flutter/material.dart';
 
-// Package imports:
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sidebarx/sidebarx.dart';
 
-// Project imports:
 import 'core/constants.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';

@@ -1,7 +1,5 @@
-// Package imports:
 import 'package:mysql_client/mysql_client.dart';
 
-// Project imports:
 import '../core/constants.dart';
 import '../core/utils.dart';
 import 'category_model.dart';
@@ -70,10 +68,12 @@ class Item {
   factory Item.fromDatabase({
     required ResultSetRow row,
   }) {
-    Department department =
-        Department(departmentID: row.typedColByName<String>('department_id')!, departmentName: row.typedColByName<String>('department_name')!);
-    ItemCategory category =
-        ItemCategory(categoryID: row.typedColByName<String>('category_id')!, categoryName: row.typedColByName<String>('category_name')!);
+    Department department = Department(
+        departmentID: row.typedColByName<String>('department_id')!,
+        departmentName: row.typedColByName<String>('department_name')!);
+    ItemCategory category = ItemCategory(
+        categoryID: row.typedColByName<String>('category_id')!,
+        categoryName: row.typedColByName<String>('category_name')!);
 
     return Item(
       assetID: row.typedColByName<String>('asset_id')!,
@@ -82,9 +82,13 @@ class Item {
       name: row.typedColByName<String>('item_name')!,
       description: row.colByName('item_description'),
       unit: row.colByName('unit'),
-      price: row.colByName('price') == null ? null : double.tryParse((row.colByName('price')) as String),
+      price: row.colByName('price') == null
+          ? null
+          : double.tryParse((row.colByName('price')) as String),
       dateReceived: DateTime.parse(row.colByName('date_received').toString()),
-      datePurchased: row.colByName('date_purchased') == null ? null : DateTime.tryParse((row.colByName('date_purchased') as String))!,
+      datePurchased: row.colByName('date_purchased') == null
+          ? null
+          : DateTime.tryParse((row.colByName('date_purchased') as String))!,
       status: ItemStatus.values.byName(row.typedColByName<String>('status')!),
       remarks: row.colByName('remarks'),
       category: category,

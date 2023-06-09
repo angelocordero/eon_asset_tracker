@@ -16,7 +16,8 @@ class ConnectionSettings {
   });
 
   factory ConnectionSettings.empty() {
-    return ConnectionSettings(databaseName: '', username: '', password: '', ip: '', port: 0);
+    return ConnectionSettings(
+        databaseName: '', username: '', password: '', ip: '', port: 0);
   }
 
   ConnectionSettings copyWith({
@@ -62,17 +63,26 @@ class ConnectionSettings {
 
   String toJson() => json.encode(toMap());
 
-  factory ConnectionSettings.fromJson(String source) => ConnectionSettings.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ConnectionSettings.fromJson(String source) =>
+      ConnectionSettings.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   bool operator ==(covariant ConnectionSettings other) {
     if (identical(this, other)) return true;
 
-    return other.databaseName == databaseName && other.username == username && other.password == password && other.ip == ip && other.port == port;
+    return other.databaseName == databaseName &&
+        other.username == username &&
+        other.password == password &&
+        other.ip == ip &&
+        other.port == port;
   }
 
   @override
   int get hashCode {
-    return databaseName.hashCode ^ username.hashCode ^ password.hashCode ^ ip.hashCode ^ port.hashCode;
+    return databaseName.hashCode ^
+        username.hashCode ^
+        password.hashCode ^
+        ip.hashCode ^
+        port.hashCode;
   }
 }

@@ -20,13 +20,15 @@ class Department {
   }
 
   @override
-  String toString() => 'Department(departmentID: $departmentID, departmentName: $departmentName)';
+  String toString() =>
+      'Department(departmentID: $departmentID, departmentName: $departmentName)';
 
   @override
   bool operator ==(covariant Department other) {
     if (identical(this, other)) return true;
 
-    return other.departmentID == departmentID && other.departmentName == departmentName;
+    return other.departmentID == departmentID &&
+        other.departmentName == departmentName;
   }
 
   @override

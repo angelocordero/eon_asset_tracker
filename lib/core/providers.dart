@@ -1,35 +1,25 @@
-// Package imports:
 import 'package:riverpod/riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
-// Project imports:
-import '../models/category_model.dart';
-import '../models/dashboard_model.dart';
-import '../models/department_model.dart';
-import '../models/inventory_model.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
-import '../notifiers/admin_panel_notifier.dart';
-import '../notifiers/dashboard_notifier.dart';
+import '../notifiers/admin_panel_users_notifier.dart';
 import '../notifiers/inventory_notifier.dart';
 import 'constants.dart';
 
 final tableSortingProvider = StateProvider<TableSort>((ref) {
-  return (null, null);
+  return (tableColumn: null, sortOrder: null);
 });
 
 final userProvider = StateProvider<User?>((ref) => null);
 
-final departmentsProvider = StateProvider<List<Department>>((ref) => []);
-
-final categoriesProvider = StateProvider<List<ItemCategory>>((ref) => []);
-
 final itemsPerPageProvider = StateProvider<int>((ref) => 50);
 
 final selectedItemProvider = StateProvider<Item?>((ref) {
-  List<Item> items = ref.watch(inventoryProvider).items;
+  List<Item>? items =
+      ref.watch(inventoryNotifierProvider).asData?.valueOrNull?.items;
 
-  if (items.isNotEmpty) {
+  if (items != null && items.isNotEmpty) {
     return items.first;
   }
 
@@ -47,32 +37,12 @@ final searchFilterProvider = StateProvider<InventorySearchFilter>((ref) {
 final searchQueryProvider = StateProvider<dynamic>((ref) => '');
 
 final checkedItemProvider = StateProvider<List<String>>((ref) {
-  ref.watch(inventoryProvider);
+  ref.watch(inventoryNotifierProvider);
 
   return [];
 });
 
 final currentInventoryPage = StateProvider<int>((ref) => 0);
-
-final dashboardDataProvider = StateNotifierProvider<DashboardNotifier, DashboardData>((ref) {
-  return DashboardNotifier(
-    ref: ref,
-  );
-});
-
-final inventoryProvider = StateNotifierProvider<InventoryNotifier, Inventory>((ref) {
-  ref.watch(categoriesProvider);
-  ref.watch(departmentsProvider);
-
-  return InventoryNotifier(ref.watch(itemsPerPageProvider));
-});
-
-final adminPanelProvider = StateNotifierProvider<AdminPanelNotifier, Map<String, List<dynamic>>>((ref) {
-  return AdminPanelNotifier(
-    departments: ref.watch(departmentsProvider),
-    categories: ref.watch(categoriesProvider),
-  );
-});
 
 final tabSwitcherIndexProvider = StateProvider<int>((ref) {
   return 0;
@@ -83,7 +53,13 @@ final sidebarControllerProvider = StateProvider<SidebarXController>((ref) {
 });
 
 final adminPanelSelectedUserProvider = StateProvider<User?>((ref) {
-  List<User> users = List<User>.from(ref.watch(adminPanelProvider)['users']!);
+  List<User>? users = ref.watch(adminPanelUsersNotifierProvider).whenOrNull(
+        data: (data) => data,
+      );
+
+  if (users == null) {
+    return null;
+  }
 
   if (users.isNotEmpty) {
     return users.first;

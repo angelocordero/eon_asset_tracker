@@ -16,7 +16,8 @@ class _SearchDaterangePickerState extends State<SearchDaterangePicker> {
   late DateTime first;
   late DateTime last;
 
-  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 10));
+  final DateTime _firstDate =
+      DateTime.now().subtract(const Duration(days: 365 * 10));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 10));
 
   @override
