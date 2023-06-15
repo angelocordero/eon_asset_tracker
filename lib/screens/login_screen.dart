@@ -9,7 +9,7 @@ import '../core/custom_route.dart';
 import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
-import '../models/connection_setttings_model.dart';
+import '../models/connection_settings_model.dart';
 import '../models/user_model.dart';
 import 'connection_settings_screen.dart';
 

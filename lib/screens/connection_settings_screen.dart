@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/constants.dart';
-import '../models/connection_setttings_model.dart';
+import '../models/connection_settings_model.dart';
 
 class ConnectionSettingsScreen extends ConsumerWidget {
   const ConnectionSettingsScreen({

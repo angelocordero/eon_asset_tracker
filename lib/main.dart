@@ -8,8 +8,9 @@ import 'core/constants.dart';
 import 'eon_asset_tracker.dart';
 
 void main() async {
-  Hive.init(await getApplicationSupportDirectory().then((value) => value.path));
+  WidgetsFlutterBinding.ensureInitialized();
 
+  Hive.init(await getApplicationSupportDirectory().then((value) => value.path));
   await Hive.openBox('settings', encryptionCipher: HiveAesCipher(secureKey));
 
   runApp(

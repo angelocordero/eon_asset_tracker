@@ -25,15 +25,13 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute(
-          '''UPDATE `users` SET `username` = :username, `department_id` = :departmentID, `admin` = :isAdmin
-       WHERE `user_id` = :userID AND `is_enabled` = 1 ''',
-          {
-            'username': user.username,
-            'departmentID': user.department?.departmentID,
-            'isAdmin': user.isAdmin ? 1 : 0,
-            'userID': user.userID,
-          });
+      await conn.execute('''UPDATE `users` SET `username` = :username, `department_id` = :departmentID, `admin` = :isAdmin
+       WHERE `user_id` = :userID AND `is_enabled` = 1 ''', {
+        'username': user.username,
+        'departmentID': user.department?.departmentID,
+        'isAdmin': user.isAdmin ? 1 : 0,
+        'userID': user.userID,
+      });
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -72,13 +70,11 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute(
-          '''UPDATE `users` SET `password_hash` = :hash WHERE `is_enabled` = 1
-       AND `user_id` = :userID ''',
-          {
-            'hash': hashPassword(newPassword),
-            'userID': user.userID,
-          });
+      await conn.execute('''UPDATE `users` SET `password_hash` = :hash WHERE `is_enabled` = 1
+       AND `user_id` = :userID ''', {
+        'hash': hashPassword(newPassword),
+        'userID': user.userID,
+      });
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -95,16 +91,14 @@ class DatabaseAPI {
       conn = await createSqlConn();
       await conn.connect();
 
-      await conn.execute(
-          '''INSERT INTO `users` (user_id, username, admin, department_id ,password_hash) VALUES
-          (:userID, :username, :isAdmin, :departmentID, :passwordHash)''',
-          {
-            'userID': user.userID,
-            'username': user.username,
-            'isAdmin': user.isAdmin ? 1 : 0,
-            'departmentID': user.department?.departmentID,
-            'passwordHash': hashPassword(password),
-          });
+      await conn.execute('''INSERT INTO `users` (user_id, username, admin, department_id ,password_hash) VALUES
+          (:userID, :username, :isAdmin, :departmentID, :passwordHash)''', {
+        'userID': user.userID,
+        'username': user.username,
+        'isAdmin': user.isAdmin ? 1 : 0,
+        'departmentID': user.department?.departmentID,
+        'passwordHash': hashPassword(password),
+      });
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -154,8 +148,7 @@ class DatabaseAPI {
                                               FROM `master`;
                                               ''');
 
-      List<String?> list =
-          results.rows.map((e) => e.typedColAt<String>(0)).toList();
+      List<String?> list = results.rows.map((e) => e.typedColAt<String>(0)).toList();
 
       if (list.contains(hashPassword(password))) return true;
     } catch (e, st) {
@@ -176,11 +169,9 @@ class DatabaseAPI {
       conn = await createSqlConn();
       await conn.connect();
 
-      IResultSet results =
-          await conn.execute('SELECT * FROM `master` WHERE 1;');
+      IResultSet results = await conn.execute('SELECT * FROM `master` WHERE 1;');
 
-      List<String?> list =
-          results.rows.map((e) => e.typedColAt<String>(0)).toList();
+      List<String?> list = results.rows.map((e) => e.typedColAt<String>(0)).toList();
 
       if (list.contains(hashPassword(password))) return true;
     } catch (e, st) {
@@ -194,8 +185,7 @@ class DatabaseAPI {
     return false;
   }
 
-  static Future<User?> authenticateUser(
-      WidgetRef ref, String username, String passwordHash) async {
+  static Future<User?> authenticateUser(WidgetRef ref, String username, String passwordHash) async {
     MySQLConnection? conn;
 
     try {
@@ -234,8 +224,7 @@ class DatabaseAPI {
 
   static Future<int> getTotalInventoryCount(MySQLConnection conn) async {
     try {
-      IResultSet result = await conn
-          .execute('SELECT * FROM `assets` WHERE `is_enabled` = 1 ', {});
+      IResultSet result = await conn.execute('SELECT * FROM `assets` WHERE `is_enabled` = 1 ', {});
 
       return result.numOfRows;
     } catch (e, st) {
@@ -260,8 +249,7 @@ class DatabaseAPI {
       if (query.trim().isEmpty) {
         results = await _getAllUnfiltered(conn);
       } else {
-        results =
-            await _getAllFiltered(conn: conn, filter: filter, query: query);
+        results = await _getAllFiltered(conn: conn, filter: filter, query: query);
       }
 
       return results.rows.map<Item>((row) {
@@ -330,26 +318,12 @@ class DatabaseAPI {
 
       IResultSet results;
 
-      if (query == 'No Category' &&
-          (filter == InventorySearchFilter.category ||
-              filter == InventorySearchFilter.department)) {
-        results = await _nullSearchQuery(
-            conn: conn, page: page, filter: filter, itemsPerPage: itemsPerPage);
-      } else if (filter == InventorySearchFilter.datePurchased ||
-          filter == InventorySearchFilter.dateReceived) {
-        results = await _dateRangeSearch(
-            conn: conn,
-            columnString: columnString,
-            range: query,
-            itemsPerPage: itemsPerPage,
-            page: page);
+      if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
+        results = await _nullSearchQuery(conn: conn, page: page, filter: filter, itemsPerPage: itemsPerPage);
+      } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+        results = await _dateRangeSearch(conn: conn, columnString: columnString, range: query, itemsPerPage: itemsPerPage, page: page);
       } else {
-        results = await _searchQuery(
-            conn: conn,
-            page: page,
-            filter: filter,
-            query: query,
-            itemsPerPage: itemsPerPage);
+        results = await _searchQuery(conn: conn, page: page, filter: filter, query: query, itemsPerPage: itemsPerPage);
       }
 
       return results.rows
@@ -400,8 +374,7 @@ class DatabaseAPI {
         'itemDescription': item.description,
         'unit': item.unit,
         'price': item.price,
-        'datePurchased':
-            datePurchased == null ? null : dateTimeToSQLString(datePurchased),
+        'datePurchased': datePurchased == null ? null : dateTimeToSQLString(datePurchased),
         'dateReceived': dateTimeToSQLString(dateReceived),
         'status': item.status.name,
         'categoryID': item.category.categoryID,
@@ -454,8 +427,7 @@ class DatabaseAPI {
         'itemDescription': item.description,
         'unit': item.unit,
         'price': item.price,
-        'datePurchased':
-            datePurchased == null ? null : dateTimeToSQLString(datePurchased),
+        'datePurchased': datePurchased == null ? null : dateTimeToSQLString(datePurchased),
         'dateReceived': dateTimeToSQLString(dateReceived),
         'status': item.status.name,
         'categoryID': item.category.categoryID,
@@ -481,8 +453,9 @@ class DatabaseAPI {
 
     String? columnString = inventoryFilterEnumToDatabaseString(filter);
 
-    if (columnString == null)
+    if (columnString == null) {
       return await Future.error('Invalid search filter');
+    }
 
     try {
       return await conn.execute('''
@@ -532,8 +505,7 @@ class DatabaseAPI {
     required String columnString,
   }) async {
     try {
-      return await conn.execute(
-          'SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
+      return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
     } catch (e, st) {
       return await Future.error(e, st);
     }
@@ -577,13 +549,9 @@ class DatabaseAPI {
     }
   }
 
-  static Future<IResultSet> _searchQueryResultTotal(
-      {required MySQLConnection conn,
-      required String searchBy,
-      required String query}) async {
+  static Future<IResultSet> _searchQueryResultTotal({required MySQLConnection conn, required String searchBy, required String query}) async {
     try {
-      return await conn.execute(
-          'SELECT COUNT(*) as count FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1');
+      return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1');
     } catch (e, st) {
       return await Future.error(e, st);
     }
@@ -666,15 +634,10 @@ class DatabaseAPI {
 
       IResultSet results;
 
-      if (query == 'No Category' &&
-          (filter == InventorySearchFilter.category ||
-              filter == InventorySearchFilter.department)) {
-        results = await _nullSearchQueryResultTotal(
-            conn: conn, columnString: columnString);
-      } else if (filter == InventorySearchFilter.datePurchased ||
-          filter == InventorySearchFilter.dateReceived) {
-        results = await _dateRangeSearchTotal(
-            conn: conn, columnString: columnString, range: query);
+      if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
+        results = await _nullSearchQueryResultTotal(conn: conn, columnString: columnString);
+      } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+        results = await _dateRangeSearchTotal(conn: conn, columnString: columnString, range: query);
       } else {
         results = await _searchQueryResultTotal(
           conn: conn,
@@ -713,8 +676,7 @@ class DatabaseAPI {
       );
 
       return Map<String, int>.fromIterable(results.rows,
-          key: (row) => row.typedColByName<String>('status'),
-          value: (row) => row.typedColByName<int>('asset_count'));
+          key: (row) => row.typedColByName<String>('status'), value: (row) => row.typedColByName<int>('asset_count'));
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -744,8 +706,7 @@ class DatabaseAPI {
       );
 
       return Map<String, int>.fromIterable(results.rows,
-          key: (row) => row.typedColByName<String>('department_name'),
-          value: (row) => row.typedColByName<int>('asset_count'));
+          key: (row) => row.typedColByName<String>('department_name'), value: (row) => row.typedColByName<int>('asset_count'));
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -775,8 +736,7 @@ class DatabaseAPI {
       );
 
       return Map<String, int>.fromIterable(results.rows,
-          key: (row) => row.typedColByName<String>('category_name'),
-          value: (row) => row.typedColByName<int>('asset_count'));
+          key: (row) => row.typedColByName<String>('category_name'), value: (row) => row.typedColByName<int>('asset_count'));
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -794,12 +754,10 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute(
-          'INSERT INTO `departments` (department_id, department_name) VALUES (:departmentID, :departmentName)',
-          {
-            'departmentName': departmentName,
-            'departmentID': generateRandomID(),
-          });
+      await conn.execute('INSERT INTO `departments` (department_id, department_name) VALUES (:departmentID, :departmentName)', {
+        'departmentName': departmentName,
+        'departmentID': generateRandomID(),
+      });
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -817,12 +775,10 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute(
-          'INSERT INTO `categories` (category_id, category_name) VALUES (:categoryID, :categoryName)',
-          {
-            'categoryName': categoryName,
-            'categoryID': generateRandomID(),
-          });
+      await conn.execute('INSERT INTO `categories` (category_id, category_name) VALUES (:categoryID, :categoryName)', {
+        'categoryName': categoryName,
+        'categoryID': generateRandomID(),
+      });
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -840,12 +796,10 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute(
-          'UPDATE `departments` SET `department_name` = :departmentName WHERE `department_id` = :departmentID AND `is_enabled` = 1 ',
-          {
-            'departmentName': department.departmentName,
-            'departmentID': department.departmentID,
-          });
+      await conn.execute('UPDATE `departments` SET `department_name` = :departmentName WHERE `department_id` = :departmentID AND `is_enabled` = 1 ', {
+        'departmentName': department.departmentName,
+        'departmentID': department.departmentID,
+      });
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -883,12 +837,10 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute(
-          'UPDATE `categories` SET `category_name` = :categoryName WHERE `category_id` = :categoryID AND `is_enabled` = 1 ',
-          {
-            'categoryName': category.categoryName,
-            'categoryID': category.categoryID,
-          });
+      await conn.execute('UPDATE `categories` SET `category_name` = :categoryName WHERE `category_id` = :categoryID AND `is_enabled` = 1 ', {
+        'categoryName': category.categoryName,
+        'categoryID': category.categoryID,
+      });
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -925,8 +877,7 @@ class DatabaseAPI {
       conn = await createSqlConn();
       await conn.connect();
 
-      var results = await conn.execute(
-          'SELECT * FROM `departments` WHERE `is_enabled` = 1 ORDER BY `department_name` ASC');
+      var results = await conn.execute('SELECT * FROM `departments` WHERE `is_enabled` = 1 ORDER BY `department_name` ASC');
 
       return results.rows.map((row) {
         return Department(
@@ -949,8 +900,7 @@ class DatabaseAPI {
     try {
       conn = await createSqlConn();
       await conn.connect();
-      var results = await conn.execute(
-          'SELECT * FROM `categories` WHERE `is_enabled` = 1 ORDER BY `category_name` ASC');
+      var results = await conn.execute('SELECT * FROM `categories` WHERE `is_enabled` = 1 ORDER BY `category_name` ASC');
 
       return results.rows.map((row) {
         return ItemCategory(

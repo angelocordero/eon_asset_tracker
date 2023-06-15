@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 
-import '../models/connection_setttings_model.dart';
+import '../models/connection_settings_model.dart';
 
 enum ItemStatus {
   Good,

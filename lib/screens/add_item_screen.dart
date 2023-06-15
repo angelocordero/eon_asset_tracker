@@ -31,8 +31,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late DateTime _datePurchased;
   late DateTime _dateReceived;
 
-  final DateTime _firstDate =
-      DateTime.now().subtract(const Duration(days: 365 * 10));
+  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 10));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 10));
 
   late ItemStatus _itemStatus;
@@ -40,15 +39,12 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late ItemCategory _category;
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _personAccountableController =
-      TextEditingController();
+  final TextEditingController _personAccountableController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _unitController = TextEditingController();
-  final TextEditingController _itemDescriptionController =
-      TextEditingController();
+  final TextEditingController _itemDescriptionController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
-  final TextEditingController _countController =
-      TextEditingController(text: '1');
+  final TextEditingController _countController = TextEditingController(text: '1');
 
   bool _isPurchased = false;
 
@@ -159,24 +155,22 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                       EasyLoading.show();
 
-                      int count =
-                          int.tryParse(_countController.text.trim()) ?? 1;
+                      int count = int.tryParse(_countController.text.trim()) ?? 1;
 
                       try {
-                        List<Department>? departments =
-                            ref.read(departmentsNotifierProvider).valueOrNull;
-                        List<ItemCategory>? categories =
-                            ref.read(categoriesNotifierProvider).valueOrNull;
+                        List<Department>? departments = ref.read(departmentsNotifierProvider).valueOrNull;
+                        List<ItemCategory>? categories = ref.read(categoriesNotifierProvider).valueOrNull;
 
-                        if (departments == null)
+                        if (departments == null) {
                           return Future.error('No Departments Found');
-                        if (categories == null)
+                        }
+                        if (categories == null) {
                           return Future.error('No Categories Found');
+                        }
 
                         for (int i = 0; i < count; i++) {
                           Item item = Item.toDatabase(
-                            personAccountable:
-                                _personAccountableController.text.trim(),
+                            personAccountable: _personAccountableController.text.trim(),
                             department: _department,
                             name: _nameController.text.trim(),
                             description: _itemDescriptionController.text.trim(),
@@ -184,8 +178,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                             price: _isPurchased
                                 ? _priceController.text.trim().isEmpty
                                     ? 0
-                                    : double.tryParse(
-                                        _priceController.text.trim())
+                                    : double.tryParse(_priceController.text.trim())
                                 : null,
                             datePurchased: _isPurchased ? _datePurchased : null,
                             dateReceived: _dateReceived,
@@ -385,16 +378,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           children: [
             Text(
               'Count',
-              style:
-                  TextStyle(color: _isPurchased ? Colors.white : Colors.grey),
+              style: TextStyle(color: _isPurchased ? Colors.white : Colors.grey),
             ),
             const SizedBox(
               width: 20,
             ),
             Tooltip(
               // textAlign: TextAlign.center,
-              message:
-                  'Number of copies of items. Items will be displayed\nseperately and with a different Asset ID.',
+              message: 'Number of copies of items. Items will be displayed\nseperately and with a different Asset ID.',
               child: Container(
                 width: 20,
                 height: 20,
@@ -419,9 +410,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           width: 100,
           child: TextField(
             controller: _countController,
-            inputFormatters: [
-              FilteringTextInputFormatter(RegExp("[0-9]"), allow: true)
-            ],
+            inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9]"), allow: true)],
           ),
         ),
       ],
@@ -448,9 +437,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           child: TextField(
             enabled: _isPurchased,
             controller: _priceController,
-            inputFormatters: [
-              FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)
-            ],
+            inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)],
             decoration: InputDecoration(
               icon: Text(
                 '₱',
@@ -561,9 +548,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               ),
               value: _itemStatus,
               items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) =>
-                      DropdownMenuItem<ItemStatus>(
-                          value: value, child: Text(value.name)))
+                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
                   .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
@@ -609,18 +594,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         SizedBox(
           width: 300,
           child: Autocomplete<ItemCategory>(
-            fieldViewBuilder:
-                (context, textEditingController, focusNode, onFieldSubmitted) {
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
               focusNode.addListener(() {
                 if (!focusNode.hasFocus) {
                   // checks if the current text in the controller is a category name
                   // if true, returns that category,
                   // if false, returns last category that was matched
-                  ItemCategory? buffer = _categories.singleWhere(
-                      (element) =>
-                          element.categoryName ==
-                          textEditingController.text.trim(),
-                      orElse: () => _category);
+                  ItemCategory? buffer =
+                      _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
 
                   textEditingController.text = buffer.categoryName;
                 }
@@ -637,9 +618,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             },
             initialValue: TextEditingValue(text: _category.categoryName),
             optionsBuilder: (TextEditingValue option) {
-              return _categories.where((element) => element.categoryName
-                  .toLowerCase()
-                  .contains(option.text.toLowerCase().trim()));
+              return _categories.where((element) => element.categoryName.toLowerCase().contains(option.text.toLowerCase().trim()));
             },
             displayStringForOption: (option) => option.categoryName,
             onSelected: (option) => _category = option,
@@ -651,8 +630,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 alignment: Alignment.topLeft,
                 child: Material(
                   shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(bottom: Radius.circular(4.0)),
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(4.0)),
                   ),
                   child: SizedBox(
                     width: 300, // <-- Right here !
@@ -668,20 +646,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                           },
                           child: Builder(
                             builder: (BuildContext context) {
-                              final bool highlight =
-                                  AutocompleteHighlightedOption.of(context) ==
-                                      index;
+                              final bool highlight = AutocompleteHighlightedOption.of(context) == index;
                               if (highlight) {
-                                SchedulerBinding.instance
-                                    .addPostFrameCallback((Duration timeStamp) {
-                                  Scrollable.ensureVisible(context,
-                                      alignment: 0.5);
+                                SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+                                  Scrollable.ensureVisible(context, alignment: 0.5);
                                 });
                               }
                               return Container(
-                                color: highlight
-                                    ? Theme.of(context).focusColor
-                                    : null,
+                                color: highlight ? Theme.of(context).focusColor : null,
                                 padding: const EdgeInsets.all(16.0),
                                 child: Text(category.categoryName),
                               );
