@@ -27,8 +27,7 @@ Future<MySQLConnection> createSqlConn() async {
       secure: Platform.isWindows ? true : false,
     ).timeout(
       const Duration(seconds: 3),
-      onTimeout: () async => await Future.error(
-          const SocketException('Can\'t connect to database')),
+      onTimeout: () async => await Future.error(const SocketException('Can\'t connect to database')),
     );
   } catch (e, st) {
     return await Future.error(e, st);
@@ -36,8 +35,7 @@ Future<MySQLConnection> createSqlConn() async {
 }
 
 String generateRandomID() {
-  String eonCustomAlphabet =
-      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  String eonCustomAlphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   String randomID1 = customAlphabet(eonCustomAlphabet, 5);
   String randomID2 = customAlphabet(eonCustomAlphabet, 5);
@@ -55,21 +53,19 @@ String dateTimeToString(DateTime dateTime) {
 }
 
 String priceToString(double? price) {
-  return price == null
-      ? ''
-      : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
+  return price == null ? '' : NumberFormat.currency(symbol: '₱ ', decimalDigits: 2).format(price);
 }
 
 String dateTimeToSQLString(DateTime dateTime) {
   return DateFormat('yyyy-MM-dd').format(dateTime);
 }
 
-Widget generateQRImage({required String assetID, double? size}) {
+Widget generateQRImage({required String assetID, double? size, required ThemeMode themeMode}) {
   return QrImageView(
     size: size,
     data: assetID,
     backgroundColor: Colors.transparent,
-    foregroundColor: Colors.white,
+    foregroundColor: themeMode == ThemeMode.light ? Colors.black : Colors.white,
   );
 }
 

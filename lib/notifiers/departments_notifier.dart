@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/database_api.dart';
@@ -15,9 +16,11 @@ class DepartmentsNotifier extends _$DepartmentsNotifier {
   Future<void> addDepartment(String departmentName) async {
     state = const AsyncValue.loading();
 
-    await AsyncValue.guard(() async {
-      return await DatabaseAPI.addDepartment(departmentName);
-    });
+    try {
+      await DatabaseAPI.addDepartment(departmentName);
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }
@@ -25,9 +28,11 @@ class DepartmentsNotifier extends _$DepartmentsNotifier {
   Future<void> editDepartment(Department department) async {
     state = const AsyncValue.loading();
 
-    await AsyncValue.guard(() async {
-      return await DatabaseAPI.editDepartment(department);
-    });
+    try {
+      await DatabaseAPI.editDepartment(department);
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }
@@ -35,9 +40,11 @@ class DepartmentsNotifier extends _$DepartmentsNotifier {
   Future<void> deleteDepartment(String departmentID) async {
     state = const AsyncValue.loading();
 
-    await AsyncValue.guard(() async {
-      return await DatabaseAPI.deleteDepartment(departmentID);
-    });
+    try {
+      await DatabaseAPI.deleteDepartment(departmentID);
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }

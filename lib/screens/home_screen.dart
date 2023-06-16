@@ -5,15 +5,17 @@ import 'package:sidebarx/sidebarx.dart';
 
 import '../core/constants.dart';
 import '../core/providers.dart';
+import '../notifiers/theme_notifier.dart';
 import '../tabs/tab_switcher.dart';
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key, required this.controller});
-
-  final SidebarXController controller;
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final SidebarXController controller = ref.watch(sidebarControllerProvider);
+    ThemeMode themeMode = ref.watch(themeNotifierProvider).valueOrNull ?? ThemeMode.light;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('ASSET TRACKER  |  ${ref.watch(appbarTitleProvider)}'),
@@ -21,9 +23,9 @@ class HomeScreen extends ConsumerWidget {
           Center(
             child: Row(
               children: [
-                const Text(
+                Text(
                   'Logged in as: ',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: themeMode == ThemeMode.light ? Colors.grey[800] : Colors.grey),
                 ),
                 const SizedBox(
                   width: 10,
@@ -31,6 +33,39 @@ class HomeScreen extends ConsumerWidget {
                 Text(
                   ref.watch(userProvider)?.username ?? '',
                   style: const TextStyle(fontSize: 15),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                SizedBox(
+                  height: 30,
+                  child: ToggleButtons(
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    selectedBorderColor: Colors.blue[700],
+                    fillColor: themeMode == ThemeMode.light ? Colors.blue[900] : Colors.blue[200],
+                    isSelected: themeMode == ThemeMode.light ? [true, false] : [false, true],
+                    onPressed: (index) {
+                      switch (index) {
+                        case 0:
+                          if (themeMode == ThemeMode.light) return;
+                        case 1:
+                          if (themeMode == ThemeMode.dark) return;
+                      }
+                      ref.read(themeNotifierProvider.notifier).toggleTheme();
+                    },
+                    children: const [
+                      Icon(
+                        Icons.light_mode,
+                        color: Colors.yellow,
+                        size: 15,
+                      ),
+                      Icon(
+                        Icons.dark_mode,
+                        color: Colors.indigo,
+                        size: 15,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -44,24 +79,23 @@ class HomeScreen extends ConsumerWidget {
         children: [
           SidebarX(
             controller: controller,
-            theme: const SidebarXTheme(
-              itemPadding: EdgeInsets.only(top: 20, left: 10, right: 10),
-              selectedItemPadding:
-                  EdgeInsets.only(top: 20, left: 10, right: 10),
-              itemTextPadding: EdgeInsets.only(left: 20),
-              selectedItemTextPadding: EdgeInsets.only(left: 20),
-              textStyle: TextStyle(color: Colors.grey),
-              selectedTextStyle: TextStyle(color: Colors.white),
-              selectedIconTheme: IconThemeData(color: Colors.white),
-              iconTheme: IconThemeData(color: Colors.grey),
+            theme: SidebarXTheme(
+              itemPadding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+              selectedItemPadding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+              itemTextPadding: const EdgeInsets.only(left: 20),
+              selectedItemTextPadding: const EdgeInsets.only(left: 20),
+              textStyle: TextStyle(color: themeMode == ThemeMode.light ? null : Colors.grey),
+              selectedTextStyle: TextStyle(color: themeMode == ThemeMode.light ? Colors.blue : Colors.white),
+              selectedIconTheme: IconThemeData(color: themeMode == ThemeMode.light ? Colors.blue : Colors.white),
+              iconTheme: IconThemeData(color: themeMode == ThemeMode.light ? null : Colors.grey),
             ),
-            extendedTheme: const SidebarXTheme(
-              width: 180,
-              textStyle: TextStyle(color: Colors.grey),
-              selectedTextStyle: TextStyle(color: Colors.white),
-              margin: EdgeInsets.only(right: 10),
-              selectedIconTheme: IconThemeData(color: Colors.white),
-              iconTheme: IconThemeData(color: Colors.grey),
+            extendedTheme: SidebarXTheme(
+              width: 200,
+              textStyle: TextStyle(color: themeMode == ThemeMode.light ? null : Colors.grey),
+              selectedTextStyle: TextStyle(color: themeMode == ThemeMode.light ? Colors.blue : Colors.white),
+              margin: const EdgeInsets.only(right: 10),
+              selectedIconTheme: IconThemeData(color: themeMode == ThemeMode.light ? Colors.blue : Colors.white),
+              iconTheme: IconThemeData(color: themeMode == ThemeMode.light ? null : Colors.grey),
             ),
             footerBuilder: (context, extended) {
               return Column(
@@ -104,8 +138,7 @@ class HomeScreen extends ConsumerWidget {
                 // label: 'INVENTORY',
                 onTap: () {
                   ref.read(appbarTitleProvider.notifier).state = 'INVENTORY';
-                  ref.read(searchFilterProvider.notifier).state =
-                      InventorySearchFilter.assetID;
+                  ref.read(searchFilterProvider.notifier).state = InventorySearchFilter.assetID;
                 },
               ),
               if (ref.watch(userProvider)?.isAdmin ?? false)
@@ -113,8 +146,7 @@ class HomeScreen extends ConsumerWidget {
                   icon: Icons.admin_panel_settings,
                   label: 'A D M I N',
                   onTap: () {
-                    ref.read(appbarTitleProvider.notifier).state =
-                        'ADMIN PANEL';
+                    ref.read(appbarTitleProvider.notifier).state = 'ADMIN PANEL';
                   },
                 ),
             ],

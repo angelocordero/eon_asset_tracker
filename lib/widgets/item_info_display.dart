@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,11 +13,9 @@ import 'qr_code_display.dart';
 class ItemInfoDisplay extends ConsumerWidget {
   const ItemInfoDisplay({super.key});
 
-  static final TextEditingController _descriptionController =
-      TextEditingController();
+  static final TextEditingController _descriptionController = TextEditingController();
 
-  static final TextEditingController _remarksController =
-      TextEditingController();
+  static final TextEditingController _remarksController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,6 +23,8 @@ class ItemInfoDisplay extends ConsumerWidget {
 
     _descriptionController.text = selectedItem?.description ?? '';
     _remarksController.text = selectedItem?.remarks ?? '';
+
+    ThemeMode themeMode = ref.watch(themeNotifierProvider).valueOrNull ?? ThemeMode.light;
 
     return Padding(
       padding: const EdgeInsets.all(10),
@@ -33,18 +34,16 @@ class ItemInfoDisplay extends ConsumerWidget {
           Flexible(
             flex: 5,
             child: TextField(
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: themeMode == ThemeMode.light ? Colors.black : Colors.white),
               readOnly: true,
               maxLines: 10,
               minLines: 10,
-              decoration: const InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                labelText: '  I T E M   D E S C R I P T I O N  ',
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: themeMode == ThemeMode.light ? Colors.black : Colors.white)),
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: themeMode == ThemeMode.light ? Colors.black : Colors.white)),
+                labelStyle: TextStyle(color: themeMode == ThemeMode.light ? Colors.black : Colors.white),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
-                labelStyle: TextStyle(color: Colors.white),
+                labelText: '  I T E M   D E S C R I P T I O N  ',
                 hintText: 'No description',
               ),
               controller: _descriptionController,
@@ -56,18 +55,16 @@ class ItemInfoDisplay extends ConsumerWidget {
           Flexible(
             flex: 5,
             child: TextField(
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: themeMode == ThemeMode.light ? Colors.black : Colors.white),
               readOnly: true,
               maxLines: 10,
               minLines: 10,
-              decoration: const InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                labelText: '  R E M A R K S  ',
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: themeMode == ThemeMode.light ? Colors.black : Colors.white)),
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: themeMode == ThemeMode.light ? Colors.black : Colors.white)),
+                labelStyle: TextStyle(color: themeMode == ThemeMode.light ? Colors.black : Colors.white),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
-                labelStyle: TextStyle(color: Colors.white),
+                labelText: '  R E M A R K S  ',
                 hintText: 'No remarks',
               ),
               controller: _remarksController,
@@ -78,9 +75,7 @@ class ItemInfoDisplay extends ConsumerWidget {
           ),
           Flexible(
             flex: 2,
-            child: selectedItem == null
-                ? Container()
-                : qrCodeImage(context, selectedItem.assetID),
+            child: selectedItem == null ? Container() : qrCodeImage(context, selectedItem.assetID, themeMode),
           ),
           const VerticalDivider(
             width: 40,
@@ -94,14 +89,17 @@ class ItemInfoDisplay extends ConsumerWidget {
     );
   }
 
-  Widget qrCodeImage(BuildContext context, String assetID) {
+  Widget qrCodeImage(BuildContext context, String assetID, ThemeMode themeMode) {
     return InkWell(
       onTap: () {
         Navigator.push(
           context,
           CustomRoute(
             builder: (context) {
-              return QRCodeDisplay(assetID: assetID);
+              return QRCodeDisplay(
+                assetID: assetID,
+                themeMode: themeMode,
+              );
             },
           ),
         );
@@ -115,7 +113,7 @@ class ItemInfoDisplay extends ConsumerWidget {
               color: Theme.of(context).scaffoldBackgroundColor,
               child: Hero(
                 tag: assetID,
-                child: generateQRImage(assetID: assetID),
+                child: generateQRImage(assetID: assetID, themeMode: themeMode),
               ),
             ),
           ),

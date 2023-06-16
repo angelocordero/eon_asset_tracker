@@ -74,9 +74,7 @@ class AdminPanelTab extends ConsumerWidget {
               onPressed: () async {
                 EasyLoading.show();
 
-                await ref
-                    .read(departmentsNotifierProvider.notifier)
-                    .deleteDepartment(departmentID);
+                await ref.read(departmentsNotifierProvider.notifier).deleteDepartment(departmentID);
 
                 Navigator.pop(context);
 
@@ -95,7 +93,7 @@ class AdminPanelTab extends ConsumerWidget {
     WidgetRef ref,
     String categoryID,
   ) async {
-    showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -111,9 +109,7 @@ class AdminPanelTab extends ConsumerWidget {
               onPressed: () async {
                 EasyLoading.show();
 
-                await ref
-                    .read(categoriesNotifierProvider.notifier)
-                    .deleteCategory(categoryID);
+                await ref.read(categoriesNotifierProvider.notifier).deleteCategory(categoryID);
 
                 Navigator.pop(context);
 
@@ -158,8 +154,7 @@ class AdminPanelTab extends ConsumerWidget {
                 child: const Text('A D D'),
               ),
               TextButton(
-                onPressed: ref.watch(adminPanelSelectedUserProvider) ==
-                        ref.watch(userProvider)
+                onPressed: ref.watch(adminPanelSelectedUserProvider) == ref.watch(userProvider)
                     ? null
                     : () async {
                         User? user = ref.read(adminPanelSelectedUserProvider);
@@ -167,8 +162,7 @@ class AdminPanelTab extends ConsumerWidget {
 
                         try {
                           if (user.isAdmin) {
-                            TextEditingController controller =
-                                TextEditingController();
+                            TextEditingController controller = TextEditingController();
 
                             Navigator.push(
                               context,
@@ -177,20 +171,13 @@ class AdminPanelTab extends ConsumerWidget {
                                   return MasterPasswordPrompt(
                                     controller: controller,
                                     callback: () async {
-                                      bool admin =
-                                          await DatabaseAPI.getMasterPassword(
-                                              controller.text.trim());
+                                      bool admin = await DatabaseAPI.getMasterPassword(controller.text.trim());
 
                                       if (admin) {
-                                        await ref
-                                            .read(
-                                                adminPanelUsersNotifierProvider
-                                                    .notifier)
-                                            .deleteUser(user);
+                                        await ref.read(adminPanelUsersNotifierProvider.notifier).deleteUser(user);
                                         Navigator.pop(context);
                                       } else {
-                                        showErrorAndStacktrace(
-                                            'Wrong master password', null);
+                                        showErrorAndStacktrace('Wrong master password', null);
                                       }
                                     },
                                   );
@@ -198,9 +185,7 @@ class AdminPanelTab extends ConsumerWidget {
                               ),
                             );
                           } else {
-                            await ref
-                                .read(adminPanelUsersNotifierProvider.notifier)
-                                .deleteUser(user);
+                            await ref.read(adminPanelUsersNotifierProvider.notifier).deleteUser(user);
                           }
                         } catch (e, st) {
                           showErrorAndStacktrace(e, st);
@@ -223,8 +208,7 @@ class AdminPanelTab extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  if (ref.read(userProvider)!.isAdmin &&
-                      !ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
+                  if (ref.read(userProvider)!.isAdmin && !ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
                     Navigator.push(
                       context,
                       CustomRoute(
@@ -241,17 +225,14 @@ class AdminPanelTab extends ConsumerWidget {
                       context,
                       CustomRoute(
                         builder: (context) {
-                          TextEditingController masterPasswordController =
-                              TextEditingController();
+                          TextEditingController masterPasswordController = TextEditingController();
 
                           return MasterPasswordPrompt(
                             controller: masterPasswordController,
                             callback: () async {
                               try {
                                 //get masterpassword
-                                bool admin =
-                                    await DatabaseAPI.getMasterPassword(
-                                        masterPasswordController.text.trim());
+                                bool admin = await DatabaseAPI.getMasterPassword(masterPasswordController.text.trim());
 
                                 if (admin) {
                                   await Navigator.push(
@@ -259,17 +240,14 @@ class AdminPanelTab extends ConsumerWidget {
                                     CustomRoute(
                                       builder: (context) {
                                         return ResetPasswordScreen(
-                                          passwordController:
-                                              TextEditingController(),
-                                          confirmPasswordController:
-                                              TextEditingController(),
+                                          passwordController: TextEditingController(),
+                                          confirmPasswordController: TextEditingController(),
                                         );
                                       },
                                     ),
                                   );
                                 } else {
-                                  showErrorAndStacktrace(
-                                      'Wrong master password', null);
+                                  showErrorAndStacktrace('Wrong master password', null);
                                 }
                               } catch (e, st) {
                                 showErrorAndStacktrace(e, st);
@@ -290,9 +268,7 @@ class AdminPanelTab extends ConsumerWidget {
     );
   }
 
-  Widget _categoriesList(BuildContext context, WidgetRef ref) => ref
-      .watch(categoriesNotifierProvider)
-      .when(
+  Widget _categoriesList(BuildContext context, WidgetRef ref) => ref.watch(categoriesNotifierProvider).when(
         data: (List<ItemCategory> categories) {
           return Column(
             children: [
@@ -315,10 +291,7 @@ class AdminPanelTab extends ConsumerWidget {
                               children: [
                                 IconButton.outlined(
                                   onPressed: () {
-                                    TextEditingController controller =
-                                        TextEditingController.fromValue(
-                                            TextEditingValue(
-                                                text: category.categoryName));
+                                    TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: category.categoryName));
 
                                     Navigator.push(
                                       context,
@@ -329,20 +302,13 @@ class AdminPanelTab extends ConsumerWidget {
                                             controller: controller,
                                             callback: () async {
                                               EasyLoading.show();
-                                              if (controller.text
-                                                  .trim()
-                                                  .isEmpty) return;
+                                              if (controller.text.trim().isEmpty) return;
 
                                               category = category.copyWith(
-                                                categoryName:
-                                                    controller.text.trim(),
+                                                categoryName: controller.text.trim(),
                                               );
 
-                                              await ref
-                                                  .read(
-                                                      categoriesNotifierProvider
-                                                          .notifier)
-                                                  .editCategory(category);
+                                              await ref.read(categoriesNotifierProvider.notifier).editCategory(category);
 
                                               Navigator.pop(context);
 
@@ -358,7 +324,10 @@ class AdminPanelTab extends ConsumerWidget {
                                 IconButton.outlined(
                                   onPressed: () async {
                                     await showDeleteCategoryDialog(
-                                        context, ref, category.categoryID!);
+                                      context,
+                                      ref,
+                                      category.categoryID!,
+                                    );
                                   },
                                   icon: const Icon(Icons.remove),
                                 ),
@@ -422,9 +391,7 @@ class AdminPanelTab extends ConsumerWidget {
             title: 'A D D   C A T E G O R Y',
             controller: controller,
             callback: () async {
-              await ref
-                  .read(categoriesNotifierProvider.notifier)
-                  .addCategory(controller.text.trim());
+              await ref.read(categoriesNotifierProvider.notifier).addCategory(controller.text.trim());
               Navigator.pop(context);
             },
           );
@@ -433,9 +400,7 @@ class AdminPanelTab extends ConsumerWidget {
     );
   }
 
-  Widget _departmentsList(BuildContext context, WidgetRef ref) => ref
-      .watch(departmentsNotifierProvider)
-      .when(
+  Widget _departmentsList(BuildContext context, WidgetRef ref) => ref.watch(departmentsNotifierProvider).when(
         data: (List<Department> departments) {
           return Column(
             children: [
@@ -459,37 +424,25 @@ class AdminPanelTab extends ConsumerWidget {
                               children: [
                                 IconButton.outlined(
                                   onPressed: () {
-                                    TextEditingController controller =
-                                        TextEditingController.fromValue(
-                                            TextEditingValue(
-                                                text:
-                                                    department.departmentName));
+                                    TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: department.departmentName));
 
                                     Navigator.push(
                                       context,
                                       CustomRoute(
                                         builder: (context) {
                                           return AdminPanelPrompt(
-                                            title:
-                                                'E D I T   D E P A R T M E N T',
+                                            title: 'E D I T   D E P A R T M E N T',
                                             controller: controller,
                                             callback: () async {
-                                              if (controller.text
-                                                  .trim()
-                                                  .isEmpty) return;
+                                              if (controller.text.trim().isEmpty) return;
 
                                               EasyLoading.show();
 
                                               department = department.copyWith(
-                                                departmentName:
-                                                    controller.text.trim(),
+                                                departmentName: controller.text.trim(),
                                               );
 
-                                              await ref
-                                                  .read(
-                                                      departmentsNotifierProvider
-                                                          .notifier)
-                                                  .editDepartment(department);
+                                              await ref.read(departmentsNotifierProvider.notifier).editDepartment(department);
 
                                               EasyLoading.dismiss();
                                             },
@@ -502,8 +455,7 @@ class AdminPanelTab extends ConsumerWidget {
                                 ),
                                 IconButton.outlined(
                                   onPressed: () async {
-                                    await showDeleteDepartmentDialog(
-                                        context, ref, department.departmentID);
+                                    await showDeleteDepartmentDialog(context, ref, department.departmentID);
                                   },
                                   icon: const Icon(Icons.remove),
                                 ),
@@ -567,9 +519,7 @@ class AdminPanelTab extends ConsumerWidget {
             title: 'A D D   D E P A R T M E N T',
             controller: controller,
             callback: () async {
-              await ref
-                  .read(departmentsNotifierProvider.notifier)
-                  .addDepartment(controller.text.trim());
+              await ref.read(departmentsNotifierProvider.notifier).addDepartment(controller.text.trim());
               Navigator.pop(context);
             },
           );

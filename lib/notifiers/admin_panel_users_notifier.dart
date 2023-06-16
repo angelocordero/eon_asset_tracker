@@ -27,36 +27,47 @@ class AdminPanelUsersNotifier extends _$AdminPanelUsersNotifier {
 
     state = const AsyncLoading();
 
-    await AsyncValue.guard(() async {
+    try {
       await DatabaseAPI.addUser(user, password);
-    });
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }
 
   Future<void> editUser(User user) async {
     state = const AsyncLoading();
-    await AsyncValue.guard(() async {
+
+    try {
       await DatabaseAPI.editUser(user);
-    });
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }
 
   Future<void> deleteUser(User user) async {
     state = const AsyncLoading();
-    await AsyncValue.guard(() async {
+
+    try {
       await DatabaseAPI.deleteUser(user);
-    });
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }
 
   Future<void> resetPassword(User user, String newPassword) async {
     state = const AsyncLoading();
-    await AsyncValue.guard(() async {
+
+    try {
       await DatabaseAPI.resetPassword(user, newPassword);
-    });
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }

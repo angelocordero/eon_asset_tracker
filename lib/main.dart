@@ -11,7 +11,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Hive.init(await getApplicationSupportDirectory().then((value) => value.path));
-  await Hive.openBox('settings', encryptionCipher: HiveAesCipher(secureKey));
+  await Hive.openBox('connectionSettings', encryptionCipher: HiveAesCipher(secureKey));
+  await Hive.openBox('themeSettings', encryptionCipher: HiveAesCipher(secureKey));
 
   runApp(
     const ProviderScope(

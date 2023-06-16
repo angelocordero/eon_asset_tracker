@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/database_api.dart';
@@ -15,9 +16,11 @@ class CategoriesNotifier extends _$CategoriesNotifier {
   Future<void> addCategory(String categoryName) async {
     state = const AsyncValue.loading();
 
-    AsyncValue.guard(() async {
+    try {
       await DatabaseAPI.addCategory(categoryName);
-    });
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }
@@ -25,9 +28,11 @@ class CategoriesNotifier extends _$CategoriesNotifier {
   Future<void> editCategory(ItemCategory category) async {
     state = const AsyncValue.loading();
 
-    AsyncValue.guard(() async {
+    try {
       await DatabaseAPI.editCategory(category);
-    });
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }
@@ -35,9 +40,11 @@ class CategoriesNotifier extends _$CategoriesNotifier {
   Future<void> deleteCategory(String categoryID) async {
     state = const AsyncValue.loading();
 
-    AsyncValue.guard(() async {
+    try {
       await DatabaseAPI.deleteCategory(categoryID);
-    });
+    } catch (e, st) {
+      showErrorAndStacktrace(e, st);
+    }
 
     ref.invalidateSelf();
   }

@@ -16,42 +16,10 @@ typedef TableSort = ({TableColumn? tableColumn, SortOrder? sortOrder});
 
 ConnectionSettings globalConnectionSettings = ConnectionSettings.empty();
 
-Box settingsBox = Hive.box('settings');
+Box connectionSettingsBox = Hive.box('connectionSettings');
+Box themeSettingsBox = Hive.box('themeSettings');
 
-List<int> secureKey = [
-  213,
-  66,
-  81,
-  33,
-  169,
-  64,
-  141,
-  228,
-  109,
-  89,
-  3,
-  51,
-  152,
-  108,
-  8,
-  222,
-  78,
-  170,
-  6,
-  45,
-  238,
-  169,
-  200,
-  5,
-  24,
-  55,
-  95,
-  15,
-  177,
-  250,
-  141,
-  152
-];
+List<int> secureKey = [213, 66, 81, 33, 169, 64, 141, 228, 109, 89, 3, 51, 152, 108, 8, 222, 78, 170, 6, 45, 238, 169, 200, 5, 24, 55, 95, 15, 177, 250, 141, 152];
 
 BorderRadius defaultBorderRadius = BorderRadius.circular(8);
 

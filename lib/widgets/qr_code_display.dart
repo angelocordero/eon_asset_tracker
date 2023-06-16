@@ -4,9 +4,10 @@ import 'package:flutter/services.dart';
 import '../core/utils.dart';
 
 class QRCodeDisplay extends StatelessWidget {
-  const QRCodeDisplay({super.key, required this.assetID});
+  const QRCodeDisplay({super.key, required this.assetID, required this.themeMode});
 
   final String assetID;
+  final ThemeMode themeMode;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class QRCodeDisplay extends StatelessWidget {
                     SizedBox(
                       width: 500,
                       height: 500,
-                      child: generateQRImage(assetID: assetID, size: 500),
+                      child: generateQRImage(assetID: assetID, size: 500, themeMode: themeMode),
                     ),
                     const SizedBox(
                       height: 15,

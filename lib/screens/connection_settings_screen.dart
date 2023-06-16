@@ -70,9 +70,7 @@ class ConnectionSettingsScreen extends ConsumerWidget {
                   height: 10,
                 ),
                 TextField(
-                  inputFormatters: [
-                    FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)],
                   controller: portController,
                   decoration: const InputDecoration(
                     isDense: true,
@@ -149,8 +147,7 @@ class ConnectionSettingsScreen extends ConsumerWidget {
                   alignment: Alignment.center,
                   child: ElevatedButton(
                     onPressed: () async {
-                      ConnectionSettings connectionSettings =
-                          ConnectionSettings(
+                      ConnectionSettings connectionSettings = ConnectionSettings(
                         databaseName: dbNameController.text.trim(),
                         username: userController.text.trim(),
                         password: passwordController.text.trim(),
@@ -158,7 +155,7 @@ class ConnectionSettingsScreen extends ConsumerWidget {
                         port: int.tryParse(portController.text.trim()) ?? 0,
                       );
 
-                      await settingsBox.putAll(connectionSettings.toMap());
+                      await connectionSettingsBox.putAll(connectionSettings.toMap());
 
                       // ignore: use_build_context_synchronously
                       Navigator.pop(context);

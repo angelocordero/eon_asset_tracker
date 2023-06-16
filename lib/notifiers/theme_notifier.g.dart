@@ -1,26 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'categories_notifier.dart';
+part of 'theme_notifier.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$categoriesNotifierHash() =>
-    r'2c953b1659fb24c21016127748dcbf49ada9ec8d';
+String _$themeNotifierHash() => r'7363bc6e796baa4209ebf632e9b8b20a2f7ac715';
 
-/// See also [CategoriesNotifier].
-@ProviderFor(CategoriesNotifier)
-final categoriesNotifierProvider =
-    AsyncNotifierProvider<CategoriesNotifier, List<ItemCategory>>.internal(
-  CategoriesNotifier.new,
-  name: r'categoriesNotifierProvider',
+/// See also [ThemeNotifier].
+@ProviderFor(ThemeNotifier)
+final themeNotifierProvider =
+    AutoDisposeAsyncNotifierProvider<ThemeNotifier, ThemeMode>.internal(
+  ThemeNotifier.new,
+  name: r'themeNotifierProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$categoriesNotifierHash,
+      : _$themeNotifierHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CategoriesNotifier = AsyncNotifier<List<ItemCategory>>;
+typedef _$ThemeNotifier = AutoDisposeAsyncNotifier<ThemeMode>;
 // ignore_for_file: unnecessary_raw_strings, subtype_of_sealed_class, invalid_use_of_internal_member, do_not_use_environment, prefer_const_constructors, public_member_api_docs, avoid_private_typedef_functions

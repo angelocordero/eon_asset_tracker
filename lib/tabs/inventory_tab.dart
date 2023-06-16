@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -50,6 +51,8 @@ class InventoryTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ThemeMode themeMode = ref.watch(themeNotifierProvider).valueOrNull ?? ThemeMode.light;
+
     return ref.watch(sortedInventoryItemsProvider).when(
       data: (rows) {
         return Padding(
@@ -70,13 +73,11 @@ class InventoryTab extends ConsumerWidget {
                       sort = SortOrder.descending;
                     }
 
-                    ref.read(tableSortingProvider.notifier).state =
-                        (tableColumn: column, sortOrder: sort);
+                    ref.read(tableSortingProvider.notifier).state = (tableColumn: column, sortOrder: sort);
                   },
                   legendCell: Center(
                     child: Checkbox(
-                      value:
-                          ref.watch(checkedItemProvider).length == rows.length,
+                      value: ref.watch(checkedItemProvider).length == rows.length,
                       onChanged: (checked) {
                         if (checked == null) return;
                         List<String> buffer = ref.read(checkedItemProvider);
@@ -87,8 +88,7 @@ class InventoryTab extends ConsumerWidget {
                           buffer.clear();
                         }
 
-                        ref.read(checkedItemProvider.notifier).state =
-                            buffer.toSet().toList();
+                        ref.read(checkedItemProvider.notifier).state = buffer.toSet().toList();
                       },
                     ),
                   ),
@@ -130,16 +130,12 @@ class InventoryTab extends ConsumerWidget {
                           ),
                         ),
                         Visibility(
-                          visible:
-                              tableSort.tableColumn == TableColumn.values[i],
+                          visible: tableSort.tableColumn == TableColumn.values[i],
                           replacement: const Icon(
                             Icons.arrow_downward,
                             color: Colors.transparent,
                           ),
-                          child: (tableSort.sortOrder ?? SortOrder.ascending) ==
-                                  SortOrder.ascending
-                              ? const Icon(Icons.arrow_upward)
-                              : const Icon(Icons.arrow_downward),
+                          child: (tableSort.sortOrder ?? SortOrder.ascending) == SortOrder.ascending ? const Icon(Icons.arrow_upward) : const Icon(Icons.arrow_downward),
                         )
                       ],
                     );
@@ -160,41 +156,31 @@ class InventoryTab extends ConsumerWidget {
                   contentCellBuilder: (i, j) {
                     Item item = rows[j];
 
-                    String? selectedItemAssetID =
-                        ref.watch(selectedItemProvider)?.assetID;
+                    String? selectedItemAssetID = ref.watch(selectedItemProvider)?.assetID;
 
                     bool selected = item.assetID == selectedItemAssetID;
 
                     switch (i) {
                       case 0:
-                        return copyableTableDataTile(item.assetID, selected);
+                        return copyableTableDataTile(item.assetID, selected, themeMode);
                       case 1:
                         return tableDataTile(item.name, selected);
                       case 2:
-                        return tableDataTile(
-                            item.department.departmentName, selected);
+                        return tableDataTile(item.department.departmentName, selected);
                       case 3:
-                        return tableDataTile(
-                            item.personAccountable ?? '', selected);
+                        return tableDataTile(item.personAccountable ?? '', selected);
                       case 4:
-                        return tableDataTile(
-                            item.category.categoryName, selected);
+                        return tableDataTile(item.category.categoryName, selected);
                       case 5:
                         return tableDataTile(item.status.name, selected);
                       case 6:
                         return tableDataTile(item.unit ?? '', selected);
                       case 7:
-                        return tableDataTile(
-                            priceToString(item.price), selected);
+                        return tableDataTile(priceToString(item.price), selected);
                       case 8:
-                        return tableDataTile(
-                            item.datePurchased == null
-                                ? ''
-                                : dateToString(item.datePurchased!),
-                            selected);
+                        return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!), selected);
                       case 9:
-                        return tableDataTile(
-                            dateToString(item.dateReceived), selected);
+                        return tableDataTile(dateToString(item.dateReceived), selected);
 
                       default:
                         return Container();
@@ -243,7 +229,7 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
-  Widget copyableTableDataTile(String text, bool selected) {
+  Widget copyableTableDataTile(String text, bool selected, ThemeMode themeMode) {
     return Container(
       color: selected ? Colors.blueGrey : Colors.transparent,
       child: ListTile(
@@ -260,10 +246,10 @@ class InventoryTab extends ConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontFamily: 'RobotoMono',
-                color: Colors.white,
+                color: themeMode == ThemeMode.light ? Colors.black : Colors.white,
               ),
             ),
           ),
@@ -302,8 +288,7 @@ class InventoryTab extends ConsumerWidget {
                   callback: () async {
                     EasyLoading.show();
 
-                    String? selectedAssetID =
-                        ref.read(selectedItemProvider)?.assetID;
+                    String? selectedAssetID = ref.read(selectedItemProvider)?.assetID;
 
                     if (selectedAssetID == null) return;
 
@@ -333,8 +318,7 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
-  Future<dynamic> showReportDialog(
-      BuildContext context, int itemLength, AsyncCallback callback) async {
+  Future<dynamic> showReportDialog(BuildContext context, int itemLength, AsyncCallback callback) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -430,12 +414,7 @@ class InventoryTab extends ConsumerWidget {
 
               if (true) {
                 items = ref.read(checkedItemProvider).map((entry) {
-                  return ref
-                      .read(inventoryNotifierProvider)
-                      .asData!
-                      .value
-                      .items
-                      .firstWhere((element) => element.assetID == entry);
+                  return ref.read(inventoryNotifierProvider).asData!.value.items.firstWhere((element) => element.assetID == entry);
                 }).toList();
               }
 
@@ -450,11 +429,8 @@ class InventoryTab extends ConsumerWidget {
                       body: PdfPreview(
                         build: (format) async => await QRCodePDF(
                           items: items,
-                          departments: ref
-                              .read(departmentsNotifierProvider)
-                              .requireValue,
-                          categories:
-                              ref.read(categoriesNotifierProvider).requireValue,
+                          departments: ref.read(departmentsNotifierProvider).requireValue,
+                          categories: ref.read(categoriesNotifierProvider).requireValue,
                         ).generate(),
                       ),
                     );
@@ -551,10 +527,7 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
-  Future<void> adminCheck(
-      {required BuildContext context,
-      required User user,
-      required AsyncCallback callback}) async {
+  Future<void> adminCheck({required BuildContext context, required User user, required AsyncCallback callback}) async {
     if (!user.isAdmin) {
       Navigator.push(
         context,
@@ -565,8 +538,7 @@ class InventoryTab extends ConsumerWidget {
             return AdminPasswordPrompt(
               controller: controller,
               callback: () async {
-                bool admin =
-                    await DatabaseAPI.getAdminPassword(controller.text.trim());
+                bool admin = await DatabaseAPI.getAdminPassword(controller.text.trim());
 
                 if (admin) {
                   Navigator.pop(context);

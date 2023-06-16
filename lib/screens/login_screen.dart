@@ -16,10 +16,8 @@ import 'connection_settings_screen.dart';
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
-  static final TextEditingController usernameController =
-      TextEditingController();
-  static final TextEditingController passwordController =
-      TextEditingController();
+  static final TextEditingController usernameController = TextEditingController();
+  static final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,11 +32,11 @@ class LoginScreen extends ConsumerWidget {
 
           try {
             connectionSettings = ConnectionSettings(
-              databaseName: settingsBox.get('databaseName'),
-              ip: settingsBox.get('ip'),
-              port: settingsBox.get('port'),
-              username: settingsBox.get('username'),
-              password: settingsBox.get('password'),
+              databaseName: connectionSettingsBox.get('databaseName'),
+              ip: connectionSettingsBox.get('ip'),
+              port: connectionSettingsBox.get('port'),
+              username: connectionSettingsBox.get('username'),
+              password: connectionSettingsBox.get('password'),
             );
           } catch (e) {
             connectionSettings = ConnectionSettings.empty();
@@ -143,8 +141,7 @@ class LoginScreen extends ConsumerWidget {
             onSubmitted: (value) async {
               await authenticate(context, ref);
             },
-            decoration: const InputDecoration(
-                isDense: true, contentPadding: EdgeInsets.all(8)),
+            decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.all(8)),
             obscureText: true,
             controller: passwordController,
           ),
@@ -162,12 +159,22 @@ class LoginScreen extends ConsumerWidget {
     User? user;
 
     try {
+      String? ip = connectionSettingsBox.get('ip');
+      String? databaseName = connectionSettingsBox.get('databaseName');
+      String? dbUsername = connectionSettingsBox.get('username');
+      String? password = connectionSettingsBox.get('password');
+      int? port = connectionSettingsBox.get('port');
+
+      if (ip == null || databaseName == null || dbUsername == null || password == null || port == null) {
+        return await Future.error('Error in connecting to database. Please check connection settings');
+      }
+
       globalConnectionSettings = ConnectionSettings(
-        databaseName: settingsBox.get('databaseName'),
-        ip: settingsBox.get('ip'),
-        port: settingsBox.get('port'),
-        username: settingsBox.get('username'),
-        password: settingsBox.get('password'),
+        ip: ip,
+        databaseName: databaseName,
+        port: port,
+        username: dbUsername,
+        password: password,
       );
 
       user = await DatabaseAPI.authenticateUser(ref, username, passwordHash);
@@ -177,8 +184,7 @@ class LoginScreen extends ConsumerWidget {
 
     ref.read(userProvider.notifier).state = user;
 
-    ref.read(sidebarControllerProvider.notifier).state =
-        SidebarXController(selectedIndex: 0);
+    ref.read(sidebarControllerProvider.notifier).state = SidebarXController(selectedIndex: 0);
 
     await EasyLoading.dismiss();
     // ignore: use_build_context_synchronously

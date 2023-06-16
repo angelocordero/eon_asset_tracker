@@ -16,8 +16,7 @@ final userProvider = StateProvider<User?>((ref) => null);
 final itemsPerPageProvider = StateProvider<int>((ref) => 50);
 
 final selectedItemProvider = StateProvider<Item?>((ref) {
-  List<Item>? items =
-      ref.watch(inventoryNotifierProvider).asData?.valueOrNull?.items;
+  List<Item>? items = ref.watch(inventoryNotifierProvider).asData?.valueOrNull?.items;
 
   if (items != null && items.isNotEmpty) {
     return items.first;
@@ -43,10 +42,6 @@ final checkedItemProvider = StateProvider<List<String>>((ref) {
 });
 
 final currentInventoryPage = StateProvider<int>((ref) => 0);
-
-final tabSwitcherIndexProvider = StateProvider<int>((ref) {
-  return 0;
-});
 
 final sidebarControllerProvider = StateProvider<SidebarXController>((ref) {
   return SidebarXController(selectedIndex: 0);
