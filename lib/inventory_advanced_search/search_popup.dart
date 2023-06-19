@@ -5,7 +5,10 @@ import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/inventory_advanced_search/notifiers.dart';
 import 'package:eon_asset_tracker/models/category_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
+import 'package:eon_asset_tracker/widgets/search_daterange_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../notifiers/categories_notifier.dart';
@@ -26,25 +29,79 @@ class SearchPopup extends ConsumerStatefulWidget {
 }
 
 class _SearchPopupState extends ConsumerState<SearchPopup> {
-  static final TextEditingController itemNameController = TextEditingController();
-  static final TextEditingController assetIDController = TextEditingController();
-  static final TextEditingController personAccountableController = TextEditingController();
+  static late TextEditingController itemNameController;
+  static late TextEditingController assetIDController;
+  static late TextEditingController personAccountableController;
+  static late TextEditingController unitController;
+  static late TextEditingController fromPriceController;
+  static late TextEditingController toPriceController;
 
-  static AdvancedSearchStatusEnum selectedStatusFilter = AdvancedSearchStatusEnum.All;
+  static late AdvancedSearchStatusEnum selectedStatusFilter;
   static Department? selectedDepartment;
   static ItemCategory? selectedCategory;
 
   static List<Department> departments = [];
 
+  static late FocusNode fromFocusNode;
+  static late FocusNode toFocusNode;
+
+  static late DateTimeRange purchaseRange;
+  static late DateTimeRange receiveRange;
+
   @override
   void initState() {
     super.initState();
+
+    purchaseRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
+    receiveRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
+
+    fromFocusNode = FocusNode();
+    toFocusNode = FocusNode();
+
+    itemNameController = TextEditingController();
+    assetIDController = TextEditingController();
+    personAccountableController = TextEditingController();
+    unitController = TextEditingController();
+    toPriceController = TextEditingController();
+    fromPriceController = TextEditingController();
+
+    selectedStatusFilter = AdvancedSearchStatusEnum.All;
 
     List<Department> departmentsBuffer = ref.read(departmentsNotifierProvider).valueOrNull ?? [];
 
     departments = [Department(departmentID: generateRandomID(), departmentName: 'All Departments'), ...departmentsBuffer];
 
     selectedDepartment = departments.first;
+
+    fromFocusNode.addListener(
+      () {
+        if (fromFocusNode.hasFocus) return;
+
+        if (fromPriceController.text.trim().isEmpty) return;
+
+        double from = double.tryParse(fromPriceController.text.trim()) ?? 0;
+        double to = double.tryParse(toPriceController.text.trim()) ?? 0;
+
+        if (to >= from) return;
+
+        toPriceController.value = fromPriceController.value;
+      },
+    );
+
+    toFocusNode.addListener(
+      () {
+        if (toFocusNode.hasFocus) return;
+
+        if (fromPriceController.text.trim().isEmpty) return;
+
+        double from = double.tryParse(fromPriceController.text.trim()) ?? 0;
+        double to = double.tryParse(toPriceController.text.trim()) ?? 0;
+
+        if (to >= from) return;
+
+        toPriceController.value = fromPriceController.value;
+      },
+    );
   }
 
   @override
@@ -63,9 +120,10 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
           child: Column(
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'S E A R C H   F I L T E R',
+                    'A D V A N C E D   S E A R C H   F I L T E R',
                     style: TextStyle(fontSize: 25),
                   ),
                   const Spacer(),
@@ -81,12 +139,37 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
               Expanded(
                 child: ListView(
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            _reset();
+                          },
+                          child: const Text('Reset'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            // TODO
+                            // ignore: unused_local_variable
+                            final asd = receiveRange;
+                            // ignore: unused_local_variable
+                            final asd123 = purchaseRange;
+                          },
+                          child: const Text('Search'),
+                        ),
+                      ],
+                    ),
                     _assetIDFilter(),
                     _itemNameFilter(),
                     _departmentFilter(),
                     _personAccountableFilter(),
                     _categoryFilter(),
                     _statusFilter(),
+                    _unitFilter(),
+                    _priceFilter(),
+                    _datePurchasedFilter(),
+                    _dateReceivedFilter(),
                   ],
                 ),
               ),
@@ -102,7 +185,6 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
 
     return Card(
-      margin: const EdgeInsets.all(20),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
@@ -134,7 +216,6 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
 
     return Card(
-      margin: const EdgeInsets.all(20),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
@@ -164,7 +245,6 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
   Card _departmentFilter() {
     return Card(
-      margin: const EdgeInsets.all(20),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
@@ -182,7 +262,6 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
   Card _statusFilter() {
     return Card(
-      margin: const EdgeInsets.all(20),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
@@ -237,7 +316,6 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
 
     return Card(
-      margin: const EdgeInsets.all(20),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
@@ -250,7 +328,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                   ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
                 } else {
                   ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                  itemNameController.clear();
+                  personAccountableController.clear();
                 }
               },
             ),
@@ -269,7 +347,6 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
 
     return Card(
-      margin: const EdgeInsets.all(20),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
@@ -298,23 +375,79 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
           data: (List<ItemCategory> categories) {
             selectedCategory = categories.first;
 
-            return DropdownButtonFormField<ItemCategory>(
-              value: selectedCategory,
-              focusColor: Colors.transparent,
-              borderRadius: defaultBorderRadius,
-              items: categories.map((e) {
-                return DropdownMenuItem<ItemCategory>(
-                  value: e,
-                  child: Text(e.categoryName),
-                );
-              }).toList(),
-              onChanged: isEnabled
-                  ? (ItemCategory? value) {
-                      if (value == null) return;
+            return Autocomplete<ItemCategory>(
+              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                focusNode.addListener(() {
+                  if (!focusNode.hasFocus) {
+                    // checks if the current text in the controller is a category name
+                    // if true, returns that category,
+                    // if false, returns last category that was matched
+                    ItemCategory? buffer = categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(),
+                        orElse: () => selectedCategory!);
 
-                      selectedCategory = value;
-                    }
-                  : null,
+                    textEditingController.text = buffer.categoryName;
+                  }
+                });
+
+                return TextFormField(
+                  enabled: isEnabled,
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  onFieldSubmitted: (String value) {
+                    onFieldSubmitted();
+                  },
+                );
+              },
+              initialValue: TextEditingValue(text: selectedCategory!.categoryName),
+              optionsBuilder: (TextEditingValue option) {
+                return categories.where((element) => element.categoryName.toLowerCase().contains(option.text.toLowerCase().trim()));
+              },
+              displayStringForOption: (option) => option.categoryName,
+              onSelected: (option) => selectedCategory = option,
+              optionsViewBuilder: (context, onSelected, options) {
+                /// sets the max number of displayed options in dropdown
+                int maxOptionsInView = options.length >= 5 ? 5 : options.length;
+
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(4.0)),
+                    ),
+                    child: SizedBox(
+                      width: MediaQuery.sizeOf(context).width * 0.25, // <-- Right here !
+                      height: 50 * maxOptionsInView.toDouble(),
+                      child: ListView.builder(
+                        itemCount: options.length,
+                        itemBuilder: (context, index) {
+                          ItemCategory category = options.elementAt(index);
+
+                          return InkWell(
+                            onTap: () {
+                              onSelected(category);
+                            },
+                            child: Builder(
+                              builder: (BuildContext context) {
+                                final bool highlight = AutocompleteHighlightedOption.of(context) == index;
+                                if (highlight) {
+                                  SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+                                    Scrollable.ensureVisible(context, alignment: 0.5);
+                                  });
+                                }
+                                return Container(
+                                  color: highlight ? Theme.of(context).focusColor : null,
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(category.categoryName),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
           error: (e, st) => Center(
@@ -324,5 +457,200 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
             child: Text('Loading...'),
           ),
         );
+  }
+
+  Card _unitFilter() {
+    InventorySearchFilter filter = InventorySearchFilter.unit;
+    bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          children: [
+            SwitchListTile(
+              title: const Text('Filter by Unit'),
+              value: isEnabled,
+              onChanged: (newValue) {
+                if (newValue) {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                } else {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                  unitController.clear();
+                }
+              },
+            ),
+            TextField(
+              controller: unitController,
+              enabled: isEnabled,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _datePurchasedFilter() {
+    InventorySearchFilter filter = InventorySearchFilter.datePurchased;
+    bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          children: [
+            SwitchListTile(
+              title: const Text('Filter by Purchase Data'),
+              value: isEnabled,
+              onChanged: (newValue) {
+                if (newValue) {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                } else {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                }
+              },
+            ),
+            SearchDaterangePicker(
+              callback: (range) {
+                purchaseRange = range;
+              },
+              enabled: isEnabled,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _dateReceivedFilter() {
+    InventorySearchFilter filter = InventorySearchFilter.dateReceived;
+    bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          children: [
+            SwitchListTile(
+              title: const Text('Filter by Receive Data'),
+              value: isEnabled,
+              onChanged: (newValue) {
+                if (newValue) {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                } else {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                }
+              },
+            ),
+            SearchDaterangePicker(
+              callback: (range) {
+                receiveRange = range;
+              },
+              enabled: isEnabled,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _priceFilter() {
+    InventorySearchFilter filter = InventorySearchFilter.price;
+    bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          children: [
+            SwitchListTile(
+              title: const Text('Filter by Price'),
+              value: isEnabled,
+              onChanged: (newValue) {
+                if (newValue) {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                } else {
+                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                  toPriceController.clear();
+                  fromPriceController.clear();
+                }
+              },
+            ),
+            Row(
+              children: [
+                const Text('From: '),
+                const SizedBox(width: 20),
+                SizedBox(
+                  width: 150,
+                  child: TextField(
+                    enabled: isEnabled,
+                    focusNode: fromFocusNode,
+                    controller: fromPriceController,
+                    inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)],
+                    decoration: const InputDecoration(
+                      icon: Text(
+                        '₱',
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 50),
+                const Text('To: '),
+                const SizedBox(width: 20),
+                SizedBox(
+                  width: 150,
+                  child: TextField(
+                    enabled: isEnabled,
+                    focusNode: toFocusNode,
+                    controller: toPriceController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true),
+                    ],
+                    decoration: const InputDecoration(
+                      icon: Text(
+                        '₱',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    itemNameController.dispose();
+    assetIDController.dispose();
+    personAccountableController.dispose();
+    unitController.dispose();
+    toPriceController.dispose();
+    fromPriceController.dispose();
+
+    fromFocusNode.dispose();
+    toFocusNode.dispose();
+
+    super.dispose();
+  }
+
+  void _reset() {
+    purchaseRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
+    receiveRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
+
+    itemNameController.clear();
+    assetIDController.clear();
+    personAccountableController.clear();
+    unitController.clear();
+    toPriceController.clear();
+    fromPriceController.clear();
+
+    selectedStatusFilter = AdvancedSearchStatusEnum.All;
+
+    selectedDepartment = departments.first;
+
+    ref.invalidate(activeSearchFiltersNotifierProvider);
   }
 }

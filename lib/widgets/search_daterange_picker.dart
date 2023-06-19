@@ -4,9 +4,10 @@ import '../core/constants.dart';
 import '../core/utils.dart';
 
 class SearchDaterangePicker extends StatefulWidget {
-  const SearchDaterangePicker({super.key, required this.callback});
+  const SearchDaterangePicker({super.key, required this.callback, this.enabled});
 
   final void Function(DateTimeRange) callback;
+  final bool? enabled;
 
   @override
   State<SearchDaterangePicker> createState() => _SearchDaterangePickerState();
@@ -16,8 +17,7 @@ class _SearchDaterangePickerState extends State<SearchDaterangePicker> {
   late DateTime first;
   late DateTime last;
 
-  final DateTime _firstDate =
-      DateTime.now().subtract(const Duration(days: 365 * 10));
+  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 10));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 10));
 
   @override
@@ -33,6 +33,7 @@ class _SearchDaterangePickerState extends State<SearchDaterangePicker> {
     return SizedBox(
       width: 400,
       child: ListTile(
+        enabled: widget.enabled ?? true,
         dense: true,
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
         shape: RoundedRectangleBorder(

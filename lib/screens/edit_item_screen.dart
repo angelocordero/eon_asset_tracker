@@ -27,8 +27,7 @@ class EditItemScreen extends ConsumerStatefulWidget {
 }
 
 class _EditItemScreenState extends ConsumerState<EditItemScreen> {
-  final DateTime _firstDate =
-      DateTime.now().subtract(const Duration(days: 365 * 10));
+  final DateTime _firstDate = DateTime.now().subtract(const Duration(days: 365 * 10));
   final DateTime _lastDate = DateTime.now().add(const Duration(days: 365 * 10));
 
   late TextEditingController _nameController;
@@ -42,20 +41,13 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
   @override
   void initState() {
-    _nameController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.name));
-    _personAccountableController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.personAccountable ?? ''));
-    _priceController = TextEditingController.fromValue(TextEditingValue(
-        text: widget.item.price.toString() != 'null'
-            ? widget.item.price.toString()
-            : "0.00"));
-    _unitController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.unit ?? ''));
-    _itemDescriptionController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.description ?? ''));
-    _remarksController = TextEditingController.fromValue(
-        TextEditingValue(text: widget.item.remarks ?? ''));
+    _nameController = TextEditingController.fromValue(TextEditingValue(text: widget.item.name));
+    _personAccountableController = TextEditingController.fromValue(TextEditingValue(text: widget.item.personAccountable ?? ''));
+    _priceController =
+        TextEditingController.fromValue(TextEditingValue(text: widget.item.price.toString() != 'null' ? widget.item.price.toString() : "0.00"));
+    _unitController = TextEditingController.fromValue(TextEditingValue(text: widget.item.unit ?? ''));
+    _itemDescriptionController = TextEditingController.fromValue(TextEditingValue(text: widget.item.description ?? ''));
+    _remarksController = TextEditingController.fromValue(TextEditingValue(text: widget.item.remarks ?? ''));
 
     if (widget.item.price != null || widget.item.datePurchased != null) {
       _isPurchased = true;
@@ -157,8 +149,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
                       Item newItem = widget.item.copyWith(
                         name: _nameController.text.trim(),
-                        personAccountable:
-                            _personAccountableController.text.trim(),
+                        personAccountable: _personAccountableController.text.trim(),
                         description: _itemDescriptionController.text.trim(),
                         unit: _unitController.text.trim(),
                         price: _isPurchased
@@ -167,9 +158,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                                 : double.tryParse(_priceController.text.trim())
                             : null,
                         remarks: _remarksController.text.trim(),
-                        datePurchased: _isPurchased
-                            ? widget.item.datePurchased ?? DateTime.now()
-                            : null,
+                        datePurchased: _isPurchased ? widget.item.datePurchased ?? DateTime.now() : null,
                       );
 
                       try {
@@ -314,10 +303,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 ),
               ),
               value: widget.item.department,
-              items: ref
-                  .watch(departmentsNotifierProvider)
-                  .requireValue
-                  .map((value) {
+              items: ref.watch(departmentsNotifierProvider).requireValue.map((value) {
                 return DropdownMenuItem(
                   value: value,
                   child: Text(value.departmentName),
@@ -376,9 +362,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
           child: TextField(
             enabled: _isPurchased,
             controller: _priceController,
-            inputFormatters: [
-              FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)
-            ],
+            inputFormatters: [FilteringTextInputFormatter(RegExp("[0-9.]"), allow: true)],
             decoration: InputDecoration(
               icon: Text(
                 '₱',
@@ -413,8 +397,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               borderRadius: defaultBorderRadius,
               side: const BorderSide(color: Colors.grey),
             ),
-            title:
-                Text(dateToString(widget.item.datePurchased ?? DateTime.now())),
+            title: Text(dateToString(widget.item.datePurchased ?? DateTime.now())),
             onTap: () => _datePurchasedPicker(context),
             trailing: const Icon(Icons.calendar_month),
           ),
@@ -490,9 +473,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               ),
               value: widget.item.status,
               items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) =>
-                      DropdownMenuItem<ItemStatus>(
-                          value: value, child: Text(value.name)))
+                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
                   .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
@@ -545,8 +526,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
         SizedBox(
           width: 300,
           child: Autocomplete<ItemCategory>(
-            fieldViewBuilder:
-                (context, textEditingController, focusNode, onFieldSubmitted) {
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
               focusNode.addListener(() {
                 if (!focusNode.hasFocus) {
                   // checks if the current text in the controller is a category name
@@ -555,18 +535,13 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   ItemCategory? buffer = ref
                       .read(categoriesNotifierProvider)
                       .requireValue
-                      .singleWhere(
-                          (element) =>
-                              element.categoryName ==
-                              textEditingController.text.trim(),
-                          orElse: () => widget.item.category);
+                      .singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => widget.item.category);
 
                   textEditingController.text = buffer.categoryName;
                 }
               });
 
               return TextFormField(
-                maxLength: 45,
                 controller: textEditingController,
                 focusNode: focusNode,
                 onFieldSubmitted: (String value) {
@@ -574,13 +549,12 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 },
               );
             },
-            initialValue:
-                TextEditingValue(text: widget.item.category.categoryName),
+            initialValue: TextEditingValue(text: widget.item.category.categoryName),
             optionsBuilder: (TextEditingValue option) {
-              return ref.watch(categoriesNotifierProvider).requireValue.where(
-                  (element) => element.categoryName
-                      .toLowerCase()
-                      .contains(option.text.toLowerCase().trim()));
+              return ref
+                  .watch(categoriesNotifierProvider)
+                  .requireValue
+                  .where((element) => element.categoryName.toLowerCase().contains(option.text.toLowerCase().trim()));
             },
             displayStringForOption: (option) => option.categoryName,
             onSelected: (option) {
@@ -596,8 +570,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 alignment: Alignment.topLeft,
                 child: Material(
                   shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(bottom: Radius.circular(4.0)),
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(4.0)),
                   ),
                   child: SizedBox(
                     width: 300,
@@ -613,20 +586,14 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                           },
                           child: Builder(
                             builder: (BuildContext context) {
-                              final bool highlight =
-                                  AutocompleteHighlightedOption.of(context) ==
-                                      index;
+                              final bool highlight = AutocompleteHighlightedOption.of(context) == index;
                               if (highlight) {
-                                SchedulerBinding.instance
-                                    .addPostFrameCallback((Duration timeStamp) {
-                                  Scrollable.ensureVisible(context,
-                                      alignment: 0.5);
+                                SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+                                  Scrollable.ensureVisible(context, alignment: 0.5);
                                 });
                               }
                               return Container(
-                                color: highlight
-                                    ? Theme.of(context).focusColor
-                                    : null,
+                                color: highlight ? Theme.of(context).focusColor : null,
                                 padding: const EdgeInsets.all(16.0),
                                 child: Text(category.categoryName),
                               );
@@ -659,8 +626,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-        widget.item.datePurchased =
-            DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
+        widget.item.datePurchased = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }
@@ -679,8 +645,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-        widget.item.dateReceived =
-            DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
+        widget.item.dateReceived = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }

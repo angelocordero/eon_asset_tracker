@@ -49,6 +49,7 @@ enum InventorySearchFilter {
   category,
   datePurchased,
   dateReceived,
+  price,
 }
 
 enum TableColumn {

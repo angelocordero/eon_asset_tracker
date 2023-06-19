@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -377,21 +378,19 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       children: [
         Row(
           children: [
-            Text(
+            const Text(
               'Count',
-              style: TextStyle(color: _isPurchased ? Colors.white : Colors.grey),
             ),
             const SizedBox(
               width: 20,
             ),
             Tooltip(
-              // textAlign: TextAlign.center,
               message: 'Number of copies of items. Items will be displayed\nseperately and with a different Asset ID.',
               child: Container(
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.white38,
+                  color: Colors.grey,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Center(
@@ -419,6 +418,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   }
 
   Column _priceField() {
+    bool isLightMode = ref.watch(themeNotifierProvider).valueOrNull == ThemeMode.light;
+
+    Color color = switch ((_isPurchased, isLightMode)) {
+      (true, false) => Colors.white,
+      (true, true) => Colors.black,
+      (_) => Colors.grey,
+    };
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -428,7 +435,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         ),
         Text(
           'Price',
-          style: TextStyle(color: _isPurchased ? Colors.white : Colors.grey),
+          style: TextStyle(color: color),
         ),
         const SizedBox(
           height: 20,
@@ -443,7 +450,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               icon: Text(
                 '₱',
                 style: TextStyle(
-                  color: _isPurchased ? Colors.white : Colors.grey,
+                  color: color,
                   fontSize: 20,
                 ),
               ),
@@ -455,12 +462,20 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   }
 
   Column _datePurchasedField() {
+    bool isLightMode = ref.watch(themeNotifierProvider).valueOrNull == ThemeMode.light;
+
+    Color color = switch ((_isPurchased, isLightMode)) {
+      (true, false) => Colors.white,
+      (true, true) => Colors.black,
+      (_) => Colors.grey,
+    };
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Date Purchased',
-          style: TextStyle(color: _isPurchased ? Colors.white : Colors.grey),
+          style: TextStyle(color: color),
         ),
         const SizedBox(
           height: 20,
@@ -548,7 +563,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _itemStatus,
-              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
+              items: ItemStatus.values
+                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
+                  .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -599,14 +616,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   // checks if the current text in the controller is a category name
                   // if true, returns that category,
                   // if false, returns last category that was matched
-                  ItemCategory? buffer = _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
+                  ItemCategory? buffer =
+                      _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
 
                   textEditingController.text = buffer.categoryName;
                 }
               });
 
               return TextFormField(
-                maxLength: 45,
                 controller: textEditingController,
                 focusNode: focusNode,
                 onFieldSubmitted: (String value) {

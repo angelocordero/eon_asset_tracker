@@ -6,15 +6,12 @@ class CustomNumericFormatter extends TextInputFormatter {
   final int max;
 
   @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     if (newValue.text.isEmpty || newValue.text == '') {
       return newValue;
     } else if (int.parse(newValue.text) > max) {
-      return const TextEditingValue().copyWith(
-          text: max.toString(),
-          selection: TextSelection.fromPosition(
-              TextPosition(offset: max.toString().length)));
+      return const TextEditingValue()
+          .copyWith(text: max.toString(), selection: TextSelection.fromPosition(TextPosition(offset: max.toString().length)));
     } else {
       return newValue;
     }
