@@ -62,6 +62,7 @@ enum TableColumn {
   price,
   datePurchased,
   dateReceived,
+  lastScanned,
 }
 
 enum SortOrder {

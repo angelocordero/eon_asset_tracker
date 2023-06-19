@@ -187,6 +187,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                             remarks: _remarksController.text.trim(),
                             categories: categories,
                             departments: departments,
+                            lastScanned: DateTime.now(),
                           );
 
                           await DatabaseAPI.addItem(item: item);
@@ -547,9 +548,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 ),
               ),
               value: _itemStatus,
-              items: ItemStatus.values
-                  .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
-                  .toList(),
+              items: ItemStatus.values.map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name))).toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
@@ -600,8 +599,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   // checks if the current text in the controller is a category name
                   // if true, returns that category,
                   // if false, returns last category that was matched
-                  ItemCategory? buffer =
-                      _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
+                  ItemCategory? buffer = _categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => _category);
 
                   textEditingController.text = buffer.categoryName;
                 }

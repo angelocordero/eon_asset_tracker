@@ -175,3 +175,27 @@ String? inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
       return null;
   }
 }
+
+Text lastScannedFormatter(DateTime lastScannedDate) {
+  DateTime currentDate = DateTime.now();
+
+  int days = currentDate.difference(lastScannedDate).inDays;
+
+  if (days == 0) {
+    return const Text(
+      'Today',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.center,
+    );
+  } else {
+    // example: '~10 days ago'
+    return Text(
+      '~$days days ago',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.center,
+      style: const TextStyle(color: Colors.red),
+    );
+  }
+}

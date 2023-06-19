@@ -15,6 +15,7 @@ import '../core/custom_route.dart';
 import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
+import '../inventory_advanced_search/inventory_advanced_search_bar.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/categories_notifier.dart';
@@ -28,7 +29,6 @@ import '../screens/add_item_screen.dart';
 import '../screens/edit_item_screen.dart';
 import '../widgets/admin_password_prompt.dart';
 import '../widgets/inventory_checkbox.dart';
-import '../widgets/inventory_search_widget.dart';
 import '../widgets/item_info_display.dart';
 
 class InventoryTab extends ConsumerWidget {
@@ -45,9 +45,8 @@ class InventoryTab extends ConsumerWidget {
     'P R I C E',
     'D A T E\nP U R C H A S E D',
     'D A T E\nR E C E I V E D',
+    'L A S T\nS C A N N E D',
   ];
-
-  static final _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,6 +108,7 @@ class InventoryTab extends ConsumerWidget {
                       150,
                       220,
                       220,
+                      150,
                     ],
                     contentCellHeight: 80,
                     stickyLegendWidth: 80,
@@ -181,6 +181,8 @@ class InventoryTab extends ConsumerWidget {
                         return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!), selected);
                       case 9:
                         return tableDataTile(dateToString(item.dateReceived), selected);
+                      case 10:
+                        return lastScannedTile(item.lastScanned, selected);
 
                       default:
                         return Container();
@@ -223,6 +225,18 @@ class InventoryTab extends ConsumerWidget {
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
         ),
+        selectedTileColor: Colors.blueGrey,
+        selectedColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget lastScannedTile(DateTime lastScannedDate, bool selected) {
+    return Container(
+      color: selected ? Colors.blueGrey : Colors.transparent,
+      child: ListTile(
+        horizontalTitleGap: 0,
+        title: lastScannedFormatter(lastScannedDate),
         selectedTileColor: Colors.blueGrey,
         selectedColor: Colors.white,
       ),
@@ -345,183 +359,187 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
-  Row header(BuildContext context, WidgetRef ref) {
+  Widget header(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
+      // mainAxisSize: MainAxisSize.max,
       children: [
-        InventorySearchWidget(controller: _searchController),
+        const AdvancedInventorySearch(),
         const Spacer(),
-        Tooltip(
-          message: 'Generate Report',
-          child: IconButton.outlined(
-            onPressed: () async {
-              EasyLoading.show();
+        const VerticalDivider(),
+        Row(
+          children: [
+            Tooltip(
+              message: 'Generate Report',
+              child: IconButton.outlined(
+                onPressed: () async {
+                  EasyLoading.show();
 
-              List<Item> items = [];
+                  List<Item> items = [];
 
-              try {
-                items = await DatabaseAPI.getItemsForReport(
-                  query: ref.read(searchQueryProvider) as String,
-                  filter: ref.read(searchFilterProvider),
-                );
+                  try {
+                    items = await DatabaseAPI.getItemsForReport(
+                      query: ref.read(searchQueryProvider) as String,
+                      filter: ref.read(searchFilterProvider),
+                    );
 
-                if (items.isNotEmpty) {
-                  EasyLoading.dismiss();
-                } else {
-                  return await Future.error('Error in generating report');
-                }
+                    if (items.isNotEmpty) {
+                      EasyLoading.dismiss();
+                    } else {
+                      return await Future.error('Error in generating report');
+                    }
 
-                await showReportDialog(
-                  context,
-                  items.length,
-                  () async {
-                    Navigator.push(
+                    await showReportDialog(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Print Report'),
-                            ),
-                            body: PdfPreview(
-                              build: (format) async => await ReportPDF(
-                                inventoryItems: items,
-                              ).generate(),
-                            ),
-                          );
-                        },
-                      ),
+                      items.length,
+                      () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return Scaffold(
+                                appBar: AppBar(
+                                  title: const Text('Print Report'),
+                                ),
+                                body: PdfPreview(
+                                  build: (format) async => await ReportPDF(
+                                    inventoryItems: items,
+                                  ).generate(),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     );
-                  },
-                );
-              } catch (e, st) {
-                showErrorAndStacktrace(e, st);
-                return;
-              }
-            },
-            icon: const Icon(Icons.print),
-          ),
-        ),
-        Tooltip(
-          message: 'Print QR Codes',
-          child: IconButton.outlined(
-            onPressed: () {
-              if (ref.read(checkedItemProvider).isEmpty) {
-                EasyLoading.showInfo('No items selected by checkbox');
-                return;
-              }
-              List<Item> items = [];
+                  } catch (e, st) {
+                    showErrorAndStacktrace(e, st);
+                    return;
+                  }
+                },
+                icon: const Icon(Icons.print),
+              ),
+            ),
+            Tooltip(
+              message: 'Print QR Codes',
+              child: IconButton.outlined(
+                onPressed: () {
+                  if (ref.read(checkedItemProvider).isEmpty) {
+                    EasyLoading.showInfo('No items selected by checkbox');
+                    return;
+                  }
+                  List<Item> items = [];
 
-              if (true) {
-                items = ref.read(checkedItemProvider).map((entry) {
-                  return ref.read(inventoryNotifierProvider).asData!.value.items.firstWhere((element) => element.assetID == entry);
-                }).toList();
-              }
+                  if (true) {
+                    items = ref.read(checkedItemProvider).map((entry) {
+                      return ref.read(inventoryNotifierProvider).asData!.value.items.firstWhere((element) => element.assetID == entry);
+                    }).toList();
+                  }
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text('Print QR Code'),
-                      ),
-                      body: PdfPreview(
-                        build: (format) async => await QRCodePDF(
-                          items: items,
-                          departments: ref.read(departmentsNotifierProvider).requireValue,
-                          categories: ref.read(categoriesNotifierProvider).requireValue,
-                        ).generate(),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-            icon: const Icon(Icons.qr_code),
-          ),
-        ),
-        Tooltip(
-          message: 'Refresh page',
-          child: IconButton.outlined(
-            onPressed: () {
-              ref.invalidate(inventoryNotifierProvider);
-              ref.invalidate(currentInventoryPage);
-              ref.invalidate(searchQueryProvider);
-              ref.invalidate(searchFilterProvider);
-
-              _searchController.clear();
-            },
-            icon: const Icon(Icons.refresh),
-          ),
-        ),
-        Tooltip(
-          message: 'Delete selected item',
-          child: IconButton.outlined(
-            onPressed: () async {
-              await showDeleteDialog(
-                context,
-                ref,
-              );
-            },
-            icon: const Icon(Icons.delete),
-          ),
-        ),
-        Tooltip(
-          message: 'Edit selected item',
-          child: IconButton.outlined(
-            onPressed: () async {
-              Item? item = await ref.read(selectedItemProvider);
-
-              if (item == null) return;
-
-              User? user = await ref.read(userProvider);
-
-              if (user == null) return;
-
-              await adminCheck(
-                context: context,
-                user: user,
-                callback: () async {
-                  await Navigator.push(
+                  Navigator.push(
                     context,
-                    CustomRoute(
+                    MaterialPageRoute(
                       builder: (context) {
-                        return EditItemScreen(item: item);
+                        return Scaffold(
+                          appBar: AppBar(
+                            title: const Text('Print QR Code'),
+                          ),
+                          body: PdfPreview(
+                            build: (format) async => await QRCodePDF(
+                              items: items,
+                              departments: ref.read(departmentsNotifierProvider).requireValue,
+                              categories: ref.read(categoriesNotifierProvider).requireValue,
+                            ).generate(),
+                          ),
+                        );
                       },
                     ),
                   );
                 },
-              );
-            },
-            icon: const Icon(Icons.edit),
-          ),
-        ),
-        Tooltip(
-          message: 'Add new item',
-          child: IconButton.outlined(
-            onPressed: () async {
-              User? user = await ref.read(userProvider);
-
-              if (user == null) return;
-
-              await adminCheck(
-                context: context,
-                user: user,
-                callback: () async {
-                  await Navigator.push(
+                icon: const Icon(Icons.qr_code),
+              ),
+            ),
+            Tooltip(
+              message: 'Refresh page',
+              child: IconButton.outlined(
+                onPressed: () {
+                  ref.invalidate(inventoryNotifierProvider);
+                  ref.invalidate(currentInventoryPage);
+                  ref.invalidate(searchQueryProvider);
+                  ref.invalidate(searchFilterProvider);
+                },
+                icon: const Icon(Icons.refresh),
+              ),
+            ),
+            Tooltip(
+              message: 'Delete selected item',
+              child: IconButton.outlined(
+                onPressed: () async {
+                  await showDeleteDialog(
                     context,
-                    CustomRoute(
-                      builder: (context) {
-                        return const AddItemScreen();
-                      },
-                    ),
+                    ref,
                   );
                 },
-              );
-            },
-            icon: const Icon(Icons.add),
-          ),
+                icon: const Icon(Icons.delete),
+              ),
+            ),
+            Tooltip(
+              message: 'Edit selected item',
+              child: IconButton.outlined(
+                onPressed: () async {
+                  Item? item = await ref.read(selectedItemProvider);
+
+                  if (item == null) return;
+
+                  User? user = await ref.read(userProvider);
+
+                  if (user == null) return;
+
+                  await adminCheck(
+                    context: context,
+                    user: user,
+                    callback: () async {
+                      await Navigator.push(
+                        context,
+                        CustomRoute(
+                          builder: (context) {
+                            return EditItemScreen(item: item);
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.edit),
+              ),
+            ),
+            Tooltip(
+              message: 'Add new item',
+              child: IconButton.outlined(
+                onPressed: () async {
+                  User? user = await ref.read(userProvider);
+
+                  if (user == null) return;
+
+                  await adminCheck(
+                    context: context,
+                    user: user,
+                    callback: () async {
+                      await Navigator.push(
+                        context,
+                        CustomRoute(
+                          builder: (context) {
+                            return const AddItemScreen();
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.add),
+              ),
+            ),
+          ],
         ),
       ],
     );
