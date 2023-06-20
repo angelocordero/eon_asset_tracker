@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:eon_asset_tracker/inventory_advanced_search/advanced_database_api.dart';
 import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -382,9 +383,9 @@ class InventoryTab extends ConsumerWidget {
                   List<Item> items = [];
 
                   try {
-                    items = await DatabaseAPI.getItemsForReport(
-                      query: ref.read(searchQueryProvider) as String,
-                      filter: ref.read(searchFilterProvider),
+                    items = await AdvancedDatabaseAPI.getItemsForReport(
+                      searchData: ref.read(advancedSearchDataNotifierProvider),
+                      filters: ref.read(activeSearchFiltersNotifierProvider),
                     );
 
                     if (items.isNotEmpty) {
