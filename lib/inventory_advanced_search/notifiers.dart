@@ -1,4 +1,5 @@
 import 'package:eon_asset_tracker/core/constants.dart';
+import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'notifiers.g.dart';
@@ -21,6 +22,12 @@ class ActiveSearchFiltersNotifier extends _$ActiveSearchFiltersNotifier {
 
   void disable(InventorySearchFilter filter) {
     state.remove(filter);
+
+    Map<String, dynamic> buffer = ref.read(advancedSearchDataNotifierProvider);
+
+    buffer.remove(inventoryFilterEnumToDatabaseString(filter));
+
+    ref.read(advancedSearchDataNotifierProvider.notifier).setData(buffer);
 
     state = List.from(state);
   }
@@ -45,7 +52,7 @@ class AdvancedSearchDataNotifier extends _$AdvancedSearchDataNotifier {
     return {};
   }
 
-  void setState(Map<String, dynamic> input) {
-    state = Map.from(input);
+  void setData(Map<String, dynamic> data) {
+    state = data;
   }
 }

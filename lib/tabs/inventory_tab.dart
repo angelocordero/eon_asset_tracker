@@ -367,7 +367,6 @@ class InventoryTab extends ConsumerWidget {
   Widget header(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
-      // mainAxisSize: MainAxisSize.max,
       children: [
         const AdvancedInventorySearch(),
         const Spacer(),

@@ -96,6 +96,51 @@ void showErrorAndStacktrace(Object e, StackTrace? st) {
   debugPrintStack(label: e.toString(), stackTrace: st);
 }
 
+
+InventorySearchFilter databaseStringToInventoryFilterEnum(String databaseString) {
+  switch (databaseString) {
+    case 'asset_id':
+      return InventorySearchFilter.assetID;
+
+    case 'item_name':
+      return InventorySearchFilter.itemName;
+
+    case 'person_accountable':
+      return InventorySearchFilter.personAccountable;
+
+    case 'unit':
+      return InventorySearchFilter.unit;
+
+    case 'item_description':
+      return InventorySearchFilter.itemDescription;
+
+    case 'remarks':
+      return InventorySearchFilter.remarks;
+
+    case 'status':
+      return InventorySearchFilter.status;
+
+    case 'department_id':
+      return InventorySearchFilter.department;
+
+    case 'category_id':
+      return InventorySearchFilter.category;
+
+    case 'date_purchased':
+      return InventorySearchFilter.datePurchased;
+
+    case 'date_received':
+      return InventorySearchFilter.dateReceived;
+
+    case 'price':
+      return InventorySearchFilter.price;
+
+    default:
+      throw ArgumentError('Invalid database string: $databaseString');
+  }
+}
+
+
 String inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
   switch (filter) {
     case InventorySearchFilter.assetID:
@@ -136,7 +181,7 @@ String inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
   }
 }
 
-String? inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
+String inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
   switch (filter) {
     case InventorySearchFilter.assetID:
       return 'Asset ID';
@@ -171,8 +216,8 @@ String? inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
     case InventorySearchFilter.dateReceived:
       return 'Date Received';
 
-    default:
-      return null;
+    case InventorySearchFilter.price:
+      return 'Price';
   }
 }
 

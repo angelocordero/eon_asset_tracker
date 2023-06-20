@@ -3,6 +3,7 @@
 import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:eon_asset_tracker/inventory_advanced_search/search_popup.dart';
+import 'package:flutter/material.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 import '../models/inventory_model.dart';
@@ -77,7 +78,16 @@ class AdvancedDatabaseAPI {
 
       String columnString = inventoryFilterEnumToDatabaseString(element);
 
-      if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived || element == InventorySearchFilter.price) {
+      if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
+        DateTimeRange range = searchData[columnString];
+
+        String from = dateTimeToSQLString(range.start);
+        String to = dateTimeToSQLString(range.end);
+
+        String filterQueryString = 'AND `$columnString` BETWEEN \'$from\' AND \'$to\' ';
+
+        mysqlCountQueryString = '$mysqlCountQueryString $filterQueryString ';
+      } else if (element == InventorySearchFilter.price) {
         (String, String) range = searchData[columnString];
 
         String from = range.$1;
@@ -124,7 +134,16 @@ class AdvancedDatabaseAPI {
 
       String columnString = inventoryFilterEnumToDatabaseString(element);
 
-      if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived || element == InventorySearchFilter.price) {
+      if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
+        DateTimeRange range = searchData[columnString];
+
+        String from = dateTimeToSQLString(range.start);
+        String to = dateTimeToSQLString(range.end);
+
+        String filterQueryString = 'AND `$columnString` BETWEEN \'$from\' AND \'$to\' ';
+
+        mysqlItemsQueryString = '$mysqlItemsQueryString $filterQueryString ';
+      } else if (element == InventorySearchFilter.price) {
         (String, String) range = searchData[columnString];
 
         String from = range.$1;
@@ -167,7 +186,16 @@ class AdvancedDatabaseAPI {
 
       String columnString = inventoryFilterEnumToDatabaseString(element);
 
-      if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived || element == InventorySearchFilter.price) {
+      if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
+        DateTimeRange range = searchData[columnString];
+
+        String from = dateTimeToSQLString(range.start);
+        String to = dateTimeToSQLString(range.end);
+
+        String filterQueryString = 'AND `$columnString` BETWEEN \'$from\' AND \'$to\' ';
+
+        mysqlItemsQueryString = '$mysqlItemsQueryString $filterQueryString ';
+      } else if (element == InventorySearchFilter.price) {
         (String, String) range = searchData[columnString];
 
         String from = range.$1;

@@ -7,7 +7,7 @@ part of 'notifiers.dart';
 // **************************************************************************
 
 String _$activeSearchFiltersNotifierHash() =>
-    r'dc3bd1f8448fff6a000a670328acf5163948dbb6';
+    r'0231237ab2fdfd627d53a8ca2140905f75f4ec3d';
 
 /// See also [ActiveSearchFiltersNotifier].
 @ProviderFor(ActiveSearchFiltersNotifier)
@@ -41,7 +41,7 @@ final isAdvancedFilterNotifierProvider =
 
 typedef _$IsAdvancedFilterNotifier = Notifier<bool>;
 String _$advancedSearchDataNotifierHash() =>
-    r'474fccde5f3ce6e6e6d61584f1ddc342f19e5a14';
+    r'80608858032b5417d7d0c43e23508da2876b4b14';
 
 /// See also [AdvancedSearchDataNotifier].
 @ProviderFor(AdvancedSearchDataNotifier)

@@ -18,7 +18,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('ASSET TRACKER  |  ${ref.watch(appbarTitleProvider)}'),
+        title: Text('EON ASSET TRACKER  |  ${ref.watch(appbarTitleProvider)}'),
         actions: [
           Center(
             child: Row(

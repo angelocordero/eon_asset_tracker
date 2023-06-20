@@ -53,26 +53,69 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
   void initState() {
     super.initState();
 
-    purchaseRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
-    receiveRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
-
     fromFocusNode = FocusNode();
     toFocusNode = FocusNode();
+
+    Map<String, dynamic> searchData = ref.read(advancedSearchDataNotifierProvider);
+    List<Department> departmentsBuffer = ref.read(departmentsNotifierProvider).valueOrNull ?? [];
+    departments = [Department(departmentID: 'hotdog', departmentName: 'All Departments'), ...departmentsBuffer];
 
     itemNameController = TextEditingController();
     assetIDController = TextEditingController();
     personAccountableController = TextEditingController();
     unitController = TextEditingController();
-    toPriceController = TextEditingController();
-    fromPriceController = TextEditingController();
+    toPriceController = TextEditingController(text: 0.toString());
+    fromPriceController = TextEditingController(text: 0.toString());
 
     selectedStatusFilter = AdvancedSearchStatusEnum.All;
 
-    List<Department> departmentsBuffer = ref.read(departmentsNotifierProvider).valueOrNull ?? [];
-
-    departments = [Department(departmentID: 'hotdog', departmentName: 'All Departments'), ...departmentsBuffer];
-
     selectedDepartment = departments.first;
+
+    purchaseRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
+    receiveRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
+
+    searchData.forEach((key, value) {
+      InventorySearchFilter filter = databaseStringToInventoryFilterEnum(key);
+
+      switch (filter) {
+        case InventorySearchFilter.itemName:
+          itemNameController = TextEditingController(text: value);
+          break;
+        case InventorySearchFilter.assetID:
+          assetIDController = TextEditingController(text: value);
+          break;
+        case InventorySearchFilter.personAccountable:
+          personAccountableController = TextEditingController(text: value);
+          break;
+
+        case InventorySearchFilter.unit:
+          unitController = TextEditingController(text: value);
+          break;
+
+        case InventorySearchFilter.price:
+          fromPriceController = TextEditingController(text: value.$1);
+          toPriceController = TextEditingController(text: value.$2);
+          break;
+        case InventorySearchFilter.status:
+          selectedStatusFilter = value;
+          break;
+        case InventorySearchFilter.department:
+          selectedDepartment = departments.singleWhere((element) => element.departmentID == value);
+          break;
+
+        case InventorySearchFilter.category:
+          selectedCategory = ref.read(categoriesNotifierProvider).valueOrNull?.singleWhere((element) => element.categoryID == value);
+          break;
+        case InventorySearchFilter.datePurchased:
+          purchaseRange = value;
+          break;
+        case InventorySearchFilter.dateReceived:
+          receiveRange = value;
+          break;
+
+        default:
+      }
+    });
 
     fromFocusNode.addListener(
       () {
@@ -136,97 +179,94 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                   ),
                 ],
               ),
-              const Divider(),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _reset();
+                    },
+                    child: const Text('R E S E T'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      Map<String, dynamic> searchData = {};
+
+                      ref.read(activeSearchFiltersNotifierProvider).forEach((InventorySearchFilter element) {
+                        String columnString = inventoryFilterEnumToDatabaseString(element);
+
+                        switch (element) {
+                          case InventorySearchFilter.datePurchased:
+                            searchData[columnString] = purchaseRange;
+
+                            break;
+                          case InventorySearchFilter.dateReceived:
+                            searchData[columnString] = receiveRange;
+
+                            break;
+                          case InventorySearchFilter.price:
+                            String from = fromPriceController.text.trim();
+                            String to = toPriceController.text.trim();
+
+                            searchData[columnString] = (from, to);
+                            break;
+
+                          case InventorySearchFilter.assetID:
+                            searchData[columnString] = assetIDController.text.trim();
+                            break;
+
+                          case InventorySearchFilter.itemName:
+                            searchData[columnString] = itemNameController.text.trim();
+                            break;
+
+                          case InventorySearchFilter.personAccountable:
+                            searchData[columnString] = personAccountableController.text.trim();
+                            break;
+
+                          case InventorySearchFilter.unit:
+                            searchData[columnString] = unitController.text.trim();
+                            break;
+
+                          case InventorySearchFilter.status:
+                            searchData[columnString] = selectedStatusFilter;
+                            break;
+
+                          case InventorySearchFilter.department:
+                            if (selectedDepartment == null) break;
+                            searchData[columnString] = selectedDepartment!.departmentID;
+                            break;
+
+                          case InventorySearchFilter.category:
+                            if (selectedCategory == null) break;
+                            searchData[columnString] = selectedCategory!.categoryID;
+                            break;
+
+                          default:
+                        }
+                      });
+
+                      ref.read(advancedSearchDataNotifierProvider.notifier).setData(searchData);
+
+                      ref.read(isAdvancedFilterNotifierProvider.notifier).activate();
+
+                      ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
+
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+                    },
+                    child: const Text('S E A R C H'),
+                  ),
+                ],
+              ),
+              const Divider(
+                height: 20,
+              ),
               Expanded(
                 child: ListView(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            _reset();
-                          },
-                          child: const Text('Reset'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            Map<String, dynamic> searchData = {};
-
-                            ref.read(activeSearchFiltersNotifierProvider).forEach((InventorySearchFilter element) {
-                              String columnString = inventoryFilterEnumToDatabaseString(element);
-
-                              switch (element) {
-                                case InventorySearchFilter.datePurchased:
-                                  String from = dateTimeToSQLString(purchaseRange.start);
-                                  String to = dateTimeToSQLString(purchaseRange.end);
-
-                                  searchData[columnString] = (from, to);
-
-                                  break;
-                                case InventorySearchFilter.dateReceived:
-                                  String from = dateTimeToSQLString(receiveRange.start);
-                                  String to = dateTimeToSQLString(receiveRange.end);
-
-                                  searchData[columnString] = (from, to);
-
-                                  break;
-                                case InventorySearchFilter.price:
-                                  String from = fromPriceController.text.trim();
-                                  String to = toPriceController.text.trim();
-
-                                  searchData[columnString] = (from, to);
-                                  break;
-
-                                case InventorySearchFilter.assetID:
-                                  searchData[columnString] = assetIDController.text.trim();
-                                  break;
-
-                                case InventorySearchFilter.itemName:
-                                  searchData[columnString] = itemNameController.text.trim();
-                                  break;
-
-                                case InventorySearchFilter.personAccountable:
-                                  searchData[columnString] = personAccountableController.text.trim();
-                                  break;
-
-                                case InventorySearchFilter.unit:
-                                  searchData[columnString] = unitController.text.trim();
-                                  break;
-
-                                case InventorySearchFilter.status:
-                                  searchData[columnString] = selectedStatusFilter;
-                                  break;
-
-                                case InventorySearchFilter.department:
-                                  if (selectedDepartment == null) break;
-                                  searchData[columnString] = selectedDepartment!.departmentID;
-                                  break;
-
-                                case InventorySearchFilter.category:
-                                  if (selectedCategory == null) break;
-                                  searchData[columnString] = selectedCategory!.categoryID;
-                                  break;
-
-                                default:
-                              }
-                            });
-
-                            ref.read(advancedSearchDataNotifierProvider.notifier).setState(searchData);
-
-                            ref.read(isAdvancedFilterNotifierProvider.notifier).activate();
-
-                            await ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
-
-                            // await ref.read(inventoryNotifierProvider.notifier).getAdvancedFilteredInvetory();
-
-                            // ignore: use_build_context_synchronously
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Search'),
-                        ),
-                      ],
-                    ),
                     _assetIDFilter(),
                     _itemNameFilter(),
                     _departmentFilter(),
