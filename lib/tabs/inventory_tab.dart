@@ -15,13 +15,14 @@ import '../core/custom_route.dart';
 import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
+import '../inventory_advanced_search/advanced_inventory_notifier.dart';
 import '../inventory_advanced_search/inventory_advanced_search_bar.dart';
+import '../inventory_advanced_search/notifiers.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/categories_notifier.dart';
 import '../notifiers/dashboard_notifiers.dart';
 import '../notifiers/departments_notifier.dart';
-import '../notifiers/inventory_notifier.dart';
 import '../notifiers/sorted_inventory_notifier.dart';
 import '../pdf/qr_code_pdf.dart';
 import '../pdf/report_pdf.dart';
@@ -135,7 +136,9 @@ class InventoryTab extends ConsumerWidget {
                             Icons.arrow_downward,
                             color: Colors.transparent,
                           ),
-                          child: (tableSort.sortOrder ?? SortOrder.ascending) == SortOrder.ascending ? const Icon(Icons.arrow_upward) : const Icon(Icons.arrow_downward),
+                          child: (tableSort.sortOrder ?? SortOrder.ascending) == SortOrder.ascending
+                              ? const Icon(Icons.arrow_upward)
+                              : const Icon(Icons.arrow_downward),
                         )
                       ],
                     );
@@ -316,11 +319,12 @@ class InventoryTab extends ConsumerWidget {
 
                     Navigator.pop(context);
 
-                    ref.invalidate(inventoryNotifierProvider);
+                    ref.invalidate(isAdvancedFilterNotifierProvider);
                     ref.invalidate(currentInventoryPage);
                     ref.invalidate(dashboardCategoriesProvider);
                     ref.invalidate(dashboardDepartmentsProvider);
                     ref.invalidate(dashboardStatusProvider);
+                    ref.invalidate(advancedInventoryNotifierProvider);
                   },
                 );
               },
@@ -432,7 +436,7 @@ class InventoryTab extends ConsumerWidget {
 
                   if (true) {
                     items = ref.read(checkedItemProvider).map((entry) {
-                      return ref.read(inventoryNotifierProvider).asData!.value.items.firstWhere((element) => element.assetID == entry);
+                      return ref.read(advancedInventoryNotifierProvider).asData!.value.items.firstWhere((element) => element.assetID == entry);
                     }).toList();
                   }
 
@@ -463,10 +467,12 @@ class InventoryTab extends ConsumerWidget {
               message: 'Refresh page',
               child: IconButton.outlined(
                 onPressed: () {
-                  ref.invalidate(inventoryNotifierProvider);
+                  ref.invalidate(isAdvancedFilterNotifierProvider);
                   ref.invalidate(currentInventoryPage);
-                  ref.invalidate(searchQueryProvider);
-                  ref.invalidate(searchFilterProvider);
+                  ref.invalidate(dashboardCategoriesProvider);
+                  ref.invalidate(dashboardDepartmentsProvider);
+                  ref.invalidate(dashboardStatusProvider);
+                  ref.invalidate(advancedInventoryNotifierProvider);
                 },
                 icon: const Icon(Icons.refresh),
               ),

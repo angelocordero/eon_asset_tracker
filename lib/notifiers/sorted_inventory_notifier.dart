@@ -1,10 +1,10 @@
+import 'package:eon_asset_tracker/inventory_advanced_search/advanced_inventory_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/constants.dart';
 import '../core/providers.dart';
 import '../models/inventory_model.dart';
 import '../models/item_model.dart';
-import 'inventory_notifier.dart';
 
 part 'sorted_inventory_notifier.g.dart';
 
@@ -12,7 +12,7 @@ part 'sorted_inventory_notifier.g.dart';
 AsyncValue<List<Item>> sortedInventoryItems(SortedInventoryItemsRef ref) {
   TableSort sort = ref.watch(tableSortingProvider);
 
-  return ref.watch(inventoryNotifierProvider).when(
+  return ref.watch(advancedInventoryNotifierProvider).when(
         data: (Inventory inventory) {
           inventory.sort(sort);
 

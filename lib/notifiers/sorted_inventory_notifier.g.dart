@@ -7,7 +7,7 @@ part of 'sorted_inventory_notifier.dart';
 // **************************************************************************
 
 String _$sortedInventoryItemsHash() =>
-    r'009e0d6343785e80a16cd66e679a727891f73589';
+    r'adb176d8a113aaa411526a742f888c3c2d17b824';
 
 /// See also [sortedInventoryItems].
 @ProviderFor(sortedInventoryItems)

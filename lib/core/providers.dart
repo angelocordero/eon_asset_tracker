@@ -1,10 +1,10 @@
+import 'package:eon_asset_tracker/inventory_advanced_search/advanced_inventory_notifier.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/admin_panel_users_notifier.dart';
-import '../notifiers/inventory_notifier.dart';
 import 'constants.dart';
 
 final tableSortingProvider = StateProvider<TableSort>((ref) {
@@ -16,7 +16,7 @@ final userProvider = StateProvider<User?>((ref) => null);
 final itemsPerPageProvider = StateProvider<int>((ref) => 50);
 
 final selectedItemProvider = StateProvider<Item?>((ref) {
-  List<Item>? items = ref.watch(inventoryNotifierProvider).asData?.valueOrNull?.items;
+  List<Item>? items = ref.watch(advancedInventoryNotifierProvider).asData?.valueOrNull?.items;
 
   if (items != null && items.isNotEmpty) {
     return items.first;
@@ -36,7 +36,7 @@ final searchFilterProvider = StateProvider<InventorySearchFilter>((ref) {
 final searchQueryProvider = StateProvider<dynamic>((ref) => '');
 
 final checkedItemProvider = StateProvider<List<String>>((ref) {
-  ref.watch(inventoryNotifierProvider);
+  ref.watch(advancedInventoryNotifierProvider);
 
   return [];
 });

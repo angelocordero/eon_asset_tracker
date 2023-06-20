@@ -2,6 +2,7 @@
 
 import 'package:eon_asset_tracker/core/constants.dart';
 import 'package:eon_asset_tracker/core/utils.dart';
+import 'package:eon_asset_tracker/inventory_advanced_search/advanced_inventory_notifier.dart';
 import 'package:eon_asset_tracker/inventory_advanced_search/notifiers.dart';
 import 'package:eon_asset_tracker/models/category_model.dart';
 import 'package:eon_asset_tracker/models/department_model.dart';
@@ -69,7 +70,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
     List<Department> departmentsBuffer = ref.read(departmentsNotifierProvider).valueOrNull ?? [];
 
-    departments = [Department(departmentID: generateRandomID(), departmentName: 'All Departments'), ...departmentsBuffer];
+    departments = [Department(departmentID: 'hotdog', departmentName: 'All Departments'), ...departmentsBuffer];
 
     selectedDepartment = departments.first;
 
@@ -149,12 +150,78 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                           child: const Text('Reset'),
                         ),
                         ElevatedButton(
-                          onPressed: () {
-                            // TODO
-                            // ignore: unused_local_variable
-                            final asd = receiveRange;
-                            // ignore: unused_local_variable
-                            final asd123 = purchaseRange;
+                          onPressed: () async {
+                            Map<String, dynamic> searchData = {};
+
+                            ref.read(activeSearchFiltersNotifierProvider).forEach((InventorySearchFilter element) {
+                              String columnString = inventoryFilterEnumToDatabaseString(element);
+
+                              switch (element) {
+                                case InventorySearchFilter.datePurchased:
+                                  String from = dateTimeToSQLString(purchaseRange.start);
+                                  String to = dateTimeToSQLString(purchaseRange.end);
+
+                                  searchData[columnString] = (from, to);
+
+                                  break;
+                                case InventorySearchFilter.dateReceived:
+                                  String from = dateTimeToSQLString(receiveRange.start);
+                                  String to = dateTimeToSQLString(receiveRange.end);
+
+                                  searchData[columnString] = (from, to);
+
+                                  break;
+                                case InventorySearchFilter.price:
+                                  String from = fromPriceController.text.trim();
+                                  String to = toPriceController.text.trim();
+
+                                  searchData[columnString] = (from, to);
+                                  break;
+
+                                case InventorySearchFilter.assetID:
+                                  searchData[columnString] = assetIDController.text.trim();
+                                  break;
+
+                                case InventorySearchFilter.itemName:
+                                  searchData[columnString] = itemNameController.text.trim();
+                                  break;
+
+                                case InventorySearchFilter.personAccountable:
+                                  searchData[columnString] = personAccountableController.text.trim();
+                                  break;
+
+                                case InventorySearchFilter.unit:
+                                  searchData[columnString] = unitController.text.trim();
+                                  break;
+
+                                case InventorySearchFilter.status:
+                                  searchData[columnString] = selectedStatusFilter;
+                                  break;
+
+                                case InventorySearchFilter.department:
+                                  if (selectedDepartment == null) break;
+                                  searchData[columnString] = selectedDepartment!.departmentID;
+                                  break;
+
+                                case InventorySearchFilter.category:
+                                  if (selectedCategory == null) break;
+                                  searchData[columnString] = selectedCategory!.categoryID;
+                                  break;
+
+                                default:
+                              }
+                            });
+
+                            ref.read(advancedSearchDataNotifierProvider.notifier).setState(searchData);
+
+                            ref.read(isAdvancedFilterNotifierProvider.notifier).activate();
+
+                            await ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
+
+                            // await ref.read(inventoryNotifierProvider.notifier).getAdvancedFilteredInvetory();
+
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
                           },
                           child: const Text('Search'),
                         ),
@@ -652,5 +719,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     selectedDepartment = departments.first;
 
     ref.invalidate(activeSearchFiltersNotifierProvider);
+    ref.invalidate(advancedSearchDataNotifierProvider);
+    ref.invalidate(isAdvancedFilterNotifierProvider);
   }
 }

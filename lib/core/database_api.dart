@@ -285,8 +285,6 @@ class DatabaseAPI {
   }) async {
     String? columnString = inventoryFilterEnumToDatabaseString(filter);
 
-    if (columnString == null) return await Future.error('Invalid filter');
-
     return await conn.execute('''
               SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
               JOIN `categories` AS c ON a.category_id = c.category_id
@@ -310,17 +308,11 @@ class DatabaseAPI {
     try {
       conn = await createSqlConn();
 
-      if (columnString == null) {
-        return await Future.error('No column found');
-      }
-
       await conn.connect();
 
       IResultSet results;
 
-      if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
-        results = await _nullSearchQuery(conn: conn, page: page, filter: filter, itemsPerPage: itemsPerPage);
-      } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+      if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
         results = await _dateRangeSearch(conn: conn, columnString: columnString, range: query, itemsPerPage: itemsPerPage, page: page);
       } else {
         results = await _searchQuery(conn: conn, page: page, filter: filter, query: query, itemsPerPage: itemsPerPage);
@@ -443,35 +435,6 @@ class DatabaseAPI {
     }
   }
 
-  static Future<IResultSet> _nullSearchQuery({
-    required MySQLConnection conn,
-    required int page,
-    required int itemsPerPage,
-    required InventorySearchFilter filter,
-  }) async {
-    int offset = (itemsPerPage * page);
-
-    String? columnString = inventoryFilterEnumToDatabaseString(filter);
-
-    if (columnString == null) {
-      return await Future.error('Invalid search filter');
-    }
-
-    try {
-      return await conn.execute('''
-              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
-              JOIN `categories` AS c ON a.category_id = c.category_id
-              JOIN `departments` AS d ON a.department_id = d.department_id
-              WHERE  c.is_enabled = 1
-              AND d.is_enabled = 1 
-              AND a.is_enabled = 1 AND a.$columnString IS NULL
-              ORDER BY `timestamp` DESC, `item_name` ASC
-              LIMIT $itemsPerPage OFFSET $offset''');
-    } catch (e, st) {
-      return await Future.error(e, st);
-    }
-  }
-
   static Future<IResultSet> _searchQuery({
     required MySQLConnection conn,
     required int page,
@@ -483,8 +446,6 @@ class DatabaseAPI {
 
     String? columnString = inventoryFilterEnumToDatabaseString(filter);
 
-    if (columnString == null) return await Future.error('Invalid filter');
-
     try {
       return await conn.execute('''
               SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
@@ -495,17 +456,6 @@ class DatabaseAPI {
               AND a.is_enabled = 1 AND a.$columnString LIKE '%$query%'
               ORDER BY `timestamp` DESC, `item_name` ASC
               LIMIT $itemsPerPage OFFSET $offset''');
-    } catch (e, st) {
-      return await Future.error(e, st);
-    }
-  }
-
-  static Future<IResultSet> _nullSearchQueryResultTotal({
-    required MySQLConnection conn,
-    required String columnString,
-  }) async {
-    try {
-      return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` IS NULL AND `is_enabled` = 1');
     } catch (e, st) {
       return await Future.error(e, st);
     }
@@ -626,17 +576,11 @@ class DatabaseAPI {
     try {
       conn = await createSqlConn();
 
-      if (columnString == null) {
-        return await Future.error('No column found');
-      }
-
       await conn.connect();
 
       IResultSet results;
 
-      if (query == 'No Category' && (filter == InventorySearchFilter.category || filter == InventorySearchFilter.department)) {
-        results = await _nullSearchQueryResultTotal(conn: conn, columnString: columnString);
-      } else if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
+      if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
         results = await _dateRangeSearchTotal(conn: conn, columnString: columnString, range: query);
       } else {
         results = await _searchQueryResultTotal(

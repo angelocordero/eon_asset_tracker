@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/inventory_advanced_search/advanced_inventory_notifier.dart';
 import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -16,7 +17,6 @@ import '../models/item_model.dart';
 import '../notifiers/categories_notifier.dart';
 import '../notifiers/dashboard_notifiers.dart';
 import '../notifiers/departments_notifier.dart';
-import '../notifiers/inventory_notifier.dart';
 
 class AddItemScreen extends ConsumerStatefulWidget {
   const AddItemScreen({super.key});
@@ -199,11 +199,11 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
                         EasyLoading.dismiss();
 
-                        ref.invalidate(inventoryNotifierProvider);
                         ref.invalidate(currentInventoryPage);
                         ref.invalidate(dashboardCategoriesProvider);
                         ref.invalidate(dashboardDepartmentsProvider);
                         ref.invalidate(dashboardStatusProvider);
+                        ref.invalidate(advancedInventoryNotifierProvider);
                       } catch (e, st) {
                         showErrorAndStacktrace(e, st);
                         return;

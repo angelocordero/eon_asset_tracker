@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/inventory_advanced_search/advanced_inventory_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants.dart';
 import '../core/custom_numeric_formatter.dart';
 import '../core/providers.dart';
-import '../notifiers/inventory_notifier.dart';
 
 class PaginationNavigator extends ConsumerWidget {
   const PaginationNavigator({super.key});
@@ -16,14 +16,12 @@ class PaginationNavigator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(inventoryNotifierProvider).whenOrNull(
+    return ref.watch(advancedInventoryNotifierProvider).whenOrNull(
               skipError: true,
               data: (inventory) {
                 int inventoryItemCount = inventory.count;
 
-                int pages =
-                    (inventoryItemCount / ref.watch(itemsPerPageProvider))
-                        .ceil();
+                int pages = (inventoryItemCount / ref.watch(itemsPerPageProvider)).ceil();
 
                 int currentPage = ref.watch(currentInventoryPage);
 
@@ -33,9 +31,7 @@ class PaginationNavigator extends ConsumerWidget {
                   buttonCount,
                   (index) {
                     int buttonNum = currentPage - 4 + index;
-                    if (pages > 10 &&
-                        currentPage >= 5 &&
-                        currentPage <= pages - 6) {
+                    if (pages > 10 && currentPage >= 5 && currentPage <= pages - 6) {
                       if (index == 0 || index == 10) {
                         return const Text(
                           '...',
@@ -46,12 +42,8 @@ class PaginationNavigator extends ConsumerWidget {
                           style: buttonNum - 1 == currentPage
                               ? null
                               : const ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStatePropertyAll<Color>(
-                                          Colors.white),
-                                  foregroundColor:
-                                      MaterialStatePropertyAll<Color>(
-                                          Colors.black),
+                                  backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                                  foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
                                 ),
                           onPressed: () async {
                             await _goToPage(ref, buttonNum);
@@ -82,12 +74,8 @@ class PaginationNavigator extends ConsumerWidget {
                         style: buttonNum - 1 == currentPage
                             ? null
                             : const ButtonStyle(
-                                backgroundColor:
-                                    MaterialStatePropertyAll<Color>(
-                                        Colors.white),
-                                foregroundColor:
-                                    MaterialStatePropertyAll<Color>(
-                                        Colors.black),
+                                backgroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+                                foregroundColor: MaterialStatePropertyAll<Color>(Colors.black),
                               ),
                         onPressed: () async {
                           await _goToPage(ref, buttonNum);
@@ -124,25 +112,21 @@ class PaginationNavigator extends ConsumerWidget {
                                 ),
                                 ElevatedButton(
                                   onPressed: () async {
-                                    int prevPage =
-                                        ref.read(currentInventoryPage);
+                                    int prevPage = ref.read(currentInventoryPage);
 
                                     if (prevPage <= 0) return;
 
-                                    await _goToPage(
-                                        ref, ref.read(currentInventoryPage));
+                                    await _goToPage(ref, ref.read(currentInventoryPage));
                                   },
                                   child: const Text(
                                     'Previous',
                                     style: TextStyle(fontSize: 12),
                                   ),
                                 ),
-                                Text((ref.watch(currentInventoryPage) + 1)
-                                    .toString()),
+                                Text((ref.watch(currentInventoryPage) + 1).toString()),
                                 ElevatedButton(
                                   onPressed: () async {
-                                    int nextPage =
-                                        ref.read(currentInventoryPage) + 2;
+                                    int nextPage = ref.read(currentInventoryPage) + 2;
 
                                     if (nextPage > pages) return;
 
@@ -223,12 +207,8 @@ class PaginationNavigator extends ConsumerWidget {
                                   onChanged: (int? value) {
                                     if (value == null) return;
 
-                                    ref
-                                        .read(itemsPerPageProvider.notifier)
-                                        .state = value;
-                                    ref
-                                        .read(currentInventoryPage.notifier)
-                                        .state = 0;
+                                    ref.read(itemsPerPageProvider.notifier).state = value;
+                                    ref.read(currentInventoryPage.notifier).state = 0;
                                   },
                                 ),
                               ),
@@ -253,9 +233,7 @@ class PaginationNavigator extends ConsumerWidget {
                                         contentPadding: EdgeInsets.all(10),
                                       ),
                                       inputFormatters: [
-                                        FilteringTextInputFormatter(
-                                            RegExp("[0-9]"),
-                                            allow: true),
+                                        FilteringTextInputFormatter(RegExp("[0-9]"), allow: true),
                                         CustomNumericFormatter(pages),
                                       ],
                                     ),
@@ -265,8 +243,7 @@ class PaginationNavigator extends ConsumerWidget {
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
-                                      int? page =
-                                          int.tryParse(controller.text.trim());
+                                      int? page = int.tryParse(controller.text.trim());
 
                                       if (page == null) return;
 
@@ -291,10 +268,11 @@ class PaginationNavigator extends ConsumerWidget {
   Future<void> _goToPage(WidgetRef ref, int buttonNum) async {
     EasyLoading.show();
 
-    await ref
-        .read(inventoryNotifierProvider.notifier)
-        .getInventoryFromPage(buttonNum - 1);
-    ref.read(currentInventoryPage.notifier).state = buttonNum - 1;
+    int pageNum = buttonNum - 1;
+
+    ref.read(currentInventoryPage.notifier).state = pageNum;
+
+    await ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
 
     EasyLoading.dismiss();
   }

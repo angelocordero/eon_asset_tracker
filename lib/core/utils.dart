@@ -96,7 +96,7 @@ void showErrorAndStacktrace(Object e, StackTrace? st) {
   debugPrintStack(label: e.toString(), stackTrace: st);
 }
 
-String? inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
+String inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
   switch (filter) {
     case InventorySearchFilter.assetID:
       return 'asset_id';
@@ -131,8 +131,8 @@ String? inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
     case InventorySearchFilter.dateReceived:
       return 'date_received';
 
-    default:
-      return null;
+    case InventorySearchFilter.price:
+      return 'price';
   }
 }
 
@@ -176,10 +176,12 @@ String? inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
   }
 }
 
-Text lastScannedFormatter(DateTime lastScannedDate) {
-  DateTime currentDate = DateTime.now();
+int lastScannedDayCalculator(DateTime lastScannedDate) {
+  return DateTime.now().difference(lastScannedDate).inDays;
+}
 
-  int days = currentDate.difference(lastScannedDate).inDays;
+Text lastScannedFormatter(DateTime lastScannedDate) {
+  int days = lastScannedDayCalculator(lastScannedDate);
 
   if (days == 0) {
     return const Text(
