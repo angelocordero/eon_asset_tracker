@@ -233,7 +233,10 @@ String inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
 }
 
 int lastScannedDayCalculator(DateTime lastScannedDate) {
-  return DateTime.now().difference(lastScannedDate).inDays;
+  DateTime currentDay = DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+  DateTime scannedDate = lastScannedDate.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+
+  return currentDay.difference(scannedDate).inDays;
 }
 
 Text lastScannedFormatter(DateTime lastScannedDate) {

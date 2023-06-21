@@ -111,7 +111,7 @@ class AdvancedDatabaseAPI {
           LastScannedFilterEnum.today => 'last_scanned >= CURDATE()',
           LastScannedFilterEnum.within7days => 'last_scanned >= CURDATE() - INTERVAL 7 DAY',
           LastScannedFilterEnum.within30days => 'last_scanned >= CURDATE() - INTERVAL 30 DAY',
-          LastScannedFilterEnum.morethan30days => 'last_scanned < CURDATE() - INTERVAL 30 DAY'
+          LastScannedFilterEnum.morethan30days => 'last_scanned < CURDATE() - INTERVAL 30 DAY',
         };
 
         mysqlCountQueryString = '$mysqlCountQueryString AND $query ';

@@ -71,8 +71,10 @@ class Item {
   factory Item.fromDatabase({
     required ResultSetRow row,
   }) {
-    Department department = Department(departmentID: row.typedColByName<String>('department_id')!, departmentName: row.typedColByName<String>('department_name')!);
-    ItemCategory category = ItemCategory(categoryID: row.typedColByName<String>('category_id')!, categoryName: row.typedColByName<String>('category_name')!);
+    Department department =
+        Department(departmentID: row.typedColByName<String>('department_id')!, departmentName: row.typedColByName<String>('department_name')!);
+    ItemCategory category =
+        ItemCategory(categoryID: row.typedColByName<String>('category_id')!, categoryName: row.typedColByName<String>('category_name')!);
 
     return Item(
       assetID: row.typedColByName<String>('asset_id')!,
