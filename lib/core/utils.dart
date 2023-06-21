@@ -10,7 +10,11 @@ import 'package:mysql_client/mysql_client.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../inventory_advanced_search/advanced_inventory_notifier.dart';
+import '../inventory_advanced_search/notifiers.dart';
+import '../notifiers/dashboard_notifiers.dart';
 import 'constants.dart';
+import 'providers.dart';
 
 String hashPassword(String input) {
   return sha1.convert(utf8.encode(input)).toString();
@@ -96,7 +100,6 @@ void showErrorAndStacktrace(Object e, StackTrace? st) {
   debugPrintStack(label: e.toString(), stackTrace: st);
 }
 
-
 InventorySearchFilter databaseStringToInventoryFilterEnum(String databaseString) {
   switch (databaseString) {
     case 'asset_id':
@@ -135,11 +138,13 @@ InventorySearchFilter databaseStringToInventoryFilterEnum(String databaseString)
     case 'price':
       return InventorySearchFilter.price;
 
+    case 'last_scanned':
+      return InventorySearchFilter.lastScanned;
+
     default:
       throw ArgumentError('Invalid database string: $databaseString');
   }
 }
-
 
 String inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
   switch (filter) {
@@ -178,6 +183,9 @@ String inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
 
     case InventorySearchFilter.price:
       return 'price';
+
+    case InventorySearchFilter.lastScanned:
+      return 'last_scanned';
   }
 }
 
@@ -218,6 +226,9 @@ String inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
 
     case InventorySearchFilter.price:
       return 'Price';
+
+    case InventorySearchFilter.lastScanned:
+      return 'Last Scanned';
   }
 }
 
@@ -245,4 +256,15 @@ Text lastScannedFormatter(DateTime lastScannedDate) {
       style: const TextStyle(color: Colors.red),
     );
   }
+}
+
+Future<void> refreshInventory(ref) async {
+  await ref.invalidate(activeSearchFiltersNotifierProvider);
+  await ref.invalidate(advancedSearchDataNotifierProvider);
+  await ref.invalidate(isAdvancedFilterNotifierProvider);
+  await ref.invalidate(currentInventoryPage);
+  await ref.invalidate(dashboardCategoriesProvider);
+  await ref.invalidate(dashboardDepartmentsProvider);
+  await ref.invalidate(dashboardStatusProvider);
+  await ref.invalidate(advancedInventoryNotifierProvider);
 }

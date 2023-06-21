@@ -75,7 +75,11 @@ class ItemInfoDisplay extends ConsumerWidget {
           ),
           Flexible(
             flex: 2,
-            child: selectedItem == null ? Container() : qrCodeImage(context, selectedItem.assetID, themeMode),
+            child: selectedItem == null
+                ? const Center(
+                    child: Text('No QR Code'),
+                  )
+                : qrCodeImage(context, selectedItem.assetID, themeMode),
           ),
           const VerticalDivider(
             width: 40,

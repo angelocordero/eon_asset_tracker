@@ -22,7 +22,6 @@ import '../inventory_advanced_search/notifiers.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/categories_notifier.dart';
-import '../notifiers/dashboard_notifiers.dart';
 import '../notifiers/departments_notifier.dart';
 import '../notifiers/sorted_inventory_notifier.dart';
 import '../pdf/qr_code_pdf.dart';
@@ -60,9 +59,12 @@ class InventoryTab extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
           child: Column(
             children: [
-              header(context, ref),
               Flexible(
-                flex: 7,
+                flex: 1,
+                child: header(context, ref),
+              ),
+              Flexible(
+                flex: 21,
                 child: StickyHeadersTable(
                   onColumnTitlePressed: (columnIndex) {
                     TableColumn column = TableColumn.values[columnIndex];
@@ -78,7 +80,7 @@ class InventoryTab extends ConsumerWidget {
                   },
                   legendCell: Center(
                     child: Checkbox(
-                      value: ref.watch(checkedItemProvider).length == rows.length,
+                      value: ref.watch(checkedItemProvider).isNotEmpty && ref.watch(checkedItemProvider).length == rows.length,
                       onChanged: (checked) {
                         if (checked == null) return;
                         List<String> buffer = ref.read(checkedItemProvider);
@@ -196,7 +198,7 @@ class InventoryTab extends ConsumerWidget {
               ),
               const Divider(),
               const Flexible(
-                flex: 2,
+                flex: 6,
                 child: ItemInfoDisplay(),
               ),
             ],
@@ -320,12 +322,7 @@ class InventoryTab extends ConsumerWidget {
 
                     Navigator.pop(context);
 
-                    ref.invalidate(isAdvancedFilterNotifierProvider);
-                    ref.invalidate(currentInventoryPage);
-                    ref.invalidate(dashboardCategoriesProvider);
-                    ref.invalidate(dashboardDepartmentsProvider);
-                    ref.invalidate(dashboardStatusProvider);
-                    ref.invalidate(advancedInventoryNotifierProvider);
+                    await refreshInventory(ref);
                   },
                 );
               },
@@ -369,7 +366,6 @@ class InventoryTab extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const AdvancedInventorySearch(),
-        const Spacer(),
         const VerticalDivider(),
         Row(
           children: [
@@ -390,7 +386,7 @@ class InventoryTab extends ConsumerWidget {
                     if (items.isNotEmpty) {
                       EasyLoading.dismiss();
                     } else {
-                      return await Future.error('Error in generating report');
+                      return await Future.error('Error in generating report. Empty item list.');
                     }
 
                     await showReportDialog(
@@ -466,13 +462,8 @@ class InventoryTab extends ConsumerWidget {
             Tooltip(
               message: 'Refresh page',
               child: IconButton.outlined(
-                onPressed: () {
-                  ref.invalidate(isAdvancedFilterNotifierProvider);
-                  ref.invalidate(currentInventoryPage);
-                  ref.invalidate(dashboardCategoriesProvider);
-                  ref.invalidate(dashboardDepartmentsProvider);
-                  ref.invalidate(dashboardStatusProvider);
-                  ref.invalidate(advancedInventoryNotifierProvider);
+                onPressed: () async {
+                  await refreshInventory(ref);
                 },
                 icon: const Icon(Icons.refresh),
               ),

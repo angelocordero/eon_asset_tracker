@@ -78,6 +78,10 @@ class AdvancedDatabaseAPI {
 
       String columnString = inventoryFilterEnumToDatabaseString(element);
 
+      if (!searchData.containsKey(columnString.toString())) continue;
+
+      if (element == InventorySearchFilter.department && searchData[columnString] == 'hotdog') continue;
+
       if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
         DateTimeRange range = searchData[columnString];
 
@@ -102,6 +106,15 @@ class AdvancedDatabaseAPI {
         String query = (searchData[columnString] as AdvancedSearchStatusEnum).name;
 
         mysqlCountQueryString = '$mysqlCountQueryString AND `$columnString` LIKE \'%$query%\' ';
+      } else if (element == InventorySearchFilter.lastScanned) {
+        String query = switch (searchData[columnString] as LastScannedFilterEnum) {
+          LastScannedFilterEnum.today => 'last_scanned >= CURDATE()',
+          LastScannedFilterEnum.within7days => 'last_scanned >= CURDATE() - INTERVAL 7 DAY',
+          LastScannedFilterEnum.within30days => 'last_scanned >= CURDATE() - INTERVAL 30 DAY',
+          LastScannedFilterEnum.morethan30days => 'last_scanned < CURDATE() - INTERVAL 30 DAY'
+        };
+
+        mysqlCountQueryString = '$mysqlCountQueryString AND $query ';
       } else {
         String query = searchData[columnString];
 
@@ -134,6 +147,10 @@ class AdvancedDatabaseAPI {
 
       String columnString = inventoryFilterEnumToDatabaseString(element);
 
+      if (!searchData.containsKey(columnString.toString())) continue;
+
+      if (element == InventorySearchFilter.department && searchData[columnString] == 'hotdog') continue;
+
       if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
         DateTimeRange range = searchData[columnString];
 
@@ -158,6 +175,15 @@ class AdvancedDatabaseAPI {
         String query = (searchData[columnString] as AdvancedSearchStatusEnum).name;
 
         mysqlItemsQueryString = '$mysqlItemsQueryString AND `$columnString` LIKE \'%$query%\' ';
+      } else if (element == InventorySearchFilter.lastScanned) {
+        String query = switch (searchData[columnString] as LastScannedFilterEnum) {
+          LastScannedFilterEnum.today => 'last_scanned >= CURDATE()',
+          LastScannedFilterEnum.within7days => 'last_scanned >= CURDATE() - INTERVAL 7 DAY',
+          LastScannedFilterEnum.within30days => 'last_scanned >= CURDATE() - INTERVAL 30 DAY',
+          LastScannedFilterEnum.morethan30days => 'last_scanned < CURDATE() - INTERVAL 30 DAY'
+        };
+
+        mysqlItemsQueryString = '$mysqlItemsQueryString AND $query ';
       } else {
         String query = searchData[columnString];
 
@@ -186,6 +212,10 @@ class AdvancedDatabaseAPI {
 
       String columnString = inventoryFilterEnumToDatabaseString(element);
 
+      if (!searchData.containsKey(columnString.toString())) continue;
+
+      if (element == InventorySearchFilter.department && searchData[columnString] == 'hotdog') continue;
+
       if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
         DateTimeRange range = searchData[columnString];
 
@@ -210,10 +240,17 @@ class AdvancedDatabaseAPI {
         String query = (searchData[columnString] as AdvancedSearchStatusEnum).name;
 
         mysqlItemsQueryString = '$mysqlItemsQueryString AND `$columnString` LIKE \'%$query%\' ';
+      } else if (element == InventorySearchFilter.lastScanned) {
+        String query = switch (searchData[columnString] as LastScannedFilterEnum) {
+          LastScannedFilterEnum.today => 'last_scanned >= CURDATE()',
+          LastScannedFilterEnum.within7days => 'last_scanned >= CURDATE() - INTERVAL 7 DAY',
+          LastScannedFilterEnum.within30days => 'last_scanned >= CURDATE() - INTERVAL 30 DAY',
+          LastScannedFilterEnum.morethan30days => 'last_scanned < CURDATE() - INTERVAL 30 DAY'
+        };
+
+        mysqlItemsQueryString = '$mysqlItemsQueryString AND $query ';
       } else {
         String query = searchData[columnString];
-
-        if (element == InventorySearchFilter.department && query == 'hotdog') continue;
 
         mysqlItemsQueryString = '$mysqlItemsQueryString AND a.$columnString LIKE \'%$query%\' ';
       }

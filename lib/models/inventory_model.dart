@@ -117,7 +117,7 @@ class Inventory {
         }
         break;
 
-      default:
+      case null:
     }
 
     return Inventory(items: items, count: count);

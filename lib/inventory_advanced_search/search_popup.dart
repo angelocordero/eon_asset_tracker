@@ -22,6 +22,13 @@ enum AdvancedSearchStatusEnum {
   Unknown,
 }
 
+enum LastScannedFilterEnum {
+  today,
+  within7days,
+  within30days,
+  morethan30days,
+}
+
 class SearchPopup extends ConsumerStatefulWidget {
   const SearchPopup({super.key});
 
@@ -36,6 +43,8 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
   static late TextEditingController unitController;
   static late TextEditingController fromPriceController;
   static late TextEditingController toPriceController;
+  static late TextEditingController remarksController;
+  static late TextEditingController itemDescriptionController;
 
   static late AdvancedSearchStatusEnum selectedStatusFilter;
   static Department? selectedDepartment;
@@ -48,6 +57,8 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
   static late DateTimeRange purchaseRange;
   static late DateTimeRange receiveRange;
+
+  static late LastScannedFilterEnum lastScannedFilter;
 
   @override
   void initState() {
@@ -66,6 +77,8 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     unitController = TextEditingController();
     toPriceController = TextEditingController(text: 0.toString());
     fromPriceController = TextEditingController(text: 0.toString());
+    remarksController = TextEditingController();
+    itemDescriptionController = TextEditingController();
 
     selectedStatusFilter = AdvancedSearchStatusEnum.All;
 
@@ -73,6 +86,8 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
     purchaseRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
     receiveRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
+
+    lastScannedFilter = LastScannedFilterEnum.today;
 
     searchData.forEach((key, value) {
       InventorySearchFilter filter = databaseStringToInventoryFilterEnum(key);
@@ -112,8 +127,15 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         case InventorySearchFilter.dateReceived:
           receiveRange = value;
           break;
+        case InventorySearchFilter.remarks:
+          remarksController = TextEditingController(text: value);
+          break;
+        case InventorySearchFilter.itemDescription:
+          itemDescriptionController = TextEditingController(text: value);
+          break;
 
-        default:
+        case InventorySearchFilter.lastScanned:
+          lastScannedFilter = value;
       }
     });
 
@@ -167,7 +189,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'A D V A N C E D   S E A R C H   F I L T E R',
+                    'S E A R C H   F I L T E R',
                     style: TextStyle(fontSize: 25),
                   ),
                   const Spacer(),
@@ -244,18 +266,29 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                             searchData[columnString] = selectedCategory!.categoryID;
                             break;
 
-                          default:
+                          case InventorySearchFilter.itemDescription:
+                            searchData[columnString] = itemDescriptionController.text.trim();
+                            break;
+                          case InventorySearchFilter.remarks:
+                            searchData[columnString] = remarksController.text.trim();
+                            break;
+                          case InventorySearchFilter.lastScanned:
+                            searchData[columnString] = lastScannedFilter;
+                            break;
                         }
                       });
 
                       ref.read(advancedSearchDataNotifierProvider.notifier).setData(searchData);
 
-                      ref.read(isAdvancedFilterNotifierProvider.notifier).activate();
+                      if ((searchData.containsValue('hotdog') && searchData.containsValue(AdvancedSearchStatusEnum.All)) && searchData.length == 2) {
+                        ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
+                        Navigator.pop(context);
+                      } else {
+                        ref.read(isAdvancedFilterNotifierProvider.notifier).activate();
+                        ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
 
-                      ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
-
-                      // ignore: use_build_context_synchronously
-                      Navigator.pop(context);
+                        Navigator.pop(context);
+                      }
                     },
                     child: const Text('S E A R C H'),
                   ),
@@ -267,6 +300,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
               Expanded(
                 child: ListView(
                   children: [
+                    _lastScannedFilter(),
                     _assetIDFilter(),
                     _itemNameFilter(),
                     _departmentFilter(),
@@ -277,11 +311,79 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                     _priceFilter(),
                     _datePurchasedFilter(),
                     _dateReceivedFilter(),
+                    _remarksFilter(),
+                    _itemDescriptionFilter(),
                   ],
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Card _itemDescriptionFilter() {
+    InventorySearchFilter filter = InventorySearchFilter.itemDescription;
+    bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          children: [
+            ListTile(
+              title: const Text('Filter by Item Description'),
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    itemNameController.clear();
+                  }
+                },
+              ),
+            ),
+            TextField(
+              controller: itemDescriptionController,
+              enabled: isEnabled,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _remarksFilter() {
+    InventorySearchFilter filter = InventorySearchFilter.remarks;
+    bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          children: [
+            ListTile(
+              title: const Text('Filter by Remarks'),
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    itemNameController.clear();
+                  }
+                },
+              ),
+            ),
+            TextField(
+              controller: remarksController,
+              enabled: isEnabled,
+            ),
+          ],
         ),
       ),
     );
@@ -296,17 +398,19 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Item Name'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                  itemNameController.clear();
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    itemNameController.clear();
+                  }
+                },
+              ),
             ),
             TextField(
               controller: itemNameController,
@@ -328,17 +432,19 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Asset ID'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                  assetIDController.clear();
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    assetIDController.clear();
+                  }
+                },
+              ),
             ),
             TextField(
               controller: assetIDController,
@@ -397,6 +503,59 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     );
   }
 
+  Card _lastScannedFilter() {
+    InventorySearchFilter filter = InventorySearchFilter.lastScanned;
+    bool isEnabled = ref.watch(activeSearchFiltersNotifierProvider).contains(filter);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              title: const Text('Filter by Last Scanned'),
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    lastScannedFilter = LastScannedFilterEnum.today;
+                  }
+                },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: LastScannedFilterEnum.values.map((e) {
+                return ChoiceChip(
+                  label: switch (e) {
+                    LastScannedFilterEnum.today => const Text('Today'),
+                    LastScannedFilterEnum.within7days => const Text('<= 7 days'),
+                    LastScannedFilterEnum.within30days => const Text('<= 30 days'),
+                    LastScannedFilterEnum.morethan30days => const Text('> 30 days'),
+                  },
+                  selected: lastScannedFilter == e,
+                  onSelected: isEnabled
+                      ? (value) {
+                          setState(
+                            () {
+                              lastScannedFilter = e;
+                            },
+                          );
+                        }
+                      : null,
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _departmentDropdown() {
     return DropdownButtonFormField<Department>(
       value: selectedDepartment,
@@ -427,17 +586,19 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Person Accountable'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                  personAccountableController.clear();
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    personAccountableController.clear();
+                  }
+                },
+              ),
             ),
             TextField(
               controller: personAccountableController,
@@ -459,16 +620,18 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Category'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                  }
+                },
+              ),
             ),
             _categoryDropdown(isEnabled),
           ],
@@ -575,17 +738,19 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Unit'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                  unitController.clear();
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    unitController.clear();
+                  }
+                },
+              ),
             ),
             TextField(
               controller: unitController,
@@ -606,16 +771,18 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Purchase Data'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                  }
+                },
+              ),
             ),
             SearchDaterangePicker(
               callback: (range) {
@@ -638,16 +805,18 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Receive Data'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                  }
+                },
+              ),
             ),
             SearchDaterangePicker(
               callback: (range) {
@@ -670,18 +839,20 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           children: [
-            SwitchListTile(
+            ListTile(
               title: const Text('Filter by Price'),
-              value: isEnabled,
-              onChanged: (newValue) {
-                if (newValue) {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
-                } else {
-                  ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
-                  toPriceController.clear();
-                  fromPriceController.clear();
-                }
-              },
+              trailing: Switch(
+                value: isEnabled,
+                onChanged: (newValue) {
+                  if (newValue) {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).enable(filter);
+                  } else {
+                    ref.read(activeSearchFiltersNotifierProvider.notifier).disable(filter);
+                    toPriceController.text = '0';
+                    fromPriceController.text = '0';
+                  }
+                },
+              ),
             ),
             Row(
               children: [
