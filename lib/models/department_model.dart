@@ -1,27 +1,12 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class Department {
-  String departmentID;
-  String departmentName;
-
   Department({
     required this.departmentID,
     required this.departmentName,
   });
 
-  Department copyWith({
-    String? departmentID,
-    String? departmentName,
-    bool? isEnabled,
-  }) {
-    return Department(
-      departmentID: departmentID ?? this.departmentID,
-      departmentName: departmentName ?? this.departmentName,
-    );
-  }
-
-  @override
-  String toString() =>
-      'Department(departmentID: $departmentID, departmentName: $departmentName)';
+  String departmentID;
+  String departmentName;
 
   @override
   bool operator ==(covariant Department other) {
@@ -33,4 +18,19 @@ class Department {
 
   @override
   int get hashCode => departmentID.hashCode ^ departmentName.hashCode;
+
+  @override
+  String toString() =>
+      'Department(departmentID: $departmentID, departmentName: $departmentName)';
+
+  Department copyWith({
+    String? departmentID,
+    String? departmentName,
+    bool? isEnabled,
+  }) {
+    return Department(
+      departmentID: departmentID ?? this.departmentID,
+      departmentName: departmentName ?? this.departmentName,
+    );
+  }
 }

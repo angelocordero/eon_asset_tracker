@@ -1,24 +1,12 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class ItemCategory {
-  String? categoryID;
-  String categoryName;
   ItemCategory({
     required this.categoryID,
     required this.categoryName,
   });
 
-  ItemCategory copyWith({
-    String? categoryID,
-    String? categoryName,
-  }) {
-    return ItemCategory(
-      categoryID: categoryID ?? this.categoryID,
-      categoryName: categoryName ?? this.categoryName,
-    );
-  }
-
-  @override
-  String toString() => 'Category(categoryID: $categoryID, categoryName: $categoryName)';
+  String? categoryID;
+  String categoryName;
 
   @override
   bool operator ==(covariant ItemCategory other) {
@@ -29,4 +17,17 @@ class ItemCategory {
 
   @override
   int get hashCode => categoryID.hashCode ^ categoryName.hashCode;
+
+  @override
+  String toString() => 'Category(categoryID: $categoryID, categoryName: $categoryName)';
+
+  ItemCategory copyWith({
+    String? categoryID,
+    String? categoryName,
+  }) {
+    return ItemCategory(
+      categoryID: categoryID ?? this.categoryID,
+      categoryName: categoryName ?? this.categoryName,
+    );
+  }
 }

@@ -7,9 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants.dart';
 import '../core/utils.dart';
 import '../models/department_model.dart';
+import '../models/property_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/admin_panel_users_notifier.dart';
 import '../notifiers/departments_notifier.dart';
+import '../notifiers/properties_notifier.dart';
 
 class AddUserScreen extends ConsumerStatefulWidget {
   const AddUserScreen({super.key});
@@ -21,8 +23,7 @@ class AddUserScreen extends ConsumerStatefulWidget {
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   static final List<String> statusList = [
     'Admin',
@@ -30,14 +31,20 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   ];
 
   String status = 'User';
+
   late List<Department> departments;
   late Department department;
+
+  late List<Property> properties;
+  late Property property;
 
   @override
   void initState() {
     departments = ref.read(departmentsNotifierProvider).requireValue;
+    properties = ref.read(propertiesNotifierProvider).requireValue;
 
     department = departments.first;
+    property = properties.first;
 
     super.initState();
   }
@@ -47,47 +54,84 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(30.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'A D D   U S E R',
-                style: TextStyle(fontSize: 30),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              _usernameField(),
-              const SizedBox(
-                height: 30,
-              ),
-              _enterPasswordField(),
-              const SizedBox(
-                height: 30,
-              ),
-              _confirmPasswordField(),
-              const SizedBox(
-                height: 30,
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _departmentField(),
-                  const SizedBox(
-                    width: 30,
-                  ),
-                  _statusField(),
-                ],
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              _buttons(context)
-            ],
+        child: SizedBox(
+          width: 800,
+          height: 600,
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'A D D   U S E R',
+                  style: TextStyle(fontSize: 30),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          _usernameField(),
+                          const SizedBox(height: 30),
+                          _propertyField(),
+                          const SizedBox(height: 30),
+                          _enterPasswordField(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 30),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          _statusField(),
+                          const SizedBox(height: 50),
+                          _departmentField(),
+                          const SizedBox(height: 30),
+                          _confirmPasswordField(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                // _usernameField(),
+                // const SizedBox(
+                //   height: 30,
+                // ),
+                // _enterPasswordField(),
+                // const SizedBox(
+                //   height: 30,
+                // ),
+                // _confirmPasswordField(),
+                // const SizedBox(
+                //   height: 30,
+                // ),
+                // _propertyField(),
+                // const SizedBox(
+                //   height: 30,
+                // ),
+                // _departmentField(),
+                // const SizedBox(
+                //   height: 30,
+                // ),
+                // _statusField(),
+                const SizedBox(
+                  height: 30,
+                ),
+                _buttons(context)
+              ],
+            ),
           ),
         ),
       ),
@@ -116,9 +160,11 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
             try {
               User user = User.toDatabase(
-                  username: _userNameController.text.trim(),
-                  department: department,
-                  status: status);
+                username: _userNameController.text.trim(),
+                department: department,
+                status: status,
+                property: property,
+              );
 
               await ref.read(adminPanelUsersNotifierProvider.notifier).addUser(
                     user,
@@ -147,7 +193,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
           height: 20,
         ),
         SizedBox(
-          width: 200,
+          width: 300,
           child: ButtonTheme(
             alignedDropdown: true,
             child: DropdownButtonFormField<Department>(
@@ -159,16 +205,53 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value: departments.first,
+              value: department,
               items: departments
-                  .map<DropdownMenuItem<Department>>((value) =>
-                      DropdownMenuItem<Department>(
-                          value: value, child: Text(value.departmentName)))
+                  .map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName)))
                   .toList(),
               onChanged: (Department? newDepartment) {
                 if (newDepartment == null) return;
                 setState(() {
                   department = newDepartment;
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _propertyField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Property'),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          width: 300,
+          child: ButtonTheme(
+            alignedDropdown: true,
+            child: DropdownButtonFormField<Property>(
+              isDense: true,
+              isExpanded: true,
+              focusColor: Colors.transparent,
+              borderRadius: defaultBorderRadius,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: defaultBorderRadius,
+                ),
+              ),
+              value: property,
+              items: properties
+                  .map<DropdownMenuItem<Property>>((value) => DropdownMenuItem<Property>(value: value, child: Text(value.propertyName)))
+                  .toList(),
+              onChanged: (Property? newProperty) {
+                if (newProperty == null) return;
+                setState(() {
+                  property = newProperty;
                 });
               },
             ),
@@ -266,11 +349,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 ),
               ),
               value: 'User',
-              items: statusList
-                  .map<DropdownMenuItem<String>>((value) =>
-                      DropdownMenuItem<String>(
-                          value: value, child: Text(value)))
-                  .toList(),
+              items: statusList.map<DropdownMenuItem<String>>((value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
               onChanged: (String? newStatus) {
                 if (newStatus == null) return;
                 setState(() {

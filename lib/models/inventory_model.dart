@@ -7,12 +7,30 @@ import '../core/utils.dart';
 import 'item_model.dart';
 
 class Inventory {
-  List<Item> items;
-  int count;
   Inventory({
     required this.items,
     required this.count,
   });
+
+  int count;
+  List<Item> items;
+
+  factory Inventory.empty() {
+    return Inventory(items: [], count: 0);
+  }
+
+  @override
+  bool operator ==(covariant Inventory other) {
+    if (identical(this, other)) return true;
+
+    return listEquals(other.items, items) && other.count == count;
+  }
+
+  @override
+  int get hashCode => items.hashCode ^ count.hashCode;
+
+  @override
+  String toString() => 'Inventory(items: $items, count: $count)';
 
   Inventory copyWith({
     List<Item>? items,
@@ -22,10 +40,6 @@ class Inventory {
       items: items ?? this.items,
       count: count ?? this.count,
     );
-  }
-
-  factory Inventory.empty() {
-    return Inventory(items: [], count: 0);
   }
 
   Inventory sort(TableSort tableSort) {
@@ -130,17 +144,4 @@ class Inventory {
 
     return Inventory(items: items, count: count);
   }
-
-  @override
-  String toString() => 'Inventory(items: $items, count: $count)';
-
-  @override
-  bool operator ==(covariant Inventory other) {
-    if (identical(this, other)) return true;
-
-    return listEquals(other.items, items) && other.count == count;
-  }
-
-  @override
-  int get hashCode => items.hashCode ^ count.hashCode;
 }

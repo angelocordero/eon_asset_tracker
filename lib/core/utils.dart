@@ -262,6 +262,14 @@ Text lastScannedFormatter(DateTime lastScannedDate) {
       overflow: TextOverflow.ellipsis,
       textAlign: TextAlign.center,
     );
+  } else if (days == 1) {
+    return Text(
+      '~$days day ago',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.center,
+      style: const TextStyle(color: Colors.red),
+    );
   } else {
     // example: '~10 days ago'
     return Text(

@@ -141,6 +141,7 @@ class AdvancedDatabaseAPI {
                                  JOIN `properties` AS p ON a.property_id = p.property_id
                                  WHERE  c.is_enabled = 1
                                  AND d.is_enabled = 1 
+                                 AND p.is_enabled = 1 
                                  AND a.is_enabled = 1 ''';
 
     for (InventorySearchFilter element in InventorySearchFilter.values) {
@@ -205,7 +206,8 @@ class AdvancedDatabaseAPI {
                                  JOIN `departments` AS d ON a.department_id = d.department_id
                                  JOIN `properties` AS p ON a.property_id = p.property_id
                                  WHERE  c.is_enabled = 1
-                                 AND d.is_enabled = 1 
+                                 AND d.is_enabled = 1
+                                 AND p.is_enabled = 1 
                                  AND a.is_enabled = 1 ''';
 
     for (InventorySearchFilter element in InventorySearchFilter.values) {

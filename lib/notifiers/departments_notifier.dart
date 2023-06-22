@@ -1,8 +1,12 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/database_api.dart';
+import '../core/providers.dart';
 import '../core/utils.dart';
+import '../inventory_advanced_search/advanced_inventory_notifier.dart';
+import '../inventory_advanced_search/notifiers.dart';
 import '../models/department_model.dart';
+import 'admin_panel_users_notifier.dart';
 
 part 'departments_notifier.g.dart';
 
@@ -25,6 +29,12 @@ class DepartmentsNotifier extends _$DepartmentsNotifier {
     }
 
     ref.invalidateSelf();
+    ref.invalidate(activeSearchFiltersNotifierProvider);
+    ref.invalidate(advancedSearchDataNotifierProvider);
+    ref.invalidate(isAdvancedFilterNotifierProvider);
+    ref.invalidate(currentInventoryPage);
+    ref.invalidate(advancedInventoryNotifierProvider);
+    ref.invalidate(adminPanelUsersNotifierProvider);
   }
 
   Future<void> editDepartment(Department department) async {
@@ -37,6 +47,12 @@ class DepartmentsNotifier extends _$DepartmentsNotifier {
     }
 
     ref.invalidateSelf();
+    ref.invalidate(activeSearchFiltersNotifierProvider);
+    ref.invalidate(advancedSearchDataNotifierProvider);
+    ref.invalidate(isAdvancedFilterNotifierProvider);
+    ref.invalidate(currentInventoryPage);
+    ref.invalidate(advancedInventoryNotifierProvider);
+    ref.invalidate(adminPanelUsersNotifierProvider);
   }
 
   Future<void> deleteDepartment(String departmentID) async {
@@ -49,5 +65,11 @@ class DepartmentsNotifier extends _$DepartmentsNotifier {
     }
 
     ref.invalidateSelf();
+    ref.invalidate(activeSearchFiltersNotifierProvider);
+    ref.invalidate(advancedSearchDataNotifierProvider);
+    ref.invalidate(isAdvancedFilterNotifierProvider);
+    ref.invalidate(currentInventoryPage);
+    ref.invalidate(advancedInventoryNotifierProvider);
+    ref.invalidate(adminPanelUsersNotifierProvider);
   }
 }

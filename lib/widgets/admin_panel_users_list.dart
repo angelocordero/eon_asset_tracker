@@ -18,47 +18,61 @@ class AdminPanelUsersList extends ConsumerWidget {
                 data: (users) {
                   return SingleChildScrollView(
                     child: DataTable(
+                      columnSpacing: 10,
                       showCheckboxColumn: false,
                       columns: const [
                         DataColumn(
-                          label: Text('U S E R   N A M E'),
+                          label: Text(
+                            'U S E R   N A M E',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                         DataColumn(
-                          label: Text('D E P A R T M E N T'),
+                          label: Expanded(
+                            child: Text(
+                              'P R O P E R T Y',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
                         DataColumn(
-                          label: Text('S T A T U S'),
+                          label: Text(
+                            'D E P A R T M E N T',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ],
                       rows: users
                           .map(
                             (e) => DataRow(
-                              selected:
-                                  ref.watch(adminPanelSelectedUserProvider) ==
-                                      e,
+                              selected: ref.watch(adminPanelSelectedUserProvider) == e,
                               onSelectChanged: (value) {
-                                ref
-                                    .read(
-                                        adminPanelSelectedUserProvider.notifier)
-                                    .state = e;
+                                ref.read(adminPanelSelectedUserProvider.notifier).state = e;
                               },
                               cells: [
                                 DataCell(
-                                  Text(e.username),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.verified,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        e.username,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 DataCell(
-                                  Text(e.department?.departmentName ?? ''),
+                                  Text(
+                                    e.property.propertyName,
+                                  ),
                                 ),
                                 DataCell(
-                                  e.isAdmin
-                                      ? const Chip(
-                                          side: BorderSide(color: Colors.grey),
-                                          label: Text('A D M I N'),
-                                        )
-                                      : const Chip(
-                                          side: BorderSide(color: Colors.grey),
-                                          label: Text('U S E R'),
-                                        ),
+                                  Text(
+                                    e.department.departmentName,
+                                  ),
                                 ),
                               ],
                             ),

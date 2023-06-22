@@ -10,9 +10,11 @@ import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/department_model.dart';
+import '../models/property_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/admin_panel_users_notifier.dart';
 import '../notifiers/departments_notifier.dart';
+import '../notifiers/properties_notifier.dart';
 import '../widgets/master_password_prompt.dart';
 
 class EditUserScreen extends ConsumerStatefulWidget {
@@ -32,20 +34,24 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
 
   late String status;
   late List<Department> departments;
+  late List<Property> properties;
+
   late Department department;
+  late Property property;
 
   @override
   void initState() {
     User user = ref.read(adminPanelSelectedUserProvider)!;
 
     departments = ref.read(departmentsNotifierProvider).requireValue;
+    properties = ref.read(propertiesNotifierProvider).requireValue;
 
-    department = user.department ?? departments.first;
+    property = user.property;
+    department = user.department;
 
     status = user.isAdmin ? 'Admin' : 'User';
 
-    _userNameController =
-        TextEditingController.fromValue(TextEditingValue(text: user.username));
+    _userNameController = TextEditingController.fromValue(TextEditingValue(text: user.username));
 
     super.initState();
   }
@@ -55,39 +61,55 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(30.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'E D I T   U S E R',
-                style: TextStyle(fontSize: 30),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              _usernameField(),
-              const SizedBox(
-                height: 30,
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _departmentField(),
-                  const SizedBox(
-                    width: 30,
-                  ),
-                  _statusField(),
-                ],
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              _buttons(context)
-            ],
+        child: SizedBox(
+          width: 800,
+          height: 450,
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'E D I T   U S E R',
+                  style: TextStyle(fontSize: 30),
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          _usernameField(),
+                          const SizedBox(height: 30),
+                          _propertyField(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 30),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          _statusField(),
+                          const SizedBox(height: 50),
+                          _departmentField(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                _buttons(context)
+              ],
+            ),
           ),
         ),
       ),
@@ -119,11 +141,11 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
             bool isAdmin = user.isAdmin;
 
             user = User(
-              userID: user.userID,
-              username: _userNameController.text.trim(),
-              isAdmin: status == 'Admin' ? true : false,
-              department: department,
-            );
+                userID: user.userID,
+                username: _userNameController.text.trim(),
+                isAdmin: status == 'Admin' ? true : false,
+                department: department,
+                property: property);
 
             if (isAdmin) {
               await Navigator.push(
@@ -136,18 +158,14 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                       callback: () async {
                         try {
                           //get masterpassword
-                          bool admin = await DatabaseAPI.getMasterPassword(
-                              controller.text.trim());
+                          bool admin = await DatabaseAPI.getMasterPassword(controller.text.trim());
 
                           if (admin) {
-                            await ref
-                                .read(adminPanelUsersNotifierProvider.notifier)
-                                .editUser(user);
+                            await ref.read(adminPanelUsersNotifierProvider.notifier).editUser(user);
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                           } else {
-                            showErrorAndStacktrace(
-                                'Password is not an admin password', null);
+                            showErrorAndStacktrace('Password is not an admin password', null);
                           }
                         } catch (e, st) {
                           showErrorAndStacktrace(e, st);
@@ -159,9 +177,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
               );
             } else {
               try {
-                await ref
-                    .read(adminPanelUsersNotifierProvider.notifier)
-                    .editUser(user);
+                await ref.read(adminPanelUsersNotifierProvider.notifier).editUser(user);
               } catch (e, st) {
                 showErrorAndStacktrace(e, st);
               }
@@ -185,7 +201,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
           height: 20,
         ),
         SizedBox(
-          width: 200,
+          width: 300,
           child: ButtonTheme(
             alignedDropdown: true,
             child: DropdownButtonFormField<Department>(
@@ -199,14 +215,51 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
               ),
               value: department,
               items: departments
-                  .map<DropdownMenuItem<Department>>((value) =>
-                      DropdownMenuItem<Department>(
-                          value: value, child: Text(value.departmentName)))
+                  .map<DropdownMenuItem<Department>>((value) => DropdownMenuItem<Department>(value: value, child: Text(value.departmentName)))
                   .toList(),
               onChanged: (Department? newDepartment) {
                 if (newDepartment == null) return;
                 setState(() {
                   department = newDepartment;
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _propertyField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Property'),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          width: 300,
+          child: ButtonTheme(
+            alignedDropdown: true,
+            child: DropdownButtonFormField<Property>(
+              isExpanded: true,
+              isDense: true,
+              focusColor: Colors.transparent,
+              borderRadius: defaultBorderRadius,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: defaultBorderRadius,
+                ),
+              ),
+              value: property,
+              items: properties
+                  .map<DropdownMenuItem<Property>>((value) => DropdownMenuItem<Property>(value: value, child: Text(value.propertyName)))
+                  .toList(),
+              onChanged: (Property? newProperty) {
+                if (newProperty == null) return;
+                setState(() {
+                  property = newProperty;
                 });
               },
             ),
@@ -239,7 +292,6 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
 
   Column _statusField() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Status'),
@@ -260,13 +312,8 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                 ),
               ),
               value: status,
-              items: statusList
-                  .map<DropdownMenuItem<String>>((value) =>
-                      DropdownMenuItem<String>(
-                          value: value, child: Text(value)))
-                  .toList(),
-              onChanged: ref.watch(adminPanelSelectedUserProvider) ==
-                      ref.watch(userProvider)
+              items: statusList.map<DropdownMenuItem<String>>((value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
+              onChanged: ref.watch(adminPanelSelectedUserProvider) == ref.watch(userProvider)
                   ? null
                   : (String? newStatus) {
                       if (newStatus == null) return;

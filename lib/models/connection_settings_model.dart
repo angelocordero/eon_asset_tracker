@@ -2,11 +2,6 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class ConnectionSettings {
-  String databaseName;
-  String username;
-  String password;
-  String ip;
-  int port;
   ConnectionSettings({
     required this.databaseName,
     required this.username,
@@ -15,41 +10,19 @@ class ConnectionSettings {
     required this.port,
   });
 
+  String databaseName;
+  String ip;
+  String password;
+  int port;
+  String username;
+
   factory ConnectionSettings.empty() {
     return ConnectionSettings(
         databaseName: '', username: '', password: '', ip: '', port: 0);
   }
 
-  ConnectionSettings copyWith({
-    String? databaseName,
-    String? username,
-    String? password,
-    String? ip,
-    int? port,
-  }) {
-    return ConnectionSettings(
-      databaseName: databaseName ?? this.databaseName,
-      username: username ?? this.username,
-      password: password ?? this.password,
-      ip: ip ?? this.ip,
-      port: port ?? this.port,
-    );
-  }
-
-  @override
-  String toString() {
-    return 'ConnectionSettings(databaseName: $databaseName, username: $username, password: $password, ip: $ip, port: $port)';
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'databaseName': databaseName,
-      'username': username,
-      'password': password,
-      'ip': ip,
-      'port': port,
-    };
-  }
+  factory ConnectionSettings.fromJson(String source) =>
+      ConnectionSettings.fromMap(json.decode(source) as Map<String, dynamic>);
 
   factory ConnectionSettings.fromMap(Map<String, dynamic> map) {
     return ConnectionSettings(
@@ -60,11 +33,6 @@ class ConnectionSettings {
       port: map['port'] as int,
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory ConnectionSettings.fromJson(String source) =>
-      ConnectionSettings.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   bool operator ==(covariant ConnectionSettings other) {
@@ -85,4 +53,37 @@ class ConnectionSettings {
         ip.hashCode ^
         port.hashCode;
   }
+
+  @override
+  String toString() {
+    return 'ConnectionSettings(databaseName: $databaseName, username: $username, password: $password, ip: $ip, port: $port)';
+  }
+
+  ConnectionSettings copyWith({
+    String? databaseName,
+    String? username,
+    String? password,
+    String? ip,
+    int? port,
+  }) {
+    return ConnectionSettings(
+      databaseName: databaseName ?? this.databaseName,
+      username: username ?? this.username,
+      password: password ?? this.password,
+      ip: ip ?? this.ip,
+      port: port ?? this.port,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'databaseName': databaseName,
+      'username': username,
+      'password': password,
+      'ip': ip,
+      'port': port,
+    };
+  }
+
+  String toJson() => json.encode(toMap());
 }

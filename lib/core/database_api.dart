@@ -23,12 +23,14 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute('''UPDATE `users` SET `username` = :username, `department_id` = :departmentID, `admin` = :isAdmin
+      await conn
+          .execute('''UPDATE `users` SET `username` = :username, `department_id` = :departmentID, `property_id` = :propertyID, `admin` = :isAdmin
        WHERE `user_id` = :userID AND `is_enabled` = 1 ''', {
         'username': user.username,
-        'departmentID': user.department?.departmentID,
+        'departmentID': user.department.departmentID,
         'isAdmin': user.isAdmin ? 1 : 0,
         'userID': user.userID,
+        'propertyID': user.property.propertyID,
       });
     } catch (e, st) {
       return await Future.error(e, st);
@@ -89,13 +91,14 @@ class DatabaseAPI {
       conn = await createSqlConn();
       await conn.connect();
 
-      await conn.execute('''INSERT INTO `users` (user_id, username, admin, department_id ,password_hash) VALUES
-          (:userID, :username, :isAdmin, :departmentID, :passwordHash)''', {
+      await conn.execute('''INSERT INTO `users` (user_id, username, admin, department_id, property_id ,password_hash) VALUES
+          (:userID, :username, :isAdmin, :departmentID, :propertyID,:passwordHash)''', {
         'userID': user.userID,
         'username': user.username,
         'isAdmin': user.isAdmin ? 1 : 0,
-        'departmentID': user.department?.departmentID,
+        'departmentID': user.department.departmentID,
         'passwordHash': hashPassword(password),
+        'propertyID': user.property.propertyID,
       });
     } catch (e, st) {
       return await Future.error(e, st);
@@ -115,9 +118,11 @@ class DatabaseAPI {
       await conn.connect();
 
       IResultSet results = await conn.execute('''
-        SELECT u.*, d.department_name FROM `users` AS u
+        SELECT u.*, d.department_name, p.property_name FROM `users` AS u
         JOIN `departments` as d ON u.department_id = d.department_id
-        WHERE u.is_enabled = 1 ORDER BY `admin` DESC, `username` ASC''');
+        JOIN `properties` as p ON u.property_id = p.property_id
+        WHERE u.is_enabled = 1 AND d.is_enabled = 1 AND p.is_enabled = 1
+        ORDER BY `admin` DESC, `username` ASC''');
 
       return results.rows.map((row) => User.fromDatabase(row)).toList();
     } catch (e, st) {
@@ -141,6 +146,7 @@ class DatabaseAPI {
                                               SELECT `password_hash`
                                               FROM `users`
                                               WHERE `admin` = 1
+                                              AND `is_enabled` = 1
                                               UNION
                                               SELECT `hash` AS `password_hash`
                                               FROM `master`;
@@ -194,9 +200,11 @@ class DatabaseAPI {
       await conn.connect();
 
       IResultSet results = await conn.execute('''
-      SELECT u.*, d.department_name FROM `users` AS u
+      SELECT u.*, d.department_name, p.property_name FROM `users` AS u
       JOIN `departments` AS d ON u.department_id = d.department_id
+      JOIN `properties` AS p ON u.property_id = p.property_id
       WHERE u.is_enabled = 1 AND d.is_enabled = 1 
+      AND p.is_enabled = 1
       AND u.username = :username AND u.password_hash = :hash''', {
         'username': username,
         'hash': passwordHash,
@@ -574,7 +582,7 @@ class DatabaseAPI {
 
       await conn.execute('UPDATE `properties` SET `property_name` = :propertyName WHERE `property_id` = :propertyID AND `is_enabled` = 1 ', {
         'propertyName': property.propertyName,
-        'propertyID': property.propertyName,
+        'propertyID': property.propertyID,
       });
     } catch (e, st) {
       return await Future.error(e, st);

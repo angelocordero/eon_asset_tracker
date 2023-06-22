@@ -411,11 +411,11 @@ class AdminPanelTab extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   TextButton(
-              onPressed: () async {
-                ref.invalidate(categoriesNotifierProvider);
-              },
-              child: const Text('R E F R E S H'),
-            ),
+                    onPressed: () async {
+                      ref.invalidate(categoriesNotifierProvider);
+                    },
+                    child: const Text('R E F R E S H'),
+                  ),
                   TextButton(
                     onPressed: () async {
                       await _addCategory(context, ref);
@@ -620,6 +620,8 @@ class AdminPanelTab extends ConsumerWidget {
                                               );
 
                                               await ref.read(departmentsNotifierProvider.notifier).editDepartment(department);
+
+                                              Navigator.pop(context);
 
                                               EasyLoading.dismiss();
                                             },

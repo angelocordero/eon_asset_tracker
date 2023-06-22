@@ -1,7 +1,10 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/database_api.dart';
+import '../core/providers.dart';
 import '../core/utils.dart';
+import '../inventory_advanced_search/advanced_inventory_notifier.dart';
+import '../inventory_advanced_search/notifiers.dart';
 import '../models/category_model.dart';
 
 part 'categories_notifier.g.dart';
@@ -25,6 +28,11 @@ class CategoriesNotifier extends _$CategoriesNotifier {
     }
 
     ref.invalidateSelf();
+    ref.invalidate(activeSearchFiltersNotifierProvider);
+    ref.invalidate(advancedSearchDataNotifierProvider);
+    ref.invalidate(isAdvancedFilterNotifierProvider);
+    ref.invalidate(currentInventoryPage);
+    ref.invalidate(advancedInventoryNotifierProvider);
   }
 
   Future<void> editCategory(ItemCategory category) async {
@@ -37,6 +45,11 @@ class CategoriesNotifier extends _$CategoriesNotifier {
     }
 
     ref.invalidateSelf();
+    ref.invalidate(activeSearchFiltersNotifierProvider);
+    ref.invalidate(advancedSearchDataNotifierProvider);
+    ref.invalidate(isAdvancedFilterNotifierProvider);
+    ref.invalidate(currentInventoryPage);
+    ref.invalidate(advancedInventoryNotifierProvider);
   }
 
   Future<void> deleteCategory(String categoryID) async {
@@ -49,5 +62,10 @@ class CategoriesNotifier extends _$CategoriesNotifier {
     }
 
     ref.invalidateSelf();
+    ref.invalidate(activeSearchFiltersNotifierProvider);
+    ref.invalidate(advancedSearchDataNotifierProvider);
+    ref.invalidate(isAdvancedFilterNotifierProvider);
+    ref.invalidate(currentInventoryPage);
+    ref.invalidate(advancedInventoryNotifierProvider);
   }
 }

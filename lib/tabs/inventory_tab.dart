@@ -209,8 +209,24 @@ class InventoryTab extends ConsumerWidget {
       },
       error: (e, st) {
         return Center(
-          child: Text(
-            e.toString(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                e.toString(),
+                style: const TextStyle(fontSize: 20),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await refreshInventory(ref);
+                },
+                label: const Text(
+                  'Reload',
+                ),
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
           ),
         );
       },
