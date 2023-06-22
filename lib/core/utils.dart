@@ -279,8 +279,8 @@ Future<void> refreshInventory(ref) async {
   await ref.invalidate(advancedSearchDataNotifierProvider);
   await ref.invalidate(isAdvancedFilterNotifierProvider);
   await ref.invalidate(currentInventoryPage);
-  await ref.invalidate(dashboardCategoriesProvider);
-  await ref.invalidate(dashboardDepartmentsProvider);
-  await ref.invalidate(dashboardStatusProvider);
+  await ref.invalidate(dashboardDepartmentsNotifierProvider);
+  await ref.invalidate(dashboardCategoriesNotifierProvider);
+  await ref.invalidate(dashboardStatusNotifierProvider);
   await ref.invalidate(advancedInventoryNotifierProvider);
 }

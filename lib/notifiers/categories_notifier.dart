@@ -10,6 +10,8 @@ part 'categories_notifier.g.dart';
 class CategoriesNotifier extends _$CategoriesNotifier {
   @override
   FutureOr<List<ItemCategory>> build() async {
+    state = const AsyncLoading();
+
     return await DatabaseAPI.getCategories();
   }
 

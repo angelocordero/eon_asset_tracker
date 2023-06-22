@@ -525,6 +525,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: AdvancedSearchStatusEnum.values.map((e) {
                 return ChoiceChip(
+                  selectedColor: Colors.blueAccent,
                   label: Text(e.name),
                   selected: selectedStatusFilter == e,
                   onSelected: (value) {
@@ -575,6 +576,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                     LastScannedFilterEnum.within30days => const Text('<= 30 days'),
                     LastScannedFilterEnum.morethan30days => const Text('> 30 days'),
                   },
+                  selectedColor: Colors.blueAccent,
                   selected: lastScannedFilter == e,
                   onSelected: isEnabled
                       ? (value) {

@@ -87,19 +87,20 @@ enum InventorySearchFilter {
   property,
 }
 
+/// Order is very important. Table sorting depends on the order.
 enum TableColumn {
   assetID,
   itemName,
-  personAccountable,
-  unit,
+  property,
   department,
+  personAccountable,
   category,
   status,
+  unit,
   price,
   datePurchased,
   dateReceived,
   lastScanned,
-  property,
 }
 
 enum SortOrder {

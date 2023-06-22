@@ -10,6 +10,8 @@ part 'departments_notifier.g.dart';
 class DepartmentsNotifier extends _$DepartmentsNotifier {
   @override
   FutureOr<List<Department>> build() async {
+    state = const AsyncLoading();
+
     return await DatabaseAPI.getDepartments();
   }
 

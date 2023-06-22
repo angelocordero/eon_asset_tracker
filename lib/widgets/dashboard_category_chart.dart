@@ -10,7 +10,7 @@ class DashboardCategoryChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => ref
-      .watch(dashboardCategoriesProvider)
+      .watch(dashboardCategoriesNotifierProvider)
       .when(
         data: (Map<String, int> categoriesData) {
           double max = categoriesData.values

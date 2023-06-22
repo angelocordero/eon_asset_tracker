@@ -10,6 +10,7 @@ part 'properties_notifier.g.dart';
 class PropertiesNotifier extends _$PropertiesNotifier {
   @override
   FutureOr<List<Property>> build() async {
+    state = const AsyncLoading();
     return await DatabaseAPI.getProperties();
   }
 
@@ -25,7 +26,7 @@ class PropertiesNotifier extends _$PropertiesNotifier {
     ref.invalidateSelf();
   }
 
-  Future<void> editDepartment(Property property) async {
+  Future<void> editProperty(Property property) async {
     state = const AsyncValue.loading();
 
     try {

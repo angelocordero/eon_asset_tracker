@@ -10,6 +10,7 @@ part 'admin_panel_users_notifier.g.dart';
 class AdminPanelUsersNotifier extends _$AdminPanelUsersNotifier {
   @override
   FutureOr<List<User>> build() async {
+    state = const AsyncLoading();
     return await DatabaseAPI.getUsers();
   }
 

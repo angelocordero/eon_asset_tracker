@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:eon_asset_tracker/models/property_model.dart';
+import 'package:eon_asset_tracker/notifiers/properties_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -35,15 +37,23 @@ class AdminPanelTab extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _usersList(context, ref),
-            const VerticalDivider(
-              width: 40,
-            ),
-            Expanded(child: _departmentsList(context, ref)),
-            const VerticalDivider(
-              width: 40,
-            ),
             Expanded(
+              flex: 3,
+              child: _usersList(context, ref),
+            ),
+            const VerticalDivider(width: 20),
+            Expanded(
+              flex: 2,
+              child: _propertiesList(context, ref),
+            ),
+            const VerticalDivider(width: 20),
+            Expanded(
+              flex: 2,
+              child: _departmentsList(context, ref),
+            ),
+            const VerticalDivider(width: 20),
+            Expanded(
+              flex: 2,
               child: _categoriesList(context, ref),
             ),
           ],
@@ -75,6 +85,41 @@ class AdminPanelTab extends ConsumerWidget {
                 EasyLoading.show();
 
                 await ref.read(departmentsNotifierProvider.notifier).deleteDepartment(departmentID);
+
+                Navigator.pop(context);
+
+                EasyLoading.dismiss();
+              },
+              icon: const Icon(Icons.check),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<dynamic> showDeletePropertyDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String propertyID,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm delete?'),
+          actions: [
+            IconButton.outlined(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.close),
+            ),
+            IconButton.outlined(
+              onPressed: () async {
+                EasyLoading.show();
+
+                await ref.read(propertiesNotifierProvider.notifier).deleteProperty(propertyID);
 
                 Navigator.pop(context);
 
@@ -123,148 +168,154 @@ class AdminPanelTab extends ConsumerWidget {
     );
   }
 
-  Expanded _usersList(BuildContext context, WidgetRef ref) {
-    return Expanded(
-      flex: 2,
-      child: Column(
-        children: [
-          const Text('U S E R S'),
-          const Divider(
-            height: 40,
-          ),
-          const Expanded(
-            child: AdminPanelUsersList(),
-          ),
-          const Divider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              TextButton(
-                onPressed: () async {
-                  Navigator.push(
-                    context,
-                    CustomRoute(
-                      builder: (context) {
-                        return const AddUserScreen();
-                      },
-                    ),
-                  );
-                },
-                child: const Text('A D D'),
-              ),
-              TextButton(
-                onPressed: ref.watch(adminPanelSelectedUserProvider) == ref.watch(userProvider)
-                    ? null
-                    : () async {
-                        User? user = ref.read(adminPanelSelectedUserProvider);
-                        if (user == null) return;
+  Widget _usersList(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        const Text('U S E R S'),
+        const Divider(
+          height: 40,
+        ),
+        const Expanded(
+          child: AdminPanelUsersList(),
+        ),
+        const Divider(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            TextButton(
+              onPressed: () async {
+                ref.invalidate(adminPanelUsersNotifierProvider);
+              },
+              child: const Text('R E F R E S H'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  CustomRoute(
+                    builder: (context) {
+                      return const AddUserScreen();
+                    },
+                  ),
+                );
+              },
+              child: const Text('A D D'),
+            ),
+            TextButton(
+              onPressed: ref.watch(adminPanelSelectedUserProvider) == ref.watch(userProvider)
+                  ? null
+                  : () async {
+                      User? user = ref.read(adminPanelSelectedUserProvider);
+                      if (user == null) return;
 
-                        try {
-                          if (user.isAdmin) {
-                            TextEditingController controller = TextEditingController();
+                      try {
+                        if (user.isAdmin) {
+                          TextEditingController controller = TextEditingController();
 
-                            Navigator.push(
-                              context,
-                              CustomRoute(
-                                builder: (context) {
-                                  return MasterPasswordPrompt(
-                                    controller: controller,
-                                    callback: () async {
-                                      bool admin = await DatabaseAPI.getMasterPassword(controller.text.trim());
+                          Navigator.push(
+                            context,
+                            CustomRoute(
+                              builder: (context) {
+                                return MasterPasswordPrompt(
+                                  controller: controller,
+                                  callback: () async {
+                                    bool admin = await DatabaseAPI.getMasterPassword(controller.text.trim());
 
-                                      if (admin) {
-                                        await ref.read(adminPanelUsersNotifierProvider.notifier).deleteUser(user);
-                                        Navigator.pop(context);
-                                      } else {
-                                        showErrorAndStacktrace('Wrong master password', null);
-                                      }
-                                    },
-                                  );
-                                },
-                              ),
-                            );
-                          } else {
-                            await ref.read(adminPanelUsersNotifierProvider.notifier).deleteUser(user);
-                          }
-                        } catch (e, st) {
-                          showErrorAndStacktrace(e, st);
+                                    if (admin) {
+                                      await ref.read(adminPanelUsersNotifierProvider.notifier).deleteUser(user);
+                                      Navigator.pop(context);
+                                    } else {
+                                      showErrorAndStacktrace('Wrong master password', null);
+                                    }
+                                  },
+                                );
+                              },
+                            ),
+                          );
+                        } else {
+                          await ref.read(adminPanelUsersNotifierProvider.notifier).deleteUser(user);
                         }
-                      },
-                child: const Text('D E L E T E'),
-              ),
-              TextButton(
-                onPressed: () {
+                      } catch (e, st) {
+                        showErrorAndStacktrace(e, st);
+                      }
+                    },
+              child: const Text('D E L E T E'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  CustomRoute(
+                    builder: (context) {
+                      return const EditUserScreen();
+                    },
+                  ),
+                );
+              },
+              child: const Text('E D I T'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (ref.read(userProvider)!.isAdmin && !ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
                   Navigator.push(
                     context,
                     CustomRoute(
                       builder: (context) {
-                        return const EditUserScreen();
+                        return ResetPasswordScreen(
+                          passwordController: TextEditingController(),
+                          confirmPasswordController: TextEditingController(),
+                        );
                       },
                     ),
                   );
-                },
-                child: const Text('E D I T'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  if (ref.read(userProvider)!.isAdmin && !ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
-                    Navigator.push(
-                      context,
-                      CustomRoute(
-                        builder: (context) {
-                          return ResetPasswordScreen(
-                            passwordController: TextEditingController(),
-                            confirmPasswordController: TextEditingController(),
-                          );
-                        },
-                      ),
-                    );
-                  } else {
-                    Navigator.push(
-                      context,
-                      CustomRoute(
-                        builder: (context) {
-                          TextEditingController masterPasswordController = TextEditingController();
+                } else {
+                  Navigator.push(
+                    context,
+                    CustomRoute(
+                      builder: (context) {
+                        TextEditingController masterPasswordController = TextEditingController();
 
-                          return MasterPasswordPrompt(
-                            controller: masterPasswordController,
-                            callback: () async {
-                              try {
-                                //get masterpassword
-                                bool admin = await DatabaseAPI.getMasterPassword(masterPasswordController.text.trim());
+                        return MasterPasswordPrompt(
+                          controller: masterPasswordController,
+                          callback: () async {
+                            try {
+                              //get masterpassword
+                              bool admin = await DatabaseAPI.getMasterPassword(masterPasswordController.text.trim());
 
-                                if (admin) {
-                                  await Navigator.push(
-                                    context,
-                                    CustomRoute(
-                                      builder: (context) {
-                                        return ResetPasswordScreen(
-                                          passwordController: TextEditingController(),
-                                          confirmPasswordController: TextEditingController(),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  showErrorAndStacktrace('Wrong master password', null);
-                                }
-                              } catch (e, st) {
-                                showErrorAndStacktrace(e, st);
+                              if (admin) {
+                                await Navigator.push(
+                                  context,
+                                  CustomRoute(
+                                    builder: (context) {
+                                      return ResetPasswordScreen(
+                                        passwordController: TextEditingController(),
+                                        confirmPasswordController: TextEditingController(),
+                                      );
+                                    },
+                                  ),
+                                );
+                              } else {
+                                showErrorAndStacktrace('Wrong master password', null);
                               }
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  }
-                },
-                child: const Text('R E S E T   P A S S W O R D'),
+                            } catch (e, st) {
+                              showErrorAndStacktrace(e, st);
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                'R E S E T\nP A S S W O R D',
+                textAlign: TextAlign.center,
               ),
-            ],
-          )
-        ],
-      ),
+            ),
+          ],
+        )
+      ],
     );
   }
 
@@ -360,8 +411,133 @@ class AdminPanelTab extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   TextButton(
+              onPressed: () async {
+                ref.invalidate(categoriesNotifierProvider);
+              },
+              child: const Text('R E F R E S H'),
+            ),
+                  TextButton(
                     onPressed: () async {
                       await _addCategory(context, ref);
+                    },
+                    child: const Text('A D D'),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+        error: (e, st) => Center(
+          child: Text(
+            e.toString(),
+          ),
+        ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+  Widget _propertiesList(BuildContext context, WidgetRef ref) => ref.watch(propertiesNotifierProvider).when(
+        data: (List<Property> properties) {
+          return Column(
+            children: [
+              const Text('P R O P E R T I E S'),
+              const Divider(
+                height: 40,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: properties.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index < properties.length) {
+                      Property property = properties[index];
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Text(property.propertyName),
+                            leading: Text('${(index + 1).toString()}.'),
+                            trailing: Wrap(
+                              children: [
+                                IconButton.outlined(
+                                  onPressed: () {
+                                    TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: property.propertyName));
+
+                                    Navigator.push(
+                                      context,
+                                      CustomRoute(
+                                        builder: (context) {
+                                          return AdminPanelPrompt(
+                                            title: 'E D I T   P R O P E R T Y',
+                                            controller: controller,
+                                            callback: () async {
+                                              EasyLoading.show();
+                                              if (controller.text.trim().isEmpty) return;
+
+                                              property = property.copyWith(
+                                                propertyName: controller.text.trim(),
+                                              );
+
+                                              await ref.read(propertiesNotifierProvider.notifier).editProperty(property);
+
+                                              Navigator.pop(context);
+
+                                              EasyLoading.dismiss();
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.edit),
+                                ),
+                                IconButton.outlined(
+                                  onPressed: () async {
+                                    await showDeletePropertyDialog(
+                                      context,
+                                      ref,
+                                      property.propertyID!,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.remove),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(),
+                        ],
+                      );
+                    } else {
+                      return ListTile(
+                        title: const Text(
+                          'A D D',
+                          style: TextStyle(
+                            color: Colors.blue,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        onTap: () async {
+                          await _addProperty(context, ref);
+                        },
+                      );
+                    }
+                  },
+                ),
+              ),
+              const Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      ref.invalidate(propertiesNotifierProvider);
+                    },
+                    child: const Text('R E F R E S H'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      await _addProperty(context, ref);
                     },
                     child: const Text('A D D'),
                   ),
@@ -424,7 +600,8 @@ class AdminPanelTab extends ConsumerWidget {
                               children: [
                                 IconButton.outlined(
                                   onPressed: () {
-                                    TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: department.departmentName));
+                                    TextEditingController controller =
+                                        TextEditingController.fromValue(TextEditingValue(text: department.departmentName));
 
                                     Navigator.push(
                                       context,
@@ -489,6 +666,12 @@ class AdminPanelTab extends ConsumerWidget {
                 children: [
                   TextButton(
                     onPressed: () async {
+                      ref.invalidate(departmentsNotifierProvider);
+                    },
+                    child: const Text('R E F R E S H'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
                       _addDepartment(context, ref);
                     },
                     child: const Text('A D D'),
@@ -520,6 +703,26 @@ class AdminPanelTab extends ConsumerWidget {
             controller: controller,
             callback: () async {
               await ref.read(departmentsNotifierProvider.notifier).addDepartment(controller.text.trim());
+              Navigator.pop(context);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _addProperty(BuildContext context, WidgetRef ref) async {
+    TextEditingController controller = TextEditingController();
+
+    await Navigator.push(
+      context,
+      CustomRoute(
+        builder: (context) {
+          return AdminPanelPrompt(
+            title: 'A D D   P R O P E R T Y',
+            controller: controller,
+            callback: () async {
+              await ref.read(propertiesNotifierProvider.notifier).addProperty(controller.text.trim());
               Navigator.pop(context);
             },
           );

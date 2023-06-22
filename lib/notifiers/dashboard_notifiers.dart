@@ -7,22 +7,35 @@ import 'departments_notifier.dart';
 part 'dashboard_notifiers.g.dart';
 
 @Riverpod(keepAlive: true)
-FutureOr<Map<String, int>> dashboardCategories(
-    DashboardCategoriesRef ref) async {
-  ref.watch(categoriesNotifierProvider);
+class DashboardCategoriesNotifier extends _$DashboardCategoriesNotifier {
+  @override
+  FutureOr<Map<String, int>> build() async {
+    ref.watch(categoriesNotifierProvider);
 
-  return await DatabaseAPI.getCategoriesCount();
+    state = const AsyncLoading();
+
+    return await DatabaseAPI.getCategoriesCount();
+  }
 }
 
 @Riverpod(keepAlive: true)
-FutureOr<Map<String, int>> dashboardDepartments(
-    DashboardDepartmentsRef ref) async {
-  ref.watch(departmentsNotifierProvider);
+class DashboardDepartmentsNotifier extends _$DashboardDepartmentsNotifier {
+  @override
+  FutureOr<Map<String, int>> build() async {
+    ref.watch(departmentsNotifierProvider);
 
-  return await DatabaseAPI.getDepartmentsCount();
+    state = const AsyncLoading();
+
+    return await DatabaseAPI.getDepartmentsCount();
+  }
 }
 
 @Riverpod(keepAlive: true)
-FutureOr<Map<String, int>> dashboardStatus(DashboardStatusRef ref) async {
-  return await DatabaseAPI.getStatusCount();
+class DashboardStatusNotifier extends _$DashboardStatusNotifier {
+  @override
+  FutureOr<Map<String, int>> build() async {
+    state = const AsyncLoading();
+
+    return await DatabaseAPI.getStatusCount();
+  }
 }

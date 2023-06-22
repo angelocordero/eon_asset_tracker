@@ -7,7 +7,7 @@ part of 'properties_notifier.dart';
 // **************************************************************************
 
 String _$propertiesNotifierHash() =>
-    r'ed79c9af1a078f42b751f85b88ff1df619df6d8c';
+    r'3f175a4b5e8f06ef69f95b89120cfe963502741b';
 
 /// See also [PropertiesNotifier].
 @ProviderFor(PropertiesNotifier)

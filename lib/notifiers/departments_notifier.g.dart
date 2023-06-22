@@ -7,7 +7,7 @@ part of 'departments_notifier.dart';
 // **************************************************************************
 
 String _$departmentsNotifierHash() =>
-    r'ddf23a3017e5d1f0acb28c16c603a1c51c492441';
+    r'20e6559338cf1ec98091e734621947ae92717667';
 
 /// See also [DepartmentsNotifier].
 @ProviderFor(DepartmentsNotifier)

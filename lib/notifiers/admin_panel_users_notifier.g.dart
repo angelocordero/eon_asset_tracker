@@ -7,7 +7,7 @@ part of 'admin_panel_users_notifier.dart';
 // **************************************************************************
 
 String _$adminPanelUsersNotifierHash() =>
-    r'b7c5e8c833607f0eb7d9a5f8300e5d89808a5893';
+    r'93dcf4469d870414c5d6e1636555c0a3d50198ac';
 
 /// See also [AdminPanelUsersNotifier].
 @ProviderFor(AdminPanelUsersNotifier)

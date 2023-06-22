@@ -51,7 +51,7 @@ class AdvancedInventoryNotifier extends _$AdvancedInventoryNotifier {
     Inventory inventory = Inventory(
       items: await DatabaseAPI.getInventoryUnfiltered(
         page: page,
-        itemsPerPage: ref.watch(itemsPerPageProvider),
+        itemsPerPage: itemsPerPage,
       ),
       count: await DatabaseAPI.getTotalInventoryCount(conn),
     );

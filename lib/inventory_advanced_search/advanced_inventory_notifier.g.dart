@@ -7,7 +7,7 @@ part of 'advanced_inventory_notifier.dart';
 // **************************************************************************
 
 String _$advancedInventoryNotifierHash() =>
-    r'b955bf5633a59bcd21ddaa442333091ecbe27af5';
+    r'18d1bb5e4224198382a9c76476be53b4230cfd9b';
 
 /// See also [AdvancedInventoryNotifier].
 @ProviderFor(AdvancedInventoryNotifier)

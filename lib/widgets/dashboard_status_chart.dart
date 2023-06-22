@@ -12,7 +12,7 @@ class DashboardStatusChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(dashboardStatusProvider).when(
+    return ref.watch(dashboardStatusNotifierProvider).when(
           data: (statusData) {
             return Padding(
               padding: const EdgeInsets.all(20.0),

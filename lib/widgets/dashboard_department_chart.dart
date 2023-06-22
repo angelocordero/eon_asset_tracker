@@ -12,7 +12,7 @@ class DashboardDepartmentChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(dashboardDepartmentsProvider).when(
+    return ref.watch(dashboardDepartmentsNotifierProvider).when(
           data: (departments) {
             return Padding(
               padding: const EdgeInsets.all(20),

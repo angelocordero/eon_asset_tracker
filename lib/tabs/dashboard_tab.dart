@@ -43,9 +43,9 @@ class DashboardTab extends ConsumerWidget {
                                 message: 'Refresh Page',
                                 child: IconButton.outlined(
                                   onPressed: () async {
-                                    ref.invalidate(dashboardCategoriesProvider);
-                                    ref.invalidate(dashboardDepartmentsProvider);
-                                    ref.invalidate(dashboardStatusProvider);
+                                    ref.invalidate(dashboardCategoriesNotifierProvider);
+                                    ref.invalidate(dashboardDepartmentsNotifierProvider);
+                                    ref.invalidate(dashboardStatusNotifierProvider);
                                   },
                                   icon: const Icon(Icons.refresh),
                                 ),
@@ -54,19 +54,22 @@ class DashboardTab extends ConsumerWidget {
                           ),
                           Expanded(
                             child: Center(
-                              child: Consumer(builder: (BuildContext context, WidgetRef ref, _) {
-                                Map<String, int> data = ref.watch(dashboardStatusProvider).valueOrNull ?? {};
-                                int total = 0;
+                              child: ref.watch(dashboardStatusNotifierProvider).when(
+                                    data: (data) {
+                                      int total = 0;
 
-                                for (int value in data.values) {
-                                  total += value;
-                                }
+                                      for (int value in data.values) {
+                                        total += value;
+                                      }
 
-                                return Text(
-                                  total.toString(),
-                                  style: const TextStyle(fontSize: 50),
-                                );
-                              }),
+                                      return Text(
+                                        total.toString(),
+                                        style: const TextStyle(fontSize: 50),
+                                      );
+                                    },
+                                    error: (e, st) => Text(e.toString()),
+                                    loading: () => const CircularProgressIndicator(),
+                                  ),
                             ),
                           ),
                         ],
