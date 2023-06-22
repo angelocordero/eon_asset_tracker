@@ -291,6 +291,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
           child: ButtonTheme(
             alignedDropdown: true,
             child: DropdownButtonFormField<Property>(
+              isDense: true,
+              isExpanded: true,
               focusColor: Colors.transparent,
               borderRadius: defaultBorderRadius,
               decoration: InputDecoration(
@@ -331,6 +333,8 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
           child: ButtonTheme(
             alignedDropdown: true,
             child: DropdownButtonFormField<Department>(
+              isDense: true,
+              isExpanded: true,
               focusColor: Colors.transparent,
               borderRadius: defaultBorderRadius,
               decoration: InputDecoration(
@@ -500,6 +504,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
             alignedDropdown: true,
             child: DropdownButtonFormField<ItemStatus>(
               isDense: true,
+              isExpanded: true,
               focusColor: Colors.transparent,
               borderRadius: defaultBorderRadius,
               decoration: InputDecoration(
