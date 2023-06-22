@@ -1,3 +1,5 @@
+import 'package:eon_asset_tracker/models/property_model.dart';
+import 'package:eon_asset_tracker/notifiers/properties_notifier.dart';
 import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -25,6 +27,7 @@ class AddItemScreen extends ConsumerStatefulWidget {
 class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late List<Department> _departments;
   late List<ItemCategory> _categories;
+  late List<Property> _properties;
 
   late DateTime _datePurchased;
   late DateTime _dateReceived;
@@ -35,6 +38,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   late ItemStatus _itemStatus;
   late Department _department;
   late ItemCategory _category;
+  late Property _property;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _personAccountableController = TextEditingController();
@@ -53,10 +57,13 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     _departments = ref.read(departmentsNotifierProvider).requireValue;
     _categories = ref.read(categoriesNotifierProvider).requireValue;
+    _properties = ref.read(propertiesNotifierProvider).requireValue;
 
     _department = _departments.first;
-    _itemStatus = ItemStatus.Unknown;
     _category = _categories.first;
+    _property = _properties.first;
+
+    _itemStatus = ItemStatus.Unknown;
 
     super.initState();
   }
@@ -90,6 +97,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                           _itemNameField(),
                           _categoryField(),
                           _departmentField(),
+                          _propertyField(),
                           _personAccountableField(),
                         ],
                       ),
@@ -182,9 +190,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                             dateReceived: _dateReceived,
                             status: _itemStatus,
                             category: _category,
+                            property: _property,
                             remarks: _remarksController.text.trim(),
-                            categories: categories,
-                            departments: departments,
                             lastScanned: DateTime.now(),
                           );
 
@@ -336,6 +343,46 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 if (dept == null) return;
                 setState(() {
                   _department = dept;
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _propertyField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Property'),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          width: 300,
+          child: ButtonTheme(
+            alignedDropdown: true,
+            child: DropdownButtonFormField<Property>(
+              focusColor: Colors.transparent,
+              borderRadius: defaultBorderRadius,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: defaultBorderRadius,
+                ),
+              ),
+              value: _property,
+              items: _properties.map((value) {
+                return DropdownMenuItem(
+                  value: value,
+                  child: Text(value.propertyName),
+                );
+              }).toList(),
+              onChanged: (Property? property) {
+                if (property == null) return;
+                setState(() {
+                  _property = property;
                 });
               },
             ),

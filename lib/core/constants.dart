@@ -84,20 +84,22 @@ enum InventorySearchFilter {
   dateReceived,
   price,
   lastScanned,
+  property,
 }
 
 enum TableColumn {
   assetID,
   itemName,
-  departmentName,
   personAccountable,
+  unit,
+  department,
   category,
   status,
-  unit,
   price,
   datePurchased,
   dateReceived,
   lastScanned,
+  property,
 }
 
 enum SortOrder {

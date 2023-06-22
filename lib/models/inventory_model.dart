@@ -46,11 +46,19 @@ class Inventory {
         }
         break;
 
-      case TableColumn.departmentName:
+      case TableColumn.department:
         if (tableSort.sortOrder == SortOrder.ascending) {
           items.sort((a, b) => a.department.departmentName.compareTo(b.department.departmentName));
         } else if (tableSort.sortOrder == SortOrder.descending) {
           items.sort((a, b) => b.department.departmentName.compareTo(a.department.departmentName));
+        }
+        break;
+
+      case TableColumn.property:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => a.property.propertyName.compareTo(b.property.propertyName));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => b.property.propertyName.compareTo(a.property.propertyName));
         }
         break;
 

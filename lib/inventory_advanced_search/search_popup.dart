@@ -12,8 +12,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/property_model.dart';
 import '../notifiers/categories_notifier.dart';
 import '../notifiers/departments_notifier.dart';
+import '../notifiers/properties_notifier.dart';
 
 enum AdvancedSearchStatusEnum {
   All,
@@ -49,8 +51,10 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
   static late AdvancedSearchStatusEnum selectedStatusFilter;
   static Department? selectedDepartment;
   static ItemCategory? selectedCategory;
+  static Property? selectedProperty;
 
   static List<Department> departments = [];
+  static List<Property> properties = [];
 
   static late FocusNode fromFocusNode;
   static late FocusNode toFocusNode;
@@ -69,7 +73,10 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
     Map<String, dynamic> searchData = ref.read(advancedSearchDataNotifierProvider);
     List<Department> departmentsBuffer = ref.read(departmentsNotifierProvider).valueOrNull ?? [];
+    List<Property> propertiesBuffer = ref.read(propertiesNotifierProvider).valueOrNull ?? [];
+
     departments = [Department(departmentID: 'hotdog', departmentName: 'All Departments'), ...departmentsBuffer];
+    properties = [Property(propertyID: 'itlog', propertyName: 'All Properties'), ...propertiesBuffer];
 
     itemNameController = TextEditingController();
     assetIDController = TextEditingController();
@@ -83,6 +90,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     selectedStatusFilter = AdvancedSearchStatusEnum.All;
 
     selectedDepartment = departments.first;
+    selectedProperty = properties.first;
 
     purchaseRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
     receiveRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
@@ -121,6 +129,10 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
         case InventorySearchFilter.category:
           selectedCategory = ref.read(categoriesNotifierProvider).valueOrNull?.singleWhere((element) => element.categoryID == value);
           break;
+
+        case InventorySearchFilter.property:
+          selectedProperty = ref.read(propertiesNotifierProvider).valueOrNull?.singleWhere((element) => element.propertyID == value);
+
         case InventorySearchFilter.datePurchased:
           purchaseRange = value;
           break;
@@ -261,6 +273,11 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                             searchData[columnString] = selectedDepartment!.departmentID;
                             break;
 
+                          case InventorySearchFilter.property:
+                            if (selectedProperty == null) break;
+                            searchData[columnString] = selectedProperty!.propertyID;
+                            break;
+
                           case InventorySearchFilter.category:
                             if (selectedCategory == null) break;
                             searchData[columnString] = selectedCategory!.categoryID;
@@ -280,7 +297,10 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
                       ref.read(advancedSearchDataNotifierProvider.notifier).setData(searchData);
 
-                      if ((searchData.containsValue('hotdog') && searchData.containsValue(AdvancedSearchStatusEnum.All)) && searchData.length == 2) {
+                      if ((searchData.containsValue('hotdog') &&
+                              searchData.containsValue(AdvancedSearchStatusEnum.All) &&
+                              searchData.containsValue('itlog')) &&
+                          searchData.length == 3) {
                         ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
                         Navigator.pop(context);
                       } else {
@@ -303,6 +323,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                     _lastScannedFilter(),
                     _assetIDFilter(),
                     _itemNameFilter(),
+                    _propertyFilter(),
                     _departmentFilter(),
                     _personAccountableFilter(),
                     _categoryFilter(),
@@ -456,6 +477,23 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
     );
   }
 
+  Card _propertyFilter() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ListTile(
+              title: Text('Filter by Property'),
+            ),
+            _propertyDropdown(),
+          ],
+        ),
+      ),
+    );
+  }
+
   Card _departmentFilter() {
     return Card(
       child: Padding(
@@ -553,6 +591,26 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _propertyDropdown() {
+    return DropdownButtonFormField<Property>(
+      value: selectedProperty,
+      focusColor: Colors.transparent,
+      borderRadius: defaultBorderRadius,
+      items: properties.map((e) {
+        return DropdownMenuItem<Property>(
+          value: e,
+          child: Text(e.propertyName),
+        );
+      }).toList(),
+      onChanged: (Property? value) {
+        if (value == null) return;
+        setState(() {
+          selectedProperty = value;
+        });
+      },
     );
   }
 

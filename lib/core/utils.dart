@@ -52,6 +52,10 @@ String dateToString(DateTime dateTime) {
   return '${DateFormat.EEEE().format(dateTime)} ${DateFormat.yMMMd().format(dateTime)}';
 }
 
+String dateToReportString(DateTime dateTime) {
+  return '${DateFormat.EEEE().format(dateTime)}\n${DateFormat.yMMMd().format(dateTime)}';
+}
+
 String dateTimeToString(DateTime dateTime) {
   return '${DateFormat.yMMMMEEEEd().format(dateTime)} ${DateFormat.jm().format(dateTime)}';
 }
@@ -141,6 +145,9 @@ InventorySearchFilter databaseStringToInventoryFilterEnum(String databaseString)
     case 'last_scanned':
       return InventorySearchFilter.lastScanned;
 
+    case 'property_id':
+      return InventorySearchFilter.property;
+
     default:
       throw ArgumentError('Invalid database string: $databaseString');
   }
@@ -186,6 +193,9 @@ String inventoryFilterEnumToDatabaseString(InventorySearchFilter filter) {
 
     case InventorySearchFilter.lastScanned:
       return 'last_scanned';
+
+    case InventorySearchFilter.property:
+      return 'property_id';
   }
 }
 
@@ -229,6 +239,9 @@ String inventoryFilterEnumToDisplayString(InventorySearchFilter filter) {
 
     case InventorySearchFilter.lastScanned:
       return 'Last Scanned';
+
+    case InventorySearchFilter.property:
+      return 'Property';
   }
 }
 

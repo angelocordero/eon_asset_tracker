@@ -1,3 +1,5 @@
+import 'package:eon_asset_tracker/models/property_model.dart';
+import 'package:eon_asset_tracker/notifiers/properties_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -82,6 +84,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                           _itemNameField(),
                           _categoryField(),
                           _departmentField(),
+                          _propertyField(),
                           _personAccountableField(),
                         ],
                       ),
@@ -269,6 +272,46 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
             controller: _remarksController,
             maxLines: 8,
             minLines: 4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _propertyField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Property'),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          width: 300,
+          child: ButtonTheme(
+            alignedDropdown: true,
+            child: DropdownButtonFormField<Property>(
+              focusColor: Colors.transparent,
+              borderRadius: defaultBorderRadius,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: defaultBorderRadius,
+                ),
+              ),
+              value: widget.item.property,
+              items: ref.watch(propertiesNotifierProvider).requireValue.map((value) {
+                return DropdownMenuItem(
+                  value: value,
+                  child: Text(value.propertyName),
+                );
+              }).toList(),
+              onChanged: (Property? property) {
+                if (property == null) return;
+                setState(() {
+                  widget.item.property = property;
+                });
+              },
+            ),
           ),
         ),
       ],

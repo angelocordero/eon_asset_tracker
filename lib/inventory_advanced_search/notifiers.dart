@@ -11,6 +11,7 @@ class ActiveSearchFiltersNotifier extends _$ActiveSearchFiltersNotifier {
     return [
       InventorySearchFilter.department,
       InventorySearchFilter.status,
+      InventorySearchFilter.property,
     ];
   }
 

@@ -1,4 +1,7 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:mysql_client/mysql_client.dart';
+
+import 'package:eon_asset_tracker/models/property_model.dart';
 
 import '../core/constants.dart';
 import '../core/utils.dart';
@@ -19,8 +22,10 @@ class Item {
   ItemCategory category;
   String? remarks;
   DateTime lastScanned;
+  Property property;
 
   Item({
+    required this.property,
     required this.assetID,
     required this.department,
     this.personAccountable,
@@ -48,12 +53,12 @@ class Item {
     required ItemStatus status,
     required ItemCategory category,
     String? remarks,
-    required List<ItemCategory> categories,
-    required List<Department> departments,
     required DateTime lastScanned,
+    required Property property,
   }) {
     return Item(
         assetID: generateRandomID(),
+        property: property,
         department: department,
         personAccountable: personAccountable,
         name: name,
@@ -75,6 +80,7 @@ class Item {
         Department(departmentID: row.typedColByName<String>('department_id')!, departmentName: row.typedColByName<String>('department_name')!);
     ItemCategory category =
         ItemCategory(categoryID: row.typedColByName<String>('category_id')!, categoryName: row.typedColByName<String>('category_name')!);
+    Property property = Property(propertyID: row.typedColByName<String>('property_id')!, propertyName: row.typedColByName<String>('property_name')!);
 
     return Item(
       assetID: row.typedColByName<String>('asset_id')!,
@@ -90,6 +96,7 @@ class Item {
       remarks: row.colByName('remarks'),
       category: category,
       lastScanned: DateTime.parse(row.colByName('last_scanned').toString()),
+      property: property,
     );
   }
 
@@ -107,6 +114,7 @@ class Item {
     ItemCategory? category,
     String? remarks,
     DateTime? lastScanned,
+    Property? property,
   }) {
     return Item(
       assetID: assetID ?? this.assetID,
@@ -122,47 +130,48 @@ class Item {
       category: category ?? this.category,
       remarks: remarks ?? this.remarks,
       lastScanned: lastScanned ?? this.lastScanned,
+      property: property ?? this.property,
     );
   }
 
   @override
   bool operator ==(covariant Item other) {
     if (identical(this, other)) return true;
-
-    return other.assetID == assetID &&
-        other.department == department &&
-        other.personAccountable == personAccountable &&
-        other.name == name &&
-        other.description == description &&
-        other.unit == unit &&
-        other.price == price &&
-        other.datePurchased == datePurchased &&
-        other.dateReceived == dateReceived &&
-        other.status == status &&
-        other.category == category &&
-        other.remarks == remarks &&
-        other.lastScanned == lastScanned;
+  
+    return 
+      other.assetID == assetID &&
+      other.department == department &&
+      other.personAccountable == personAccountable &&
+      other.name == name &&
+      other.description == description &&
+      other.unit == unit &&
+      other.price == price &&
+      other.datePurchased == datePurchased &&
+      other.dateReceived == dateReceived &&
+      other.remarks == remarks &&
+      other.lastScanned == lastScanned &&
+      other.property == property;
   }
 
   @override
   int get hashCode {
     return assetID.hashCode ^
-        department.hashCode ^
-        personAccountable.hashCode ^
-        name.hashCode ^
-        description.hashCode ^
-        unit.hashCode ^
-        price.hashCode ^
-        datePurchased.hashCode ^
-        dateReceived.hashCode ^
-        category.hashCode ^
-        status.hashCode ^
-        remarks.hashCode ^
-        lastScanned.hashCode;
+      department.hashCode ^
+      personAccountable.hashCode ^
+      name.hashCode ^
+      description.hashCode ^
+      unit.hashCode ^
+      price.hashCode ^
+      datePurchased.hashCode ^
+      dateReceived.hashCode ^
+      remarks.hashCode ^
+      lastScanned.hashCode ^
+      property.hashCode;
   }
+
 
   @override
   String toString() {
-    return 'Item(assetID: $assetID, department: $department, personAccountable: $personAccountable, name: $name, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, status: $status, category: $category, remarks: $remarks, lastScanned: $lastScanned)';
+    return 'Item(assetID: $assetID, department: $department, personAccountable: $personAccountable, name: $name, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, remarks: $remarks, lastScanned: $lastScanned, property: $property)';
   }
 }

@@ -5,25 +5,18 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../models/category_model.dart';
-import '../models/department_model.dart';
 import '../models/item_model.dart';
 
 class QRCodePDF {
   List<Item> items;
-  List<Department> departments;
-  List<ItemCategory> categories;
   QRCodePDF({
     required this.items,
-    required this.departments,
-    required this.categories,
   });
 
   Future<Uint8List> generate() async {
     final pw.Document pdf = pw.Document();
 
-    pw.Font monoFont =
-        pw.Font.ttf(await rootBundle.load("fonts/RobotoMono-Regular.ttf"));
+    pw.Font monoFont = pw.Font.ttf(await rootBundle.load("fonts/RobotoMono-Regular.ttf"));
 
     pdf.addPage(
       pw.MultiPage(
@@ -65,6 +58,8 @@ class QRCodePDF {
     String personAccountable = item.personAccountable ?? '';
     String name = item.name;
     String category = item.category.categoryName;
+
+    String propertyName = item.property.propertyName;
 
     return pw.Padding(
       padding: const pw.EdgeInsets.all(1),
@@ -123,16 +118,21 @@ class QRCodePDF {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
+                        propertyName,
+                        style: const pw.TextStyle(fontSize: 6),
+                      ),
+                      pw.SizedBox(height: 5),
+                      pw.Text(
                         departmentName,
                         style: const pw.TextStyle(fontSize: 6),
                       ),
-                      pw.SizedBox(height: 8),
+                      pw.SizedBox(height: 5),
                       if (personAccountable.isNotEmpty)
                         pw.Text(
                           personAccountable,
                           style: const pw.TextStyle(fontSize: 6),
                         ),
-                      if (personAccountable.isNotEmpty) pw.SizedBox(height: 8),
+                      if (personAccountable.isNotEmpty) pw.SizedBox(height: 5),
                       pw.Text(
                         category,
                         style: const pw.TextStyle(fontSize: 6),

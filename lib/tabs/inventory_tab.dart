@@ -21,8 +21,6 @@ import '../inventory_advanced_search/inventory_advanced_search_bar.dart';
 import '../inventory_advanced_search/notifiers.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
-import '../notifiers/categories_notifier.dart';
-import '../notifiers/departments_notifier.dart';
 import '../notifiers/sorted_inventory_notifier.dart';
 import '../pdf/qr_code_pdf.dart';
 import '../pdf/report_pdf.dart';
@@ -38,6 +36,7 @@ class InventoryTab extends ConsumerWidget {
   static final List<String> columns = [
     'A S S E T   I D',
     'I T E M   N A M E',
+    'P R O P E R T Y',
     'D E P A R T M E N T',
     'P E R S O N\nA C C O U N T A B L E',
     'C A T E G O R Y',
@@ -102,6 +101,7 @@ class InventoryTab extends ConsumerWidget {
                   showVerticalScrollbar: true,
                   cellDimensions: const CellDimensions.variableColumnWidth(
                     columnWidths: [
+                      250,
                       250,
                       250,
                       200,
@@ -172,22 +172,24 @@ class InventoryTab extends ConsumerWidget {
                       case 1:
                         return tableDataTile(item.name, selected);
                       case 2:
-                        return tableDataTile(item.department.departmentName, selected);
+                        return tableDataTile(item.property.propertyName, selected);
                       case 3:
-                        return tableDataTile(item.personAccountable ?? '', selected);
+                        return tableDataTile(item.department.departmentName, selected);
                       case 4:
-                        return tableDataTile(item.category.categoryName, selected);
+                        return tableDataTile(item.personAccountable ?? '', selected);
                       case 5:
-                        return tableDataTile(item.status.name, selected);
+                        return tableDataTile(item.category.categoryName, selected);
                       case 6:
-                        return tableDataTile(item.unit ?? '', selected);
+                        return tableDataTile(item.status.name, selected);
                       case 7:
-                        return tableDataTile(priceToString(item.price), selected);
+                        return tableDataTile(item.unit ?? '', selected);
                       case 8:
-                        return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!), selected);
+                        return tableDataTile(priceToString(item.price), selected);
                       case 9:
-                        return tableDataTile(dateToString(item.dateReceived), selected);
+                        return tableDataTile(item.datePurchased == null ? '' : dateToString(item.datePurchased!), selected);
                       case 10:
+                        return tableDataTile(dateToString(item.dateReceived), selected);
+                      case 11:
                         return lastScannedTile(item.lastScanned, selected);
 
                       default:
@@ -447,8 +449,6 @@ class InventoryTab extends ConsumerWidget {
                           body: PdfPreview(
                             build: (format) async => await QRCodePDF(
                               items: items,
-                              departments: ref.read(departmentsNotifierProvider).requireValue,
-                              categories: ref.read(categoriesNotifierProvider).requireValue,
                             ).generate(),
                           ),
                         );

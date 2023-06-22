@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_for_elements_to_map_fromiterable
 
-import 'package:flutter/material.dart';
+import 'package:eon_asset_tracker/models/property_model.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -9,7 +9,6 @@ import '../models/category_model.dart';
 import '../models/department_model.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
-import 'constants.dart';
 import 'utils.dart';
 
 class DatabaseAPI {
@@ -233,109 +232,6 @@ class DatabaseAPI {
     }
   }
 
-  static Future<List<Item>> getItemsForReport({
-    required String query,
-    required InventorySearchFilter filter,
-  }) async {
-    MySQLConnection? conn;
-
-    try {
-      conn = await createSqlConn();
-
-      await conn.connect();
-
-      IResultSet results;
-
-      if (query.trim().isEmpty) {
-        results = await _getAllUnfiltered(conn);
-      } else {
-        results = await _getAllFiltered(conn: conn, filter: filter, query: query);
-      }
-
-      return results.rows.map<Item>((row) {
-        return Item.fromDatabase(
-          row: row,
-        );
-      }).toList();
-    } catch (e, st) {
-      showErrorAndStacktrace(e, st);
-      return Future.value([]);
-    } finally {
-      if (conn != null && conn.connected) {
-        await conn.close();
-      }
-    }
-  }
-
-  static Future<IResultSet> _getAllUnfiltered(MySQLConnection conn) async {
-    return await conn.execute('''
-              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
-              JOIN `categories` AS c ON a.category_id = c.category_id
-              JOIN `departments` AS d ON a.department_id = d.department_id
-              WHERE  c.is_enabled = 1
-              AND d.is_enabled = 1 
-              AND a.is_enabled = 1
-              ORDER BY `timestamp` DESC, `item_name` ASC''');
-  }
-
-  static Future<IResultSet> _getAllFiltered({
-    required MySQLConnection conn,
-    required InventorySearchFilter filter,
-    required String query,
-  }) async {
-    String? columnString = inventoryFilterEnumToDatabaseString(filter);
-
-    return await conn.execute('''
-              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
-              JOIN `categories` AS c ON a.category_id = c.category_id
-              JOIN `departments` AS d ON a.department_id = d.department_id
-              WHERE  c.is_enabled = 1
-              AND d.is_enabled = 1 
-              AND a.is_enabled = 1 AND a.$columnString LIKE '%$query%'
-              ORDER BY `timestamp` DESC, `item_name` ASC''');
-  }
-
-  static Future<List<Item>> searchInventory({
-    required dynamic query,
-    required InventorySearchFilter filter,
-    required page,
-    required int itemsPerPage,
-  }) async {
-    MySQLConnection? conn;
-
-    String? columnString = inventoryFilterEnumToDatabaseString(filter);
-
-    try {
-      conn = await createSqlConn();
-
-      await conn.connect();
-
-      IResultSet results;
-
-      if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
-        results = await _dateRangeSearch(conn: conn, columnString: columnString, range: query, itemsPerPage: itemsPerPage, page: page);
-      } else {
-        results = await _searchQuery(conn: conn, page: page, filter: filter, query: query, itemsPerPage: itemsPerPage);
-      }
-
-      return results.rows
-          .map<Item>(
-            (row) => Item.fromDatabase(
-              row: row,
-            ),
-          )
-          .toList();
-    } catch (e, st) {
-      showErrorAndStacktrace(e, st);
-
-      return [];
-    } finally {
-      if (conn != null && conn.connected) {
-        await conn.close();
-      }
-    }
-  }
-
   static Future<void> updateItem(Item item) async {
     MySQLConnection? conn;
 
@@ -359,6 +255,7 @@ class DatabaseAPI {
           status = :status,
           category_id = :categoryID,
           remarks = :remarks
+          property_id = :propertyID,
           WHERE `asset_id`= :assetID''', {
         'departmentID': item.department.departmentID,
         'personAccountable': item.personAccountable,
@@ -370,6 +267,7 @@ class DatabaseAPI {
         'dateReceived': dateTimeToSQLString(dateReceived),
         'status': item.status.name,
         'categoryID': item.category.categoryID,
+        'propertyID': item.property.propertyID,
         'remarks': item.remarks,
         'assetID': item.assetID,
       });
@@ -398,6 +296,7 @@ class DatabaseAPI {
       await conn.execute('''INSERT INTO assets (
           asset_id, 
           department_id,
+          property_id,
           person_accountable,
           item_name,
           item_description,
@@ -409,11 +308,12 @@ class DatabaseAPI {
           category_id,
           remarks)
           VALUES
-          (:assetID, :departmentID, :personAccountable, :itemName, :itemDescription, :unit, :price,
+          (:assetID, :departmentID, :propertyID ,:personAccountable, :itemName, :itemDescription, :unit, :price,
           
             :datePurchased, :dateReceived, :status, :categoryID, :remarks
           )''', {
         'departmentID': item.department.departmentID,
+        'propertyID': item.property.propertyID,
         'personAccountable': item.personAccountable,
         'itemName': item.name,
         'itemDescription': item.description,
@@ -435,78 +335,6 @@ class DatabaseAPI {
     }
   }
 
-  static Future<IResultSet> _searchQuery({
-    required MySQLConnection conn,
-    required int page,
-    required int itemsPerPage,
-    required InventorySearchFilter filter,
-    required String query,
-  }) async {
-    int offset = (itemsPerPage * page);
-
-    String? columnString = inventoryFilterEnumToDatabaseString(filter);
-
-    try {
-      return await conn.execute('''
-              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
-              JOIN `categories` AS c ON a.category_id = c.category_id
-              JOIN `departments` AS d ON a.department_id = d.department_id
-              WHERE  c.is_enabled = 1
-              AND d.is_enabled = 1 
-              AND a.is_enabled = 1 AND a.$columnString LIKE '%$query%'
-              ORDER BY `timestamp` DESC, `item_name` ASC
-              LIMIT $itemsPerPage OFFSET $offset''');
-    } catch (e, st) {
-      return await Future.error(e, st);
-    }
-  }
-
-  static Future<IResultSet> _dateRangeSearchTotal({
-    required MySQLConnection conn,
-    required String columnString,
-    required DateTimeRange range,
-  }) async {
-    try {
-      return await conn.execute(
-          'SELECT COUNT(*) as count FROM `assets` WHERE `$columnString` BETWEEN \'${dateTimeToSQLString(range.start)}\' AND \'${dateTimeToSQLString(range.end)}\' AND `is_enabled` = 1');
-    } catch (e, st) {
-      return await Future.error(e, st);
-    }
-  }
-
-  static Future<IResultSet> _dateRangeSearch({
-    required MySQLConnection conn,
-    required String columnString,
-    required DateTimeRange range,
-    required int itemsPerPage,
-    required int page,
-  }) async {
-    int offset = (itemsPerPage * page);
-
-    try {
-      return await conn.execute('''
-              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
-              JOIN `categories` AS c ON a.category_id = c.category_id
-              JOIN `departments` AS d ON a.department_id = d.department_id
-              WHERE a.is_enabled = 1
-              AND c.is_enabled = 1
-              AND d.is_enabled = 1
-              AND `$columnString` BETWEEN '${dateTimeToSQLString(range.start)}' AND '${dateTimeToSQLString(range.end)}'
-              ORDER BY $columnString DESC, `item_name` ASC
-              LIMIT $itemsPerPage OFFSET $offset''');
-    } catch (e, st) {
-      return await Future.error(e, st);
-    }
-  }
-
-  static Future<IResultSet> _searchQueryResultTotal({required MySQLConnection conn, required String searchBy, required String query}) async {
-    try {
-      return await conn.execute('SELECT COUNT(*) as count FROM `assets` WHERE `$searchBy` LIKE \'%$query%\' AND `is_enabled` = 1');
-    } catch (e, st) {
-      return await Future.error(e, st);
-    }
-  }
-
   static Future<List<Item>> getInventoryUnfiltered({
     required int page,
     required int itemsPerPage,
@@ -521,9 +349,10 @@ class DatabaseAPI {
       await conn.connect();
 
       var results = await conn.execute('''
-              SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
+              SELECT a.*, c.category_name, d.department_name, p.property_name  FROM `assets` AS a
               JOIN `categories` AS c ON a.category_id = c.category_id
               JOIN `departments` AS d ON a.department_id = d.department_id
+              JOIN `properties` AS p ON a.property_id = p.property_id
               WHERE a.is_enabled = 1
               AND c.is_enabled = 1
               AND d.is_enabled = 1
@@ -565,46 +394,8 @@ class DatabaseAPI {
     }
   }
 
-  static Future<int> getSearchResultTotalCount({
-    required dynamic query,
-    required InventorySearchFilter filter,
-  }) async {
-    MySQLConnection? conn;
-
-    String? columnString = inventoryFilterEnumToDatabaseString(filter);
-
-    try {
-      conn = await createSqlConn();
-
-      await conn.connect();
-
-      IResultSet results;
-
-      if (filter == InventorySearchFilter.datePurchased || filter == InventorySearchFilter.dateReceived) {
-        results = await _dateRangeSearchTotal(conn: conn, columnString: columnString, range: query);
-      } else {
-        results = await _searchQueryResultTotal(
-          conn: conn,
-          searchBy: columnString,
-          query: query,
-        );
-      }
-
-      // ignore: sdk_version_since
-      return results.rows.firstOrNull?.typedColByName<int>('count') ?? 0;
-    } catch (e, st) {
-      showErrorAndStacktrace(e, st);
-
-      return 0;
-    } finally {
-      if (conn != null && conn.connected) {
-        await conn.close();
-      }
-    }
-  }
-
   //! ///////////////////////////////////////////////////
-  //! DEPARTMENT AND CATEGORY
+  //* STATUS, DEPARTMENT, CATEGORY, AND PROPERTY
   //! ///////////////////////////////////////////////////
 
   static Future<Map<String, int>> getStatusCount() async {
@@ -711,6 +502,27 @@ class DatabaseAPI {
     }
   }
 
+  static Future<void> addProperty(String propertyName) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('INSERT INTO `properties` (property_id, property_name) VALUES (:propertyID, :propertyName)', {
+        'propertyName': propertyName,
+        'propertyID': generateRandomID(),
+      });
+    } catch (e, st) {
+      return await Future.error(e, st);
+    } finally {
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
+    }
+  }
+
   static Future<void> addCategory(String categoryName) async {
     MySQLConnection? conn;
 
@@ -744,6 +556,47 @@ class DatabaseAPI {
         'departmentName': department.departmentName,
         'departmentID': department.departmentID,
       });
+    } catch (e, st) {
+      return await Future.error(e, st);
+    } finally {
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
+    }
+  }
+
+  static Future<void> editProperty(Property property) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+
+      await conn.connect();
+
+      await conn.execute('UPDATE `properties` SET `property_name` = :propertyName WHERE `property_id` = :propertyID AND `is_enabled` = 1 ', {
+        'propertyName': property.propertyName,
+        'propertyID': property.propertyName,
+      });
+    } catch (e, st) {
+      return await Future.error(e, st);
+    } finally {
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
+    }
+  }
+
+  static Future<void> deleteProperty(String propertyID) async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      await conn.execute(
+        'UPDATE `properties` SET `is_enabled` = 0 WHERE `property_id` = :propertyID',
+        {'propertyID': propertyID},
+      );
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -827,6 +680,30 @@ class DatabaseAPI {
         return Department(
           departmentID: row.typedColByName<String>('department_id')!,
           departmentName: row.typedColByName<String>('department_name')!,
+        );
+      }).toList();
+    } catch (e, st) {
+      return await Future.error(e, st);
+    } finally {
+      if (conn != null && conn.connected) {
+        await conn.close();
+      }
+    }
+  }
+
+  static Future<List<Property>> getProperties() async {
+    MySQLConnection? conn;
+
+    try {
+      conn = await createSqlConn();
+      await conn.connect();
+
+      var results = await conn.execute('SELECT * FROM `properties` WHERE `is_enabled` = 1 ORDER BY `property_name` ASC');
+
+      return results.rows.map((row) {
+        return Property(
+          propertyID: row.typedColByName<String>('property_id')!,
+          propertyName: row.typedColByName<String>('property_name')!,
         );
       }).toList();
     } catch (e, st) {

@@ -7,7 +7,7 @@ part of 'notifiers.dart';
 // **************************************************************************
 
 String _$activeSearchFiltersNotifierHash() =>
-    r'0231237ab2fdfd627d53a8ca2140905f75f4ec3d';
+    r'47237fe89d6a573ff9139444b9ea02e16a14c347';
 
 /// See also [ActiveSearchFiltersNotifier].
 @ProviderFor(ActiveSearchFiltersNotifier)

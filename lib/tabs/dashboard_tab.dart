@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/notifiers/properties_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,8 @@ class DashboardTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(propertiesNotifierProvider);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10),
       child: ListView(
@@ -41,8 +44,7 @@ class DashboardTab extends ConsumerWidget {
                                 child: IconButton.outlined(
                                   onPressed: () async {
                                     ref.invalidate(dashboardCategoriesProvider);
-                                    ref.invalidate(
-                                        dashboardDepartmentsProvider);
+                                    ref.invalidate(dashboardDepartmentsProvider);
                                     ref.invalidate(dashboardStatusProvider);
                                   },
                                   icon: const Icon(Icons.refresh),
@@ -52,12 +54,8 @@ class DashboardTab extends ConsumerWidget {
                           ),
                           Expanded(
                             child: Center(
-                              child: Consumer(builder:
-                                  (BuildContext context, WidgetRef ref, _) {
-                                Map<String, int> data = ref
-                                        .watch(dashboardStatusProvider)
-                                        .valueOrNull ??
-                                    {};
+                              child: Consumer(builder: (BuildContext context, WidgetRef ref, _) {
+                                Map<String, int> data = ref.watch(dashboardStatusProvider).valueOrNull ?? {};
                                 int total = 0;
 
                                 for (int value in data.values) {
@@ -85,9 +83,6 @@ class DashboardTab extends ConsumerWidget {
               ],
             ),
           ),
-          // const SizedBox(
-          //   height: 20,
-          // ),
           const AspectRatio(
             aspectRatio: 2.8,
             child: Row(

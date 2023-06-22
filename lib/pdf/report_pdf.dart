@@ -17,8 +17,7 @@ class ReportPDF {
 
   Future<Uint8List> generate() async {
     final pw.Document pdf = pw.Document();
-    pw.Font font =
-        pw.Font.ttf(await rootBundle.load("fonts/Roboto-Regular.ttf"));
+    pw.Font font = pw.Font.ttf(await rootBundle.load("fonts/Roboto-Regular.ttf"));
 
     pdf.addPage(
       pw.MultiPage(
@@ -62,22 +61,24 @@ class ReportPDF {
                 0: const pw.FlexColumnWidth(3),
                 1: const pw.FlexColumnWidth(12.25),
                 2: const pw.FlexColumnWidth(12.25),
-                3: const pw.FlexColumnWidth(9.8),
                 4: const pw.FlexColumnWidth(12.25),
-                5: const pw.FlexColumnWidth(9.8),
-                6: const pw.FlexColumnWidth(7.35),
+                3: const pw.FlexColumnWidth(9.8),
+                5: const pw.FlexColumnWidth(12.25),
+                6: const pw.FlexColumnWidth(9.8),
                 7: const pw.FlexColumnWidth(7.35),
                 8: const pw.FlexColumnWidth(7.35),
-                9: const pw.FlexColumnWidth(10.78),
+                9: const pw.FlexColumnWidth(7.35),
                 10: const pw.FlexColumnWidth(10.78),
+                11: const pw.FlexColumnWidth(10.78),
               },
               headerStyle: const pw.TextStyle(fontSize: 7),
               data: generateData(inventoryItems),
-              headerCount: 11,
+              headerCount: 12,
               headers: [
                 '',
                 'A S S E T   I D',
                 'I T E M   N A M E',
+                'P R O P E R T Y',
                 'D E P A R T M E N T',
                 'P E R S O N\nA C C O U N T A B L E',
                 'C A T E G O R Y',
@@ -106,14 +107,15 @@ class ReportPDF {
         (i + 1).toString(),
         item.assetID,
         item.name,
+        item.property.propertyName,
         item.department.departmentName,
         item.personAccountable ?? '',
         item.category.categoryName,
         item.status.name,
         item.unit,
-        item.datePurchased == null ? '' : priceToString(item.price ?? 0),
-        item.datePurchased == null ? '' : dateToString(item.datePurchased!),
-        dateToString(item.dateReceived),
+        item.price == null ? '' : priceToString(item.price ?? 0),
+        item.datePurchased == null ? '' : dateToReportString(item.datePurchased!),
+        dateToReportString(item.dateReceived),
       ]);
     }
 

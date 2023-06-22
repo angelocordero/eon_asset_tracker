@@ -81,6 +81,7 @@ class AdvancedDatabaseAPI {
       if (!searchData.containsKey(columnString.toString())) continue;
 
       if (element == InventorySearchFilter.department && searchData[columnString] == 'hotdog') continue;
+      if (element == InventorySearchFilter.property && searchData[columnString] == 'itlog') continue;
 
       if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
         DateTimeRange range = searchData[columnString];
@@ -118,8 +119,6 @@ class AdvancedDatabaseAPI {
       } else {
         String query = searchData[columnString];
 
-        if (element == InventorySearchFilter.department && query == 'hotdog') continue;
-
         mysqlCountQueryString = '$mysqlCountQueryString AND $columnString LIKE \'%$query%\' ';
       }
     }
@@ -135,9 +134,10 @@ class AdvancedDatabaseAPI {
   }) {
     int offset = (itemsPerPage * page);
 
-    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
+    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name, p.property_name FROM `assets` AS a
                                  JOIN `categories` AS c ON a.category_id = c.category_id
                                  JOIN `departments` AS d ON a.department_id = d.department_id
+                                 JOIN `properties` AS p ON a.property_id = p.property_id
                                  WHERE  c.is_enabled = 1
                                  AND d.is_enabled = 1 
                                  AND a.is_enabled = 1 ''';
@@ -150,6 +150,7 @@ class AdvancedDatabaseAPI {
       if (!searchData.containsKey(columnString.toString())) continue;
 
       if (element == InventorySearchFilter.department && searchData[columnString] == 'hotdog') continue;
+      if (element == InventorySearchFilter.property && searchData[columnString] == 'itlog') continue;
 
       if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
         DateTimeRange range = searchData[columnString];
@@ -187,8 +188,6 @@ class AdvancedDatabaseAPI {
       } else {
         String query = searchData[columnString];
 
-        if (element == InventorySearchFilter.department && query == 'hotdog') continue;
-
         mysqlItemsQueryString = '$mysqlItemsQueryString AND a.$columnString LIKE \'%$query%\' ';
       }
     }
@@ -200,9 +199,10 @@ class AdvancedDatabaseAPI {
     required List<InventorySearchFilter> filters,
     required Map<String, dynamic> searchData,
   }) {
-    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name  FROM `assets` AS a
+    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name, p.property_name FROM `assets` AS a
                                  JOIN `categories` AS c ON a.category_id = c.category_id
                                  JOIN `departments` AS d ON a.department_id = d.department_id
+                                 JOIN `properties` AS p ON a.property_id = p.property_id
                                  WHERE  c.is_enabled = 1
                                  AND d.is_enabled = 1 
                                  AND a.is_enabled = 1 ''';
@@ -215,6 +215,7 @@ class AdvancedDatabaseAPI {
       if (!searchData.containsKey(columnString.toString())) continue;
 
       if (element == InventorySearchFilter.department && searchData[columnString] == 'hotdog') continue;
+      if (element == InventorySearchFilter.property && searchData[columnString] == 'itlog') continue;
 
       if (element == InventorySearchFilter.datePurchased || element == InventorySearchFilter.dateReceived) {
         DateTimeRange range = searchData[columnString];
