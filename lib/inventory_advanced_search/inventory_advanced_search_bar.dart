@@ -1,9 +1,10 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/inventory_advanced_search/notifiers.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/constants.dart';
+import '../core/utils.dart';
+import 'notifiers.dart';
 import 'search_popup.dart';
 import 'slide_route.dart';
 

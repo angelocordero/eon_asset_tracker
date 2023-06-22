@@ -1,4 +1,3 @@
-import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +6,7 @@ import '../core/custom_route.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/item_model.dart';
+import '../notifiers/theme_notifier.dart';
 import 'pagination_navigator.dart';
 import 'qr_code_display.dart';
 

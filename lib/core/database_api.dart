@@ -1,13 +1,12 @@
 // ignore_for_file: prefer_for_elements_to_map_fromiterable
 
-import 'package:eon_asset_tracker/models/property_model.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 import '../models/category_model.dart';
 import '../models/department_model.dart';
 import '../models/item_model.dart';
+import '../models/property_model.dart';
 import '../models/user_model.dart';
 import 'utils.dart';
 

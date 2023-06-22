@@ -1,13 +1,14 @@
 // ignore_for_file: sdk_version_since
 
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/inventory_advanced_search/search_popup.dart';
 import 'package:flutter/material.dart';
+
 import 'package:mysql_client/mysql_client.dart';
 
+import '../core/constants.dart';
+import '../core/utils.dart';
 import '../models/inventory_model.dart';
 import '../models/item_model.dart';
+import 'search_popup.dart';
 
 class AdvancedDatabaseAPI {
   static Future<List<Item>> getItemsForReport({

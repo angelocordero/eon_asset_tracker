@@ -1,5 +1,3 @@
-import 'package:eon_asset_tracker/models/property_model.dart';
-import 'package:eon_asset_tracker/notifiers/properties_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -13,8 +11,10 @@ import '../core/utils.dart';
 import '../models/category_model.dart';
 import '../models/department_model.dart';
 import '../models/item_model.dart';
+import '../models/property_model.dart';
 import '../notifiers/categories_notifier.dart';
 import '../notifiers/departments_notifier.dart';
+import '../notifiers/properties_notifier.dart';
 
 class EditItemScreen extends ConsumerStatefulWidget {
   const EditItemScreen({super.key, required this.item});

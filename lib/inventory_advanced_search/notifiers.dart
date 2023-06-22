@@ -1,6 +1,7 @@
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../core/constants.dart';
+import '../core/utils.dart';
 
 part 'notifiers.g.dart';
 

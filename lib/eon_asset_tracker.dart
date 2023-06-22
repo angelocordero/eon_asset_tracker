@@ -1,10 +1,10 @@
-import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants.dart';
+import 'notifiers/theme_notifier.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 

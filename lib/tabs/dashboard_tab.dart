@@ -1,9 +1,9 @@
-import 'package:eon_asset_tracker/notifiers/properties_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../notifiers/dashboard_notifiers.dart';
+import '../notifiers/properties_notifier.dart';
 import '../widgets/dashboard_category_chart.dart';
 import '../widgets/dashboard_department_chart.dart';
 import '../widgets/dashboard_status_chart.dart';

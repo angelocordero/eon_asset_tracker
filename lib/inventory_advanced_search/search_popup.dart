@@ -1,21 +1,22 @@
 // ignore_for_file: constant_identifier_names
 
-import 'package:eon_asset_tracker/core/constants.dart';
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/inventory_advanced_search/advanced_inventory_notifier.dart';
-import 'package:eon_asset_tracker/inventory_advanced_search/notifiers.dart';
-import 'package:eon_asset_tracker/models/category_model.dart';
-import 'package:eon_asset_tracker/models/department_model.dart';
-import 'package:eon_asset_tracker/widgets/search_daterange_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/constants.dart';
+import '../core/utils.dart';
+import '../models/category_model.dart';
+import '../models/department_model.dart';
 import '../models/property_model.dart';
 import '../notifiers/categories_notifier.dart';
 import '../notifiers/departments_notifier.dart';
 import '../notifiers/properties_notifier.dart';
+import '../widgets/search_daterange_picker.dart';
+import 'advanced_inventory_notifier.dart';
+import 'notifiers.dart';
 
 enum AdvancedSearchStatusEnum {
   All,

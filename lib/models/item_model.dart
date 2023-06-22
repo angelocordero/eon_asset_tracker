@@ -1,12 +1,12 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:mysql_client/mysql_client.dart';
 
-import 'package:eon_asset_tracker/models/property_model.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 import '../core/constants.dart';
 import '../core/utils.dart';
 import 'category_model.dart';
 import 'department_model.dart';
+import 'property_model.dart';
 
 class Item {
   String assetID;

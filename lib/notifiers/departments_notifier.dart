@@ -1,7 +1,7 @@
-import 'package:eon_asset_tracker/core/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/database_api.dart';
+import '../core/utils.dart';
 import '../models/department_model.dart';
 
 part 'departments_notifier.g.dart';

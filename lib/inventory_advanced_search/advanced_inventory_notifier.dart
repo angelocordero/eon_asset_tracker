@@ -1,10 +1,10 @@
-import 'package:eon_asset_tracker/models/inventory_model.dart';
 import 'package:mysql_client/mysql_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
+import '../models/inventory_model.dart';
 import '../notifiers/categories_notifier.dart';
 import '../notifiers/departments_notifier.dart';
 import 'advanced_database_api.dart';

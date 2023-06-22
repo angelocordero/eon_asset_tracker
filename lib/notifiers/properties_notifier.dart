@@ -1,8 +1,8 @@
-import 'package:eon_asset_tracker/core/utils.dart';
-import 'package:eon_asset_tracker/models/property_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/database_api.dart';
+import '../core/utils.dart';
+import '../models/property_model.dart';
 
 part 'properties_notifier.g.dart';
 

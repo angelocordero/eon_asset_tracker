@@ -1,4 +1,3 @@
-import 'package:eon_asset_tracker/inventory_advanced_search/advanced_inventory_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants.dart';
 import '../core/custom_numeric_formatter.dart';
 import '../core/providers.dart';
+import '../inventory_advanced_search/advanced_inventory_notifier.dart';
 
 class PaginationNavigator extends ConsumerWidget {
   const PaginationNavigator({super.key});

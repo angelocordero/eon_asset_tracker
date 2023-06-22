@@ -1,7 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:eon_asset_tracker/inventory_advanced_search/advanced_database_api.dart';
-import 'package:eon_asset_tracker/notifiers/theme_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,12 +14,14 @@ import '../core/custom_route.dart';
 import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
+import '../inventory_advanced_search/advanced_database_api.dart';
 import '../inventory_advanced_search/advanced_inventory_notifier.dart';
 import '../inventory_advanced_search/inventory_advanced_search_bar.dart';
 import '../inventory_advanced_search/notifiers.dart';
 import '../models/item_model.dart';
 import '../models/user_model.dart';
 import '../notifiers/sorted_inventory_notifier.dart';
+import '../notifiers/theme_notifier.dart';
 import '../pdf/qr_code_pdf.dart';
 import '../pdf/report_pdf.dart';
 import '../screens/add_item_screen.dart';
