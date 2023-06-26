@@ -44,8 +44,8 @@ class EonAssetTracker extends ConsumerWidget {
           return ResponsiveBreakpoints.builder(
             child: child!,
             breakpoints: [
-              const Breakpoint(start: 0, end: 1280, name: '720p'),
-              const Breakpoint(start: 1281, end: double.infinity, name: '1080p'),
+              const Breakpoint(start: 0, end: 1200, name: '720p'),
+              const Breakpoint(start: 1201, end: double.infinity, name: '1080p'),
             ],
           );
         }),
