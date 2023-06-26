@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import 'core/constants.dart';
 import 'notifiers/theme_notifier.dart';
@@ -19,8 +20,6 @@ class EonAssetTracker extends ConsumerWidget {
       ..textColor = Colors.white
       ..backgroundColor = Colors.black54
       ..indicatorColor = Colors.blue;
-
-    print(MediaQuery.sizeOf(context));
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -40,12 +39,55 @@ class EonAssetTracker extends ConsumerWidget {
         ),
       ),
       themeMode: ref.watch(themeNotifierProvider).valueOrNull ?? ThemeMode.light,
-      home: const LoginScreen(),
-      builder: EasyLoading.init(),
-      routes: {
-        'login': (context) => const LoginScreen(),
-        'home': (context) => const HomeScreen(),
+      builder: EasyLoading.init(
+        builder: ((context, child) {
+          return ResponsiveBreakpoints.builder(
+            child: child!,
+            breakpoints: [
+              const Breakpoint(start: 0, end: 1280, name: '720p'),
+              const Breakpoint(start: 1281, end: double.infinity, name: '1080p'),
+            ],
+          );
+        }),
+      ),
+      initialRoute: 'login',
+      onGenerateRoute: (RouteSettings settings) {
+        return MaterialPageRoute(builder: (context) {
+          return MaxWidthBox(
+            maxWidth: 1920,
+            child: ResponsiveScaledBox(
+              width: ResponsiveValue<double>(
+                context,
+                conditionalValues: [
+                  Condition.equals(name: '720p', value: 1280),
+                  Condition.equals(name: '1080p', value: 1920),
+                ],
+              ).value,
+              child: BouncingScrollWrapper.builder(
+                  context,
+                  buildPage(
+                    settings.name ?? '',
+                  ),
+                  dragWithMouse: true),
+            ),
+          );
+        });
       },
+      // routes: {
+      //   'login': (context) => const LoginScreen(),
+      //   'home': (context) => const HomeScreen(),
+      // },
     );
+  }
+
+  Widget buildPage(String name) {
+    switch (name) {
+      case 'login':
+        return const LoginScreen();
+      case 'home':
+        return const HomeScreen();
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }
