@@ -190,8 +190,8 @@ class AdminPanelTab extends ConsumerWidget {
               child: const Text('R E F R E S H'),
             ),
             TextButton(
-              onPressed: () async {
-                Navigator.push(
+              onPressed: ()  {
+                 Navigator.push(
                   context,
                   CustomRoute(
                     builder: (context) {
@@ -213,7 +213,7 @@ class AdminPanelTab extends ConsumerWidget {
                         if (user.isAdmin) {
                           TextEditingController controller = TextEditingController();
 
-                          Navigator.push(
+                          await Navigator.push(
                             context,
                             CustomRoute(
                               builder: (context) {
@@ -243,8 +243,8 @@ class AdminPanelTab extends ConsumerWidget {
               child: const Text('D E L E T E'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: ()  {
+                 Navigator.push(
                   context,
                   CustomRoute(
                     builder: (context) {
@@ -256,9 +256,9 @@ class AdminPanelTab extends ConsumerWidget {
               child: const Text('E D I T'),
             ),
             TextButton(
-              onPressed: () async {
+              onPressed: ()  {
                 if (ref.read(userProvider)!.isAdmin && !ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
-                  Navigator.push(
+                   Navigator.push(
                     context,
                     CustomRoute(
                       builder: (context) {
@@ -270,7 +270,7 @@ class AdminPanelTab extends ConsumerWidget {
                     ),
                   );
                 } else {
-                  Navigator.push(
+                   Navigator.push(
                     context,
                     CustomRoute(
                       builder: (context) {
@@ -341,10 +341,10 @@ class AdminPanelTab extends ConsumerWidget {
                             trailing: Wrap(
                               children: [
                                 IconButton.outlined(
-                                  onPressed: () {
+                                  onPressed: ()  {
                                     TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: category.categoryName));
 
-                                    Navigator.push(
+                                     Navigator.push(
                                       context,
                                       CustomRoute(
                                         builder: (context) {
@@ -398,7 +398,7 @@ class AdminPanelTab extends ConsumerWidget {
                           textAlign: TextAlign.center,
                         ),
                         onTap: () async {
-                          await _addCategory(context, ref);
+                          _addCategory(context, ref);
                         },
                       );
                     }
@@ -418,7 +418,7 @@ class AdminPanelTab extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () async {
-                      await _addCategory(context, ref);
+                      _addCategory(context, ref);
                     },
                     child: const Text('A D D'),
                   ),
@@ -460,10 +460,10 @@ class AdminPanelTab extends ConsumerWidget {
                             trailing: Wrap(
                               children: [
                                 IconButton.outlined(
-                                  onPressed: () {
+                                  onPressed: ()  {
                                     TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: property.propertyName));
 
-                                    Navigator.push(
+                                     Navigator.push(
                                       context,
                                       CustomRoute(
                                         builder: (context) {
@@ -516,8 +516,8 @@ class AdminPanelTab extends ConsumerWidget {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        onTap: () async {
-                          await _addProperty(context, ref);
+                        onTap: () {
+                          _addProperty(context, ref);
                         },
                       );
                     }
@@ -536,8 +536,8 @@ class AdminPanelTab extends ConsumerWidget {
                     child: const Text('R E F R E S H'),
                   ),
                   TextButton(
-                    onPressed: () async {
-                      await _addProperty(context, ref);
+                    onPressed: () {
+                      _addProperty(context, ref);
                     },
                     child: const Text('A D D'),
                   ),
@@ -556,10 +556,10 @@ class AdminPanelTab extends ConsumerWidget {
         ),
       );
 
-  Future<void> _addCategory(BuildContext context, WidgetRef ref) async {
+  void _addCategory(BuildContext context, WidgetRef ref) {
     TextEditingController controller = TextEditingController();
 
-    await Navigator.push(
+    Navigator.push(
       context,
       CustomRoute(
         builder: (context) {
@@ -653,8 +653,8 @@ class AdminPanelTab extends ConsumerWidget {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        onTap: () async {
-                          await _addDepartment(context, ref);
+                        onTap: () {
+                          _addDepartment(context, ref);
                         },
                       );
                     }
@@ -693,10 +693,10 @@ class AdminPanelTab extends ConsumerWidget {
         ),
       );
 
-  Future<void> _addDepartment(BuildContext context, WidgetRef ref) async {
+  void _addDepartment(BuildContext context, WidgetRef ref) {
     TextEditingController controller = TextEditingController();
 
-    await Navigator.push(
+    Navigator.push(
       context,
       CustomRoute(
         builder: (context) {
@@ -713,10 +713,10 @@ class AdminPanelTab extends ConsumerWidget {
     );
   }
 
-  Future<void> _addProperty(BuildContext context, WidgetRef ref) async {
+  void _addProperty(BuildContext context, WidgetRef ref) {
     TextEditingController controller = TextEditingController();
 
-    await Navigator.push(
+    Navigator.push(
       context,
       CustomRoute(
         builder: (context) {

@@ -5,13 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import '../core/constants.dart';
-import '../core/custom_route.dart';
 import '../core/database_api.dart';
 import '../core/providers.dart';
 import '../core/utils.dart';
 import '../models/connection_settings_model.dart';
 import '../models/user_model.dart';
-import 'connection_settings_screen.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -28,45 +26,7 @@ class LoginScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.settings),
         onPressed: () async {
-          ConnectionSettings connectionSettings;
-
-          try {
-            connectionSettings = ConnectionSettings(
-              databaseName: connectionSettingsBox.get('databaseName'),
-              ip: connectionSettingsBox.get('ip'),
-              port: connectionSettingsBox.get('port'),
-              username: connectionSettingsBox.get('username'),
-              password: connectionSettingsBox.get('password'),
-            );
-          } catch (e) {
-            connectionSettings = ConnectionSettings.empty();
-          }
-
-          // ignore: use_build_context_synchronously
-          Navigator.push(
-            context,
-            CustomRoute(
-              builder: (context) {
-                return ConnectionSettingsScreen(
-                  localIPController: TextEditingController.fromValue(
-                    TextEditingValue(text: connectionSettings.ip),
-                  ),
-                  portController: TextEditingController.fromValue(
-                    TextEditingValue(text: connectionSettings.port.toString()),
-                  ),
-                  userController: TextEditingController.fromValue(
-                    TextEditingValue(text: connectionSettings.username),
-                  ),
-                  passwordController: TextEditingController.fromValue(
-                    TextEditingValue(text: connectionSettings.password),
-                  ),
-                  dbNameController: TextEditingController.fromValue(
-                    TextEditingValue(text: connectionSettings.databaseName),
-                  ),
-                );
-              },
-            ),
-          );
+          Navigator.pushNamed(context, 'connection_settings');
         },
       ),
       body: Center(

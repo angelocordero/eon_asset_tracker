@@ -6,7 +6,6 @@ import '../core/constants.dart';
 import '../core/utils.dart';
 import 'notifiers.dart';
 import 'search_popup.dart';
-import 'slide_route.dart';
 
 class AdvancedInventorySearch extends ConsumerWidget {
   const AdvancedInventorySearch({super.key});
@@ -34,14 +33,7 @@ class AdvancedInventorySearch extends ConsumerWidget {
       label: const Text('Search'),
       avatar: const Icon(Icons.search),
       onPressed: () {
-        Navigator.push(
-          context,
-          SlideRoute(
-            builder: (context) {
-              return const SearchPopup();
-            },
-          ),
-        );
+        Navigator.pushNamed(context, 'search');
       },
     );
   }

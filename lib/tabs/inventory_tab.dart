@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -24,8 +23,6 @@ import '../notifiers/sorted_inventory_notifier.dart';
 import '../notifiers/theme_notifier.dart';
 import '../pdf/qr_code_pdf.dart';
 import '../pdf/report_pdf.dart';
-import '../screens/add_item_screen.dart';
-import '../screens/edit_item_screen.dart';
 import '../widgets/admin_password_prompt.dart';
 import '../widgets/inventory_checkbox.dart';
 import '../widgets/item_info_display.dart';
@@ -320,7 +317,7 @@ class InventoryTab extends ConsumerWidget {
 
                 if (user == null) return;
 
-                await adminCheck(
+                adminCheck(
                   context: context,
                   user: user,
                   callback: () async {
@@ -352,7 +349,7 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
-  Future<dynamic> showReportDialog(BuildContext context, int itemLength, AsyncCallback callback) async {
+  void showReportDialog(BuildContext context, int itemLength, VoidCallback callback) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -369,7 +366,7 @@ class InventoryTab extends ConsumerWidget {
               onPressed: () async {
                 Navigator.pop(context);
 
-                await callback();
+                callback();
               },
               child: const Text('Confirm'),
             ),
@@ -407,11 +404,11 @@ class InventoryTab extends ConsumerWidget {
                       return await Future.error('Error in generating report. Empty item list.');
                     }
 
-                    await showReportDialog(
+                    showReportDialog(
                       context,
                       items.length,
                       () async {
-                        Navigator.push(
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) {
@@ -500,26 +497,19 @@ class InventoryTab extends ConsumerWidget {
               message: 'Edit selected item',
               child: IconButton.outlined(
                 onPressed: () async {
-                  Item? item = await ref.read(selectedItemProvider);
-
-                  if (item == null) return;
-
                   User? user = await ref.read(userProvider);
 
                   if (user == null) return;
 
-                  await adminCheck(
+                  Item? item = await ref.read(selectedItemProvider);
+
+                  if (item == null) return;
+
+                  adminCheck(
                     context: context,
                     user: user,
-                    callback: () async {
-                      await Navigator.push(
-                        context,
-                        CustomRoute(
-                          builder: (context) {
-                            return EditItemScreen(item: item);
-                          },
-                        ),
-                      );
+                    callback: () {
+                      Navigator.pushNamed(context, 'edit_item');
                     },
                   );
                 },
@@ -534,18 +524,11 @@ class InventoryTab extends ConsumerWidget {
 
                   if (user == null) return;
 
-                  await adminCheck(
+                  adminCheck(
                     context: context,
                     user: user,
-                    callback: () async {
-                      await Navigator.push(
-                        context,
-                        CustomRoute(
-                          builder: (context) {
-                            return const AddItemScreen();
-                          },
-                        ),
-                      );
+                    callback: () {
+                      Navigator.pushNamed(context, 'add_item');
                     },
                   );
                 },
@@ -558,7 +541,7 @@ class InventoryTab extends ConsumerWidget {
     );
   }
 
-  Future<void> adminCheck({required BuildContext context, required User user, required AsyncCallback callback}) async {
+  void adminCheck({required BuildContext context, required User user, required VoidCallback callback}) {
     if (!user.isAdmin) {
       Navigator.push(
         context,
@@ -574,7 +557,7 @@ class InventoryTab extends ConsumerWidget {
                 if (admin) {
                   Navigator.pop(context);
 
-                  await callback();
+                  callback();
                 } else {
                   EasyLoading.showError('Wrong admin password');
                 }
@@ -584,7 +567,7 @@ class InventoryTab extends ConsumerWidget {
         ),
       );
     } else {
-      await callback();
+      callback();
     }
   }
 }
