@@ -150,7 +150,11 @@ class EonAssetTracker extends ConsumerWidget {
             Condition.equals(name: '1080p', value: 1920),
           ],
         ).value,
-        child: BouncingScrollWrapper.builder(context, child, dragWithMouse: true),
+        child: ClampingScrollWrapper.builder(
+          context,
+          child,
+          dragWithMouse: false,
+        ),
       ),
     );
   }
