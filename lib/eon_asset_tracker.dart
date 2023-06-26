@@ -20,6 +20,8 @@ class EonAssetTracker extends ConsumerWidget {
       ..backgroundColor = Colors.black54
       ..indicatorColor = Colors.blue;
 
+    print(MediaQuery.sizeOf(context));
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       showPerformanceOverlay: false,

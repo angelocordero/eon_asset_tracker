@@ -132,7 +132,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
           break;
 
         case InventorySearchFilter.property:
-          selectedProperty = ref.read(propertiesNotifierProvider).valueOrNull?.singleWhere((element) => element.propertyID == value);
+          selectedProperty = properties.singleWhere((element) => element.propertyID == value);
 
         case InventorySearchFilter.datePurchased:
           purchaseRange = value;
@@ -298,10 +298,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
 
                       ref.read(advancedSearchDataNotifierProvider.notifier).setData(searchData);
 
-                      if ((searchData.containsValue('hotdog') &&
-                              searchData.containsValue(AdvancedSearchStatusEnum.All) &&
-                              searchData.containsValue('itlog')) &&
-                          searchData.length == 3) {
+                      if ((searchData.containsValue('hotdog') && searchData.containsValue(AdvancedSearchStatusEnum.All) && searchData.containsValue('itlog')) && searchData.length == 3) {
                         ref.read(advancedInventoryNotifierProvider.notifier).getInventory();
                         Navigator.pop(context);
                       } else {
@@ -713,8 +710,7 @@ class _SearchPopupState extends ConsumerState<SearchPopup> {
                     // checks if the current text in the controller is a category name
                     // if true, returns that category,
                     // if false, returns last category that was matched
-                    ItemCategory? buffer = categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(),
-                        orElse: () => selectedCategory!);
+                    ItemCategory? buffer = categories.singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => selectedCategory!);
 
                     textEditingController.text = buffer.categoryName;
                   }
