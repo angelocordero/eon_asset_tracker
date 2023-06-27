@@ -419,6 +419,7 @@ class InventoryTab extends ConsumerWidget {
                                 body: PdfPreview(
                                   build: (format) async => await ReportPDF(
                                     inventoryItems: items,
+                                    user: ref.read(userProvider),
                                   ).generate(),
                                 ),
                               );

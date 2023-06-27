@@ -7,12 +7,15 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../core/utils.dart';
 import '../models/item_model.dart';
+import '../models/user_model.dart';
 
 class ReportPDF {
   List<Item> inventoryItems;
+  User? user;
 
   ReportPDF({
     required this.inventoryItems,
+    required this.user,
   });
 
   Future<Uint8List> generate() async {
@@ -54,6 +57,8 @@ class ReportPDF {
         },
         build: (context) {
           return [
+            if (user != null) pw.Text('Printed by: ${user?.username ?? ''}', style: const pw.TextStyle(fontSize: 6)),
+            pw.SizedBox(height: 5),
             // ignore: deprecated_member_use
             pw.Table.fromTextArray(
               cellAlignment: pw.Alignment.center,
