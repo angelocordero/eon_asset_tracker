@@ -7,24 +7,25 @@ import '../core/utils.dart';
 import 'category_model.dart';
 import 'department_model.dart';
 import 'property_model.dart';
+import 'user_model.dart';
 
 class Item {
-  Item({
-    required this.property,
-    required this.assetID,
-    required this.department,
-    this.personAccountable,
-    required this.name,
-    this.description,
-    this.unit,
-    this.price,
-    this.datePurchased,
-    required this.dateReceived,
-    required this.status,
-    required this.category,
-    this.remarks,
-    required this.lastScanned,
-  });
+  Item(
+      {required this.property,
+      required this.assetID,
+      required this.department,
+      this.personAccountable,
+      required this.name,
+      this.description,
+      this.unit,
+      this.price,
+      this.datePurchased,
+      required this.dateReceived,
+      required this.status,
+      required this.category,
+      this.remarks,
+      required this.lastScanned,
+      this.lastModifiedBy});
 
   String assetID;
   ItemCategory category;
@@ -40,6 +41,7 @@ class Item {
   String? remarks;
   ItemStatus status;
   String? unit;
+  User? lastModifiedBy;
 
   factory Item.fromDatabase({
     required ResultSetRow row,
@@ -49,6 +51,12 @@ class Item {
     ItemCategory category =
         ItemCategory(categoryID: row.typedColByName<String>('category_id')!, categoryName: row.typedColByName<String>('category_name')!);
     Property property = Property(propertyID: row.typedColByName<String>('property_id')!, propertyName: row.typedColByName<String>('property_name')!);
+    User lastModifiedBy = User(
+        userID: row.typedColByName<String>('last_modified_by') ?? '',
+        username: row.typedColByName<String>('username') ?? '',
+        isAdmin: false,
+        department: department,
+        property: property);
 
     return Item(
       assetID: row.typedColByName<String>('asset_id')!,
@@ -65,6 +73,7 @@ class Item {
       category: category,
       lastScanned: DateTime.parse(row.colByName('last_scanned').toString()),
       property: property,
+      lastModifiedBy: lastModifiedBy.userID.isEmpty && lastModifiedBy.username.isEmpty ? null : lastModifiedBy,
     );
   }
 
@@ -82,80 +91,84 @@ class Item {
     String? remarks,
     required DateTime lastScanned,
     required Property property,
+    User? lastModifiedBy,
   }) {
     return Item(
-        assetID: generateRandomID(),
-        property: property,
-        department: department,
-        personAccountable: personAccountable,
-        name: name,
-        description: description,
-        unit: unit,
-        price: price,
-        datePurchased: datePurchased,
-        dateReceived: dateReceived,
-        status: status,
-        category: category,
-        remarks: remarks,
-        lastScanned: lastScanned);
+      assetID: generateRandomID(),
+      property: property,
+      department: department,
+      personAccountable: personAccountable,
+      name: name,
+      description: description,
+      unit: unit,
+      price: price,
+      datePurchased: datePurchased,
+      dateReceived: dateReceived,
+      status: status,
+      category: category,
+      remarks: remarks,
+      lastScanned: lastScanned,
+      lastModifiedBy: lastModifiedBy,
+    );
   }
 
   @override
   bool operator ==(covariant Item other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.assetID == assetID &&
-      other.department == department &&
-      other.personAccountable == personAccountable &&
-      other.name == name &&
-      other.description == description &&
-      other.unit == unit &&
-      other.price == price &&
-      other.datePurchased == datePurchased &&
-      other.dateReceived == dateReceived &&
-      other.remarks == remarks &&
-      other.lastScanned == lastScanned &&
-      other.property == property;
+
+    return other.assetID == assetID &&
+        other.department == department &&
+        other.personAccountable == personAccountable &&
+        other.name == name &&
+        other.description == description &&
+        other.unit == unit &&
+        other.price == price &&
+        other.datePurchased == datePurchased &&
+        other.dateReceived == dateReceived &&
+        other.remarks == remarks &&
+        other.lastScanned == lastScanned &&
+        other.property == property &&
+        other.lastModifiedBy == lastModifiedBy;
   }
 
   @override
   int get hashCode {
     return assetID.hashCode ^
-      department.hashCode ^
-      personAccountable.hashCode ^
-      name.hashCode ^
-      description.hashCode ^
-      unit.hashCode ^
-      price.hashCode ^
-      datePurchased.hashCode ^
-      dateReceived.hashCode ^
-      remarks.hashCode ^
-      lastScanned.hashCode ^
-      property.hashCode;
+        department.hashCode ^
+        personAccountable.hashCode ^
+        name.hashCode ^
+        description.hashCode ^
+        unit.hashCode ^
+        price.hashCode ^
+        datePurchased.hashCode ^
+        dateReceived.hashCode ^
+        remarks.hashCode ^
+        lastScanned.hashCode ^
+        lastModifiedBy.hashCode ^
+        property.hashCode;
   }
 
   @override
   String toString() {
-    return 'Item(assetID: $assetID, department: $department, personAccountable: $personAccountable, name: $name, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, remarks: $remarks, lastScanned: $lastScanned, property: $property)';
+    return 'Item(assetID: $assetID, department: $department, personAccountable: $personAccountable, name: $name, description: $description, unit: $unit, price: $price, datePurchased: $datePurchased, dateReceived: $dateReceived, remarks: $remarks, lastScanned: $lastScanned, property: $property, lastModifiedBy: $lastModifiedBy)';
   }
 
-  Item copyWith({
-    String? assetID,
-    Department? department,
-    String? personAccountable,
-    String? name,
-    String? description,
-    String? unit,
-    double? price,
-    DateTime? datePurchased,
-    DateTime? dateReceived,
-    ItemStatus? status,
-    ItemCategory? category,
-    String? remarks,
-    DateTime? lastScanned,
-    Property? property,
-  }) {
+  Item copyWith(
+      {String? assetID,
+      Department? department,
+      String? personAccountable,
+      String? name,
+      String? description,
+      String? unit,
+      double? price,
+      DateTime? datePurchased,
+      DateTime? dateReceived,
+      ItemStatus? status,
+      ItemCategory? category,
+      String? remarks,
+      DateTime? lastScanned,
+      Property? property,
+      User? lastModifiedBy}) {
     return Item(
       assetID: assetID ?? this.assetID,
       department: department ?? this.department,
@@ -171,6 +184,7 @@ class Item {
       remarks: remarks ?? this.remarks,
       lastScanned: lastScanned ?? this.lastScanned,
       property: property ?? this.property,
+      lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
     );
   }
 }

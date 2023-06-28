@@ -135,10 +135,11 @@ class AdvancedDatabaseAPI {
   }) {
     int offset = (itemsPerPage * page);
 
-    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name, p.property_name FROM `assets` AS a
+    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name, p.property_name, u.username FROM `assets` AS a
                                  JOIN `categories` AS c ON a.category_id = c.category_id
                                  JOIN `departments` AS d ON a.department_id = d.department_id
                                  JOIN `properties` AS p ON a.property_id = p.property_id
+                                 LEFT JOIN `users` AS u ON a.last_modified_by = u.user_id AND u.is_enabled = 1
                                  WHERE  c.is_enabled = 1
                                  AND d.is_enabled = 1 
                                  AND p.is_enabled = 1 
@@ -201,10 +202,11 @@ class AdvancedDatabaseAPI {
     required List<InventorySearchFilter> filters,
     required Map<String, dynamic> searchData,
   }) {
-    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name, p.property_name FROM `assets` AS a
+    String mysqlItemsQueryString = '''SELECT a.*, c.category_name, d.department_name, p.property_name, u.username FROM `assets` AS a
                                  JOIN `categories` AS c ON a.category_id = c.category_id
                                  JOIN `departments` AS d ON a.department_id = d.department_id
                                  JOIN `properties` AS p ON a.property_id = p.property_id
+                                 LEFT JOIN `users` AS u ON a.last_modified_by = u.user_id AND u.is_enabled = 1
                                  WHERE  c.is_enabled = 1
                                  AND d.is_enabled = 1
                                  AND p.is_enabled = 1 

@@ -101,6 +101,7 @@ enum TableColumn {
   datePurchased,
   dateReceived,
   lastScanned,
+  lastModifiedBy,
 }
 
 enum SortOrder {

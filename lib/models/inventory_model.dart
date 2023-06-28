@@ -68,6 +68,14 @@ class Inventory {
         }
         break;
 
+      case TableColumn.lastModifiedBy:
+        if (tableSort.sortOrder == SortOrder.ascending) {
+          items.sort((a, b) => compareUsers(a.lastModifiedBy, b.lastModifiedBy, ascending: true));
+        } else if (tableSort.sortOrder == SortOrder.descending) {
+          items.sort((a, b) => compareUsers(a.lastModifiedBy, b.lastModifiedBy, ascending: false));
+        }
+        break;
+
       case TableColumn.property:
         if (tableSort.sortOrder == SortOrder.ascending) {
           items.sort((a, b) => a.property.propertyName.compareTo(b.property.propertyName));

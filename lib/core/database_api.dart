@@ -23,7 +23,8 @@ class DatabaseAPI {
 
       await conn.connect();
 
-      await conn.execute('''UPDATE `users` SET `username` = :username, `department_id` = :departmentID, `property_id` = :propertyID, `admin` = :isAdmin
+      await conn
+          .execute('''UPDATE `users` SET `username` = :username, `department_id` = :departmentID, `property_id` = :propertyID, `admin` = :isAdmin
        WHERE `user_id` = :userID AND `is_enabled` = 1 ''', {
         'username': user.username,
         'departmentID': user.department.departmentID,
@@ -261,7 +262,8 @@ class DatabaseAPI {
           status = :status,
           category_id = :categoryID,
           remarks = :remarks,
-          property_id = :propertyID 
+          property_id = :propertyID ,
+          last_modified_by = :lastModifiedBy
           WHERE `asset_id`= :assetID;''', {
         'departmentID': item.department.departmentID,
         'personAccountable': item.personAccountable,
@@ -276,6 +278,7 @@ class DatabaseAPI {
         'propertyID': item.property.propertyID,
         'remarks': item.remarks,
         'assetID': item.assetID,
+        'lastModifiedBy': item.lastModifiedBy?.userID,
       });
     } catch (e, st) {
       return await Future.error(e, st);
@@ -312,11 +315,12 @@ class DatabaseAPI {
           date_received,
           status,
           category_id,
-          remarks)
+          remarks, 
+          last_modified_by
+          )
           VALUES
           (:assetID, :departmentID, :propertyID ,:personAccountable, :itemName, :itemDescription, :unit, :price,
-          
-            :datePurchased, :dateReceived, :status, :categoryID, :remarks
+            :datePurchased, :dateReceived, :status, :categoryID, :remarks, :lastModifiedBy
           )''', {
         'departmentID': item.department.departmentID,
         'propertyID': item.property.propertyID,
@@ -331,6 +335,7 @@ class DatabaseAPI {
         'categoryID': item.category.categoryID,
         'remarks': item.remarks,
         'assetID': item.assetID,
+        'lastModifiedBy': item.lastModifiedBy?.userID
       });
     } catch (e, st) {
       return await Future.error(e, st);
@@ -355,10 +360,12 @@ class DatabaseAPI {
       await conn.connect();
 
       var results = await conn.execute('''
-              SELECT a.*, c.category_name, d.department_name, p.property_name  FROM `assets` AS a
+              SELECT a.*, c.category_name, d.department_name, p.property_name, u.username
+              FROM `assets` AS a
               JOIN `categories` AS c ON a.category_id = c.category_id
               JOIN `departments` AS d ON a.department_id = d.department_id
               JOIN `properties` AS p ON a.property_id = p.property_id
+              LEFT JOIN `users` AS u ON a.last_modified_by = u.user_id AND u.is_enabled = 1
               WHERE a.is_enabled = 1
               AND c.is_enabled = 1
               AND d.is_enabled = 1
@@ -416,7 +423,8 @@ class DatabaseAPI {
         'SELECT status, COUNT(status) AS asset_count FROM assets WHERE is_enabled = 1 GROUP BY status ORDER BY asset_count DESC; ',
       );
 
-      return Map<String, int>.fromIterable(results.rows, key: (row) => row.typedColByName<String>('status'), value: (row) => row.typedColByName<int>('asset_count'));
+      return Map<String, int>.fromIterable(results.rows,
+          key: (row) => row.typedColByName<String>('status'), value: (row) => row.typedColByName<int>('asset_count'));
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -445,7 +453,8 @@ class DatabaseAPI {
                           ''',
       );
 
-      return Map<String, int>.fromIterable(results.rows, key: (row) => row.typedColByName<String>('department_name'), value: (row) => row.typedColByName<int>('asset_count'));
+      return Map<String, int>.fromIterable(results.rows,
+          key: (row) => row.typedColByName<String>('department_name'), value: (row) => row.typedColByName<int>('asset_count'));
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {
@@ -474,7 +483,8 @@ class DatabaseAPI {
                           ''',
       );
 
-      return Map<String, int>.fromIterable(results.rows, key: (row) => row.typedColByName<String>('category_name'), value: (row) => row.typedColByName<int>('asset_count'));
+      return Map<String, int>.fromIterable(results.rows,
+          key: (row) => row.typedColByName<String>('category_name'), value: (row) => row.typedColByName<int>('asset_count'));
     } catch (e, st) {
       return await Future.error(e, st);
     } finally {

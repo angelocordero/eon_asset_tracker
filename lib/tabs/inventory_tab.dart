@@ -43,6 +43,7 @@ class InventoryTab extends ConsumerWidget {
     'D A T E\nP U R C H A S E D',
     'D A T E\nR E C E I V E D',
     'L A S T\nS C A N N E D',
+    'L A S T\nM O D I F I E D\nB Y'
   ];
 
   @override
@@ -110,6 +111,7 @@ class InventoryTab extends ConsumerWidget {
                       220,
                       220,
                       150,
+                      200,
                     ],
                     contentCellHeight: 80,
                     stickyLegendWidth: 80,
@@ -188,6 +190,8 @@ class InventoryTab extends ConsumerWidget {
                         return tableDataTile(dateToString(item.dateReceived), selected);
                       case 11:
                         return lastScannedTile(item.lastScanned, selected);
+                      case 12:
+                        return tableDataTile(item.lastModifiedBy?.username ?? 'User not found', selected);
 
                       default:
                         return Container();

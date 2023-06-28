@@ -12,6 +12,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../inventory_advanced_search/advanced_inventory_notifier.dart';
 import '../inventory_advanced_search/notifiers.dart';
+import '../models/user_model.dart';
 import '../notifiers/dashboard_notifiers.dart';
 import 'constants.dart';
 import 'providers.dart';
@@ -96,6 +97,22 @@ int compareStrings(String? a, String? b, {bool descending = false}) {
   if (a == null) return descending ? 1 : -1;
   if (b == null) return descending ? -1 : 1;
   return a.compareTo(b) * (descending ? -1 : 1);
+}
+
+int compareUsers(User? a, User? b, {bool ascending = true}) {
+  if (a == null && b == null) {
+    return 0;
+  } else if (a == null) {
+    return ascending ? 1 : -1;
+  } else if (b == null) {
+    return ascending ? -1 : 1;
+  } else {
+    // Both users are not null, compare based on usernames
+    final aUsername = a.username;
+    final bUsername = b.username;
+    final comparisonResult = aUsername.compareTo(bUsername);
+    return ascending ? comparisonResult : -comparisonResult;
+  }
 }
 
 void showErrorAndStacktrace(Object e, StackTrace? st) {

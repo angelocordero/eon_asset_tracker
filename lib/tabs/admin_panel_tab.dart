@@ -63,7 +63,7 @@ class AdminPanelTab extends ConsumerWidget {
     );
   }
 
-  Future<dynamic> showDeleteDepartmentDialog(
+  void showDeleteDepartmentDialog(
     BuildContext context,
     WidgetRef ref,
     String departmentID,
@@ -133,12 +133,12 @@ class AdminPanelTab extends ConsumerWidget {
     );
   }
 
-  Future<dynamic> showDeleteCategoryDialog(
+  void showDeleteCategoryDialog(
     BuildContext context,
     WidgetRef ref,
     String categoryID,
   ) async {
-    await showDialog(
+    showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -190,8 +190,8 @@ class AdminPanelTab extends ConsumerWidget {
               child: const Text('R E F R E S H'),
             ),
             TextButton(
-              onPressed: ()  {
-                 Navigator.push(
+              onPressed: () {
+                Navigator.push(
                   context,
                   CustomRoute(
                     builder: (context) {
@@ -243,8 +243,8 @@ class AdminPanelTab extends ConsumerWidget {
               child: const Text('D E L E T E'),
             ),
             TextButton(
-              onPressed: ()  {
-                 Navigator.push(
+              onPressed: () {
+                Navigator.push(
                   context,
                   CustomRoute(
                     builder: (context) {
@@ -256,9 +256,9 @@ class AdminPanelTab extends ConsumerWidget {
               child: const Text('E D I T'),
             ),
             TextButton(
-              onPressed: ()  {
+              onPressed: () {
                 if (ref.read(userProvider)!.isAdmin && !ref.read(adminPanelSelectedUserProvider)!.isAdmin) {
-                   Navigator.push(
+                  Navigator.push(
                     context,
                     CustomRoute(
                       builder: (context) {
@@ -270,7 +270,7 @@ class AdminPanelTab extends ConsumerWidget {
                     ),
                   );
                 } else {
-                   Navigator.push(
+                  Navigator.push(
                     context,
                     CustomRoute(
                       builder: (context) {
@@ -341,10 +341,10 @@ class AdminPanelTab extends ConsumerWidget {
                             trailing: Wrap(
                               children: [
                                 IconButton.outlined(
-                                  onPressed: ()  {
+                                  onPressed: () {
                                     TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: category.categoryName));
 
-                                     Navigator.push(
+                                    Navigator.push(
                                       context,
                                       CustomRoute(
                                         builder: (context) {
@@ -373,12 +373,8 @@ class AdminPanelTab extends ConsumerWidget {
                                   icon: const Icon(Icons.edit),
                                 ),
                                 IconButton.outlined(
-                                  onPressed: () async {
-                                    await showDeleteCategoryDialog(
-                                      context,
-                                      ref,
-                                      category.categoryID!,
-                                    );
+                                  onPressed: () {
+                                    showDeleteCategoryDialog(context, ref, category.categoryID!);
                                   },
                                   icon: const Icon(Icons.remove),
                                 ),
@@ -460,10 +456,10 @@ class AdminPanelTab extends ConsumerWidget {
                             trailing: Wrap(
                               children: [
                                 IconButton.outlined(
-                                  onPressed: ()  {
+                                  onPressed: () {
                                     TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: property.propertyName));
 
-                                     Navigator.push(
+                                    Navigator.push(
                                       context,
                                       CustomRoute(
                                         builder: (context) {
@@ -633,8 +629,8 @@ class AdminPanelTab extends ConsumerWidget {
                                   icon: const Icon(Icons.edit),
                                 ),
                                 IconButton.outlined(
-                                  onPressed: () async {
-                                    await showDeleteDepartmentDialog(context, ref, department.departmentID);
+                                  onPressed: () {
+                                    showDeleteDepartmentDialog(context, ref, department.departmentID);
                                   },
                                   icon: const Icon(Icons.remove),
                                 ),

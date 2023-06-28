@@ -1,3 +1,4 @@
+import 'package:eon_asset_tracker/core/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -193,6 +194,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                             property: _property,
                             remarks: _remarksController.text.trim(),
                             lastScanned: DateTime.now(),
+                            lastModifiedBy: ref.read(userProvider),
                           );
 
                           await DatabaseAPI.addItem(item: item);

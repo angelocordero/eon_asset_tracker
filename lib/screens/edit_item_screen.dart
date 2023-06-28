@@ -45,8 +45,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
 
     _nameController = TextEditingController.fromValue(TextEditingValue(text: item.name));
     _personAccountableController = TextEditingController.fromValue(TextEditingValue(text: item.personAccountable ?? ''));
-    _priceController =
-        TextEditingController.fromValue(TextEditingValue(text: item.price.toString() != 'null' ? item.price.toString() : "0.00"));
+    _priceController = TextEditingController.fromValue(TextEditingValue(text: item.price.toString() != 'null' ? item.price.toString() : "0.00"));
     _unitController = TextEditingController.fromValue(TextEditingValue(text: item.unit ?? ''));
     _itemDescriptionController = TextEditingController.fromValue(TextEditingValue(text: item.description ?? ''));
     _remarksController = TextEditingController.fromValue(TextEditingValue(text: item.remarks ?? ''));
@@ -162,6 +161,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                             : null,
                         remarks: _remarksController.text.trim(),
                         datePurchased: _isPurchased ? item.datePurchased ?? DateTime.now() : null,
+                        lastModifiedBy: ref.read(userProvider),
                       );
 
                       try {
@@ -303,7 +303,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value:  item.property,
+              value: item.property,
               items: ref.watch(propertiesNotifierProvider).requireValue.map((value) {
                 return DropdownMenuItem(
                   value: value,
@@ -313,7 +313,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               onChanged: (Property? property) {
                 if (property == null) return;
                 setState(() {
-                   item.property = property;
+                  item.property = property;
                 });
               },
             ),
@@ -345,7 +345,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value:  item.department,
+              value: item.department,
               items: ref.watch(departmentsNotifierProvider).requireValue.map((value) {
                 return DropdownMenuItem(
                   value: value,
@@ -355,7 +355,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               onChanged: (Department? dept) {
                 if (dept == null) return;
                 setState(() {
-                   item.department = dept;
+                  item.department = dept;
                 });
               },
             ),
@@ -440,7 +440,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               borderRadius: defaultBorderRadius,
               side: const BorderSide(color: Colors.grey),
             ),
-            title: Text(dateToString( item.datePurchased ?? DateTime.now())),
+            title: Text(dateToString(item.datePurchased ?? DateTime.now())),
             onTap: () => _datePurchasedPicker(context),
             trailing: const Icon(Icons.calendar_month),
           ),
@@ -484,7 +484,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               borderRadius: defaultBorderRadius,
               side: const BorderSide(color: Colors.grey),
             ),
-            title: Text(dateToString( item.dateReceived)),
+            title: Text(dateToString(item.dateReceived)),
             onTap: () => _dateReceivedPicker(context),
             trailing: const Icon(Icons.calendar_month),
           ),
@@ -515,14 +515,14 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   borderRadius: defaultBorderRadius,
                 ),
               ),
-              value:  item.status,
+              value: item.status,
               items: ItemStatus.values
                   .map<DropdownMenuItem<ItemStatus>>((value) => DropdownMenuItem<ItemStatus>(value: value, child: Text(value.name)))
                   .toList(),
               onChanged: (ItemStatus? status) {
                 if (status == null) return;
                 setState(() {
-                   item.status = status;
+                  item.status = status;
                 });
               },
             ),
@@ -579,7 +579,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                   ItemCategory? buffer = ref
                       .read(categoriesNotifierProvider)
                       .requireValue
-                      .singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () =>  item.category);
+                      .singleWhere((element) => element.categoryName == textEditingController.text.trim(), orElse: () => item.category);
 
                   textEditingController.text = buffer.categoryName;
                 }
@@ -593,7 +593,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 },
               );
             },
-            initialValue: TextEditingValue(text:  item.category.categoryName),
+            initialValue: TextEditingValue(text: item.category.categoryName),
             optionsBuilder: (TextEditingValue option) {
               return ref
                   .watch(categoriesNotifierProvider)
@@ -603,7 +603,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
             displayStringForOption: (option) => option.categoryName,
             onSelected: (option) {
               setState(() {
-                 item.category = option;
+                item.category = option;
               });
             },
             optionsViewBuilder: (context, onSelected, options) {
@@ -661,7 +661,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   ) async {
     final newDate = await showDatePicker(
       context: context,
-      initialDate:  item.datePurchased ?? DateTime.now(),
+      initialDate: item.datePurchased ?? DateTime.now(),
       firstDate: _firstDate,
       lastDate: _lastDate,
     );
@@ -670,7 +670,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-         item.datePurchased = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
+        item.datePurchased = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }
@@ -680,7 +680,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
   ) async {
     final newDate = await showDatePicker(
       context: context,
-      initialDate:  item.dateReceived,
+      initialDate: item.dateReceived,
       firstDate: _firstDate,
       lastDate: _lastDate,
     );
@@ -689,7 +689,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
       return;
     } else {
       setState(() {
-         item.dateReceived = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
+        item.dateReceived = DateTime(newDate.year, newDate.month, newDate.day, 12, 0, 0, 0, 0);
       });
     }
   }
