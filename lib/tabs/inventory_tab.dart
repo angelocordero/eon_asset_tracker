@@ -191,7 +191,8 @@ class InventoryTab extends ConsumerWidget {
                       case 11:
                         return lastScannedTile(item.lastScanned, selected);
                       case 12:
-                        return tableDataTile(item.lastModifiedBy?.username ?? 'User not found', selected);
+                        // return tableDataTile(item.lastModifiedBy?.username ?? 'User not found', selected);
+                        return lastModifiedByTile(item.lastModifiedBy, selected);
 
                       default:
                         return Container();
@@ -249,6 +250,24 @@ class InventoryTab extends ConsumerWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
+        ),
+        selectedTileColor: Colors.blueGrey,
+        selectedColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget lastModifiedByTile(User? user, bool selected) {
+    return Container(
+      color: selected ? Colors.blueGrey : Colors.transparent,
+      child: ListTile(
+        horizontalTitleGap: 0,
+        title: Text(
+          user?.username ?? 'User not found',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: user != null ? null : const TextStyle(color: Colors.grey),
         ),
         selectedTileColor: Colors.blueGrey,
         selectedColor: Colors.white,

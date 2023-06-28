@@ -105,27 +105,6 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     ),
                   ],
                 ),
-                // _usernameField(),
-                // const SizedBox(
-                //   height: 30,
-                // ),
-                // _enterPasswordField(),
-                // const SizedBox(
-                //   height: 30,
-                // ),
-                // _confirmPasswordField(),
-                // const SizedBox(
-                //   height: 30,
-                // ),
-                // _propertyField(),
-                // const SizedBox(
-                //   height: 30,
-                // ),
-                // _departmentField(),
-                // const SizedBox(
-                //   height: 30,
-                // ),
-                // _statusField(),
                 const SizedBox(
                   height: 30,
                 ),
@@ -153,7 +132,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         ),
         ElevatedButton(
           onPressed: () async {
-            if (_userNameController.text.trim().isEmpty) {
+            if (_userNameController.text.trim().isEmpty ||
+                _passwordController.text.trim().isEmpty ||
+                _confirmPasswordController.text.trim().isEmpty) {
               EasyLoading.showError('Required fields must not be empty');
               return;
             }

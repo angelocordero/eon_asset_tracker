@@ -53,10 +53,11 @@ class AdminPanelUsersList extends ConsumerWidget {
                                 DataCell(
                                   Row(
                                     children: [
-                                      const Icon(
-                                        Icons.verified,
-                                        size: 20,
-                                      ),
+                                      if (e.isAdmin)
+                                        const Icon(
+                                          Icons.verified,
+                                          size: 20,
+                                        ),
                                       const SizedBox(width: 10),
                                       Text(
                                         e.username,
