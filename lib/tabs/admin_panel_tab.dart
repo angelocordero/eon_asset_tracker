@@ -74,13 +74,13 @@ class AdminPanelTab extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Confirm delete?'),
           actions: [
-            IconButton.outlined(
+            IconButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.close),
             ),
-            IconButton.outlined(
+            IconButton(
               onPressed: () async {
                 EasyLoading.show();
 
@@ -109,13 +109,13 @@ class AdminPanelTab extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Confirm delete?'),
           actions: [
-            IconButton.outlined(
+            IconButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.close),
             ),
-            IconButton.outlined(
+            IconButton(
               onPressed: () async {
                 EasyLoading.show();
 
@@ -144,13 +144,13 @@ class AdminPanelTab extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Confirm delete?'),
           actions: [
-            IconButton.outlined(
+            IconButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.close),
             ),
-            IconButton.outlined(
+            IconButton(
               onPressed: () async {
                 EasyLoading.show();
 
@@ -340,7 +340,7 @@ class AdminPanelTab extends ConsumerWidget {
                             leading: Text('${(index + 1).toString()}.'),
                             trailing: Wrap(
                               children: [
-                                IconButton.outlined(
+                                IconButton(
                                   onPressed: () {
                                     TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: category.categoryName));
 
@@ -372,7 +372,7 @@ class AdminPanelTab extends ConsumerWidget {
                                   },
                                   icon: const Icon(Icons.edit),
                                 ),
-                                IconButton.outlined(
+                                IconButton(
                                   onPressed: () {
                                     showDeleteCategoryDialog(context, ref, category.categoryID!);
                                   },
@@ -455,7 +455,7 @@ class AdminPanelTab extends ConsumerWidget {
                             leading: Text('${(index + 1).toString()}.'),
                             trailing: Wrap(
                               children: [
-                                IconButton.outlined(
+                                IconButton(
                                   onPressed: () {
                                     TextEditingController controller = TextEditingController.fromValue(TextEditingValue(text: property.propertyName));
 
@@ -487,7 +487,7 @@ class AdminPanelTab extends ConsumerWidget {
                                   },
                                   icon: const Icon(Icons.edit),
                                 ),
-                                IconButton.outlined(
+                                IconButton(
                                   onPressed: () async {
                                     await showDeletePropertyDialog(
                                       context,
@@ -594,7 +594,7 @@ class AdminPanelTab extends ConsumerWidget {
                             leading: Text('${(index + 1).toString()}.'),
                             trailing: Wrap(
                               children: [
-                                IconButton.outlined(
+                                IconButton(
                                   onPressed: () {
                                     TextEditingController controller =
                                         TextEditingController.fromValue(TextEditingValue(text: department.departmentName));
@@ -628,7 +628,7 @@ class AdminPanelTab extends ConsumerWidget {
                                   },
                                   icon: const Icon(Icons.edit),
                                 ),
-                                IconButton.outlined(
+                                IconButton(
                                   onPressed: () {
                                     showDeleteDepartmentDialog(context, ref, department.departmentID);
                                   },

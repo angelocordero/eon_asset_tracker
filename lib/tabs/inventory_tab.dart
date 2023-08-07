@@ -409,7 +409,7 @@ class InventoryTab extends ConsumerWidget {
           children: [
             Tooltip(
               message: 'Generate Report',
-              child: IconButton.outlined(
+              child: IconButton(
                 onPressed: () async {
                   EasyLoading.show();
 
@@ -461,7 +461,7 @@ class InventoryTab extends ConsumerWidget {
             ),
             Tooltip(
               message: 'Print QR Codes',
-              child: IconButton.outlined(
+              child: IconButton(
                 onPressed: () {
                   if (ref.read(checkedItemProvider).isEmpty) {
                     EasyLoading.showInfo('No items selected by checkbox');
@@ -498,7 +498,7 @@ class InventoryTab extends ConsumerWidget {
             ),
             Tooltip(
               message: 'Refresh page',
-              child: IconButton.outlined(
+              child: IconButton(
                 onPressed: () async {
                   await refreshInventory(ref);
                 },
@@ -507,7 +507,7 @@ class InventoryTab extends ConsumerWidget {
             ),
             Tooltip(
               message: 'Delete selected item',
-              child: IconButton.outlined(
+              child: IconButton(
                 onPressed: () async {
                   await showDeleteDialog(
                     context,
@@ -519,7 +519,7 @@ class InventoryTab extends ConsumerWidget {
             ),
             Tooltip(
               message: 'Edit selected item',
-              child: IconButton.outlined(
+              child: IconButton(
                 onPressed: () async {
                   User? user = await ref.read(userProvider);
 
@@ -542,7 +542,7 @@ class InventoryTab extends ConsumerWidget {
             ),
             Tooltip(
               message: 'Add new item',
-              child: IconButton.outlined(
+              child: IconButton(
                 onPressed: () async {
                   User? user = await ref.read(userProvider);
 

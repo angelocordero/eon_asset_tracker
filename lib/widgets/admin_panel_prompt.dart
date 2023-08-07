@@ -42,7 +42,7 @@ class AdminPanelPrompt extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton.outlined(
+                  IconButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -51,7 +51,7 @@ class AdminPanelPrompt extends StatelessWidget {
                   const SizedBox(
                     width: 20,
                   ),
-                  IconButton.outlined(
+                  IconButton(
                     onPressed: () async {
                       await callback();
                     },

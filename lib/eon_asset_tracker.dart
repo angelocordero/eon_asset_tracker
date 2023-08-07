@@ -32,6 +32,7 @@ class EonAssetTracker extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       showPerformanceOverlay: false,
       theme: ThemeData.light().copyWith(
+        useMaterial3: true,
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
             borderRadius: defaultBorderRadius,
@@ -39,6 +40,7 @@ class EonAssetTracker extends ConsumerWidget {
         ),
       ),
       darkTheme: ThemeData.dark().copyWith(
+        useMaterial3: true,
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
             borderRadius: defaultBorderRadius,

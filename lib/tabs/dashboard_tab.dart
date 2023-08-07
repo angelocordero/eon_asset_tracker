@@ -41,7 +41,7 @@ class DashboardTab extends ConsumerWidget {
                               ),
                               Tooltip(
                                 message: 'Refresh Page',
-                                child: IconButton.outlined(
+                                child: IconButton(
                                   onPressed: () async {
                                     ref.invalidate(dashboardCategoriesNotifierProvider);
                                     ref.invalidate(dashboardDepartmentsNotifierProvider);
